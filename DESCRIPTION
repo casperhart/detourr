@@ -1,11 +1,16 @@
 Package: d3tourr
 Type: Package
-Title: What the Package Does (Title Case)
+Title: D3.js Animations for {tourr}
 Version: 0.1.0
-Author: Who wrote it
+Author: Casper Hart
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
+Imports: 
+    tourr,
+    tibble,
+    dplyr,
+    purrr
