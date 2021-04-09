@@ -13,4 +13,4 @@ Imports:
     tourr,
     tibble,
     dplyr,
-    purrr
+    htmlwidgets

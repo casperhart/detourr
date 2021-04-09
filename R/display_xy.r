@@ -26,10 +26,7 @@ display_xy <- function(center = TRUE, axes = "center", half_range = NULL, col = 
                 "col" = col,
                 "half_range" = half_range
             ),
-            "js" = list(
-                "script" = system.file("d3/display_xy.js", package = "d3tourr"),
-                "dependencies" = c(system.file("js/math.min.js", package = "d3tourr"), system.file("js/utils.js", package = "d3tourr"))
-            )
+            "widget" = "display_xy"
         )
     }
     list(

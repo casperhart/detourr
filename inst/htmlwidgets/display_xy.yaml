@@ -1,0 +1,16 @@
+dependencies:
+  - name: d3
+    version: 6.6.2
+    src: htmlwidgets/lib/d3-6.6.2
+    script:
+      - d3.v6.min.js
+  - name: math
+    version: 9.3.0
+    src: htmlwidgets/lib/math-9.3.0
+    script:
+      - math.v9.min.js
+  - name: utils
+    version: 0.0.1
+    src: htmlwidgets/lib/
+    script:
+      - utils.js

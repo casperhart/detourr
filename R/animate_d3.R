@@ -81,7 +81,7 @@ animate_d3 <- function(data, tour_path = tourr::grand_tour(), display = d3tourr:
 
   config <- display$init(data)
   plot_config <- config[["plot"]]
-  js_config <- config[["js"]]
+  widget <- config[["widget"]]
 
   plot_config[["fps"]] <- fps
 
@@ -91,5 +91,5 @@ animate_d3 <- function(data, tour_path = tourr::grand_tour(), display = d3tourr:
     "projections" = projections
   )
 
-  r2d3::r2d3(data, script = js_config[["script"]], dependencies = js_config[["dependencies"]])
+  htmlwidgets::createWidget(widget, data, width = 900, height = 900, package = "d3tourr")
 }
