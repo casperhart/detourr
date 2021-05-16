@@ -1,0 +1,6 @@
+dependencies:
+  - name: scatter_widget
+    src: htmlwidgets/lib/scatter_widget
+    version: 0.1.0
+    script:
+      - scatter_widget.bundle.js
