@@ -4,6 +4,7 @@ export class ScatterWidget {
     private width: bigint;
     private height: bigint;
 
+
     constructor(containerElement: HTMLElement, width: bigint, height: bigint) {
         this.container = containerElement;
         this.width = width;
@@ -16,6 +17,6 @@ export class ScatterWidget {
     }
 
     public renderValue(x: string) {
-        this.container.innerHTML = "hello world";
+        console.log(x)
     }
 }

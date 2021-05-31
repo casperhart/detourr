@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ScatterWidget Dev</title>
+    <script src="scatter_widget.bundle.js"></script>
+  </head>
+  <body>
+    <canvas id="plot"></canvas>
+    <script>
+      fetch("./sample_data.json").then(function (response) {
+        if (response.status !== 200) {
+          console.log(
+            "Looks like there was a problem. Status Code: " + response.status
+          );
+          return;
+        }
+        // run scatterwidget using sample data
+        response.json().then(function (data) {
+          let el = document.getElementById("plot");
+          let width = 600;
+          let height = 600;
+          let scatter = new scatter_widget.ScatterWidget(el, width, height);
+          scatter.renderValue(data);
+        });
+      });
+    </script>
+  </body>
+</html>
