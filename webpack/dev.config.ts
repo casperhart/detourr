@@ -18,11 +18,17 @@ module.exports = {
     output: {
         filename: 'scatter_widget.bundle.js',
         path: path.resolve(__dirname, "../dev_build/scatter_widget"),
-        library: "scatter_widget"
+        library: {
+            name: "scatter_widget",
+            type: "umd"
+        }
     },
     plugins: [
         new CopyPlugin({
             patterns: [{ from: 'dev/scatter_widget/static/' }]
         }),
     ],
+    devServer: {
+        port: 9000
+    },
 };

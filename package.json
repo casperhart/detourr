@@ -10,11 +10,12 @@
     "typescript": "^4.2.4",
     "webpack": "^5.35.1",
     "webpack-cli": "^4.6.0",
-    "webpack-dev-server": "^3.11.2"
+    "webpack-dev-server": "^4.0.0-beta.3"
   },
   "scripts": {
     "build": "rm -rf inst/htmlwidgets/lib/scatter_widget && webpack --config ./webpack/package.config.ts && R CMD INSTALL $(git rev-parse --show-toplevel)",
     "build-dev": "rm -rf dev_build && webpack --config ./webpack/dev.config.ts",
+    "start-dev": "yarn webpack serve --config webpack/dev.config.ts --open",
     "clean": "rm -rf dev_build inst/htmlwidgets/lib/scatter_widget"
   }
 }
