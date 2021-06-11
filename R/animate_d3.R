@@ -21,6 +21,7 @@
 #' @param rescale if true, rescale all variables to range [0,1]?
 #' @param sphere if true, sphere all variables
 #' @param ... ignored
+#' @param raw_json_outfile path to save data which is normally passed to htmlwidgets. Useful for devlelopment.
 #' @return an (invisible) list of bases visited during this tour
 #' @references Hadley Wickham, Dianne Cook, Heike Hofmann, Andreas Buja
 #'   (2011). tourr: An R Package for Exploring Multivariate Data with
@@ -38,7 +39,7 @@
 #' }
 animate_d3 <- function(data, tour_path = tourr::grand_tour(), display = d3tourr::display_xy(),
                        start = NULL, aps = 1, fps = 10, max_duration_seconds, max_frames = 2,
-                       rescale = TRUE, sphere = FALSE, verbose = FALSE, ...) {
+                       rescale = TRUE, sphere = FALSE, verbose = FALSE, raw_json_outfile = "", ...) {
   if (!missing(max_duration_seconds)) {
     max_frames <- max_duration_seconds * fps
   }
@@ -84,12 +85,18 @@ animate_d3 <- function(data, tour_path = tourr::grand_tour(), display = d3tourr:
   widget <- config[["widget"]]
 
   plot_config[["fps"]] <- fps
+  plot_config[["duration"]] <- max_frames / fps
 
   data <- list(
     "config" = plot_config,
-    "data" = data,
-    "projections" = projections
+    "dataset" = data,
+    "projectionMatrices" = projections
   )
+
+  # useful for regenerating sample data for development
+  if (raw_json_outfile != "") {
+    writeLines(jsonlite::toJSON(data, digits = 4, auto_unbox = TRUE), raw_json_outfile)
+  }
 
   htmlwidgets::createWidget(widget, data, width = 900, height = 900, package = "d3tourr")
 }

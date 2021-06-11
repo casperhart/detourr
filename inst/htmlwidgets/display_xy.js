@@ -14,8 +14,8 @@ HTMLWidgets.widget({
                     .append('g')
 
                 config = x.config;
-                raw_data = x.data;
-                proj_mats = x.projections;
+                raw_data = x.dataset;
+                proj_mats = x.projectionMatrices;
 
                 let axis_scale;
                 let axis_pos;
