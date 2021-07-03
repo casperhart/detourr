@@ -20,8 +20,8 @@
         // run scatterwidget using sample data
         response.json().then(function (data) {
           let el = document.getElementById("plot");
-          let width = 600;
-          let height = 600;
+          let width = 900;
+          let height = 900;
           let scatter = new scatter_widget.ScatterWidget(el, width, height);
           scatter.renderValue(data);
         });

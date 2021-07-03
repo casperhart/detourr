@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { ProjectionMatrix, ScatterInputData, Config, Dataset } from './data';
 import { multiply, max, mean } from 'mathjs';
 import { FRAGMENT_SHADER, VERTEX_SHADER } from './shaders';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 export class ScatterWidget {
     private container: HTMLElement;
@@ -19,6 +20,7 @@ export class ScatterWidget {
     private points: THREE.Points;
     private axisSegments: THREE.LineSegments;
     private minPointSize: number = 0.02;
+    private orbitControls: OrbitControls;
 
     constructor(containerElement: HTMLElement, width: number, height: number) {
 
@@ -37,7 +39,7 @@ export class ScatterWidget {
             canvas: this.canvas
         });
 
-        this.camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
+        this.camera = new THREE.PerspectiveCamera(45, width / height, 0.01, 1000);
         this.camera.position.setZ(4);
 
         this.renderer.setPixelRatio(window.devicePixelRatio);
@@ -81,6 +83,8 @@ export class ScatterWidget {
 
         this.axisSegments = new THREE.LineSegments(axisLinesGeometry, axisLinesMaterial)
         this.scene.add(this.axisSegments)
+
+        this.orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
 
         this.clock = new THREE.Clock();
         this.time = 0;
