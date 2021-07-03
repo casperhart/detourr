@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { ProjectionMatrix, ScatterInputData, Config, Dataset } from './data';
 import { multiply, max, mean } from 'mathjs';
+import { FRAGMENT_SHADER, VERTEX_SHADER } from './shaders';
 
 export class ScatterWidget {
     private container: HTMLElement;
@@ -52,11 +53,17 @@ export class ScatterWidget {
         }
 
         let pointsGeometry = new THREE.BufferGeometry();
-        let pointsMaterial = new THREE.PointsMaterial()
-        let pointSize: number = 0.5 * this.dataset.length ** (-1 / 3)
-        let pointsBuffer = this.getPointsBuffer(0, this.config.center)
+        let pointSize: number = this.dataset.length ** (-1 / 3)
 
-        pointsMaterial.size = max(pointSize, this.minPointSize)
+        let pointsMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                size: { value: max(pointSize, this.minPointSize) }
+            },
+            vertexShader: VERTEX_SHADER,
+            fragmentShader: FRAGMENT_SHADER,
+        });
+
+        let pointsBuffer = this.getPointsBuffer(0, this.config.center)
         pointsGeometry.setAttribute('position', pointsBuffer);
 
         if (this.config.cacheFrames) {
