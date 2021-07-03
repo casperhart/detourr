@@ -14,7 +14,7 @@ export class ScatterWidget {
     private clock = new THREE.Clock();
     private time: number;
     private oldFrame: number;
-    private frames: THREE.BufferAttribute[];
+    private frameBuffers: THREE.BufferAttribute[] = [];
     private points: THREE.Points
 
     constructor(containerElement: HTMLElement, width: number, height: number) {
@@ -42,23 +42,20 @@ export class ScatterWidget {
         this.renderer.render(this.scene, this.camera);
     }
 
-    constructAnimationKeyFrameTracks() {
-        // TODO: tidy up this function
-        // TODO: investigate calculating frames on the fly to reduce memory usage
-        this.frames = this.projectionMatrices.map(
-            (projectionMatrix: ProjectionMatrix) => {
-                let positionMatrix = multiply(this.dataset, projectionMatrix);
-                let flattenedPositionMatrix = new Float32Array([].concat(...positionMatrix));
-                return new THREE.BufferAttribute(flattenedPositionMatrix, 3)
-            });
+    private constructPlot() {
 
         let geometry = new THREE.BufferGeometry();
         let material = new THREE.PointsMaterial()
 
         // TODO: calculate size dynamically based on number of points
         material.size = 0.05
+        let frameBuffer = this.getFrameBuffer(0)
+        geometry.setAttribute('position', frameBuffer);
+        if (this.config.cacheFrames) {
+            this.frameBuffers.push(frameBuffer)
+        }
 
-        geometry.setAttribute('position', this.frames[0]);
+
         this.points = new THREE.Points(geometry, material)
         this.scene.add(this.points)
 
@@ -77,21 +74,39 @@ export class ScatterWidget {
         this.dataset = inputData.dataset;
         this.projectionMatrices = inputData.projectionMatrices;
 
-        this.constructAnimationKeyFrameTracks();
+        this.constructPlot();
         this.animate();
     }
 
+    private getFrameBuffer(i: number): THREE.BufferAttribute {
+        let positionMatrix: Dataset = multiply(this.dataset, this.projectionMatrices[i]);
+        let flattenedPositionMatrix = new Float32Array([].concat(...positionMatrix));
+        return new THREE.BufferAttribute(flattenedPositionMatrix, 3)
+    }
+
     private animate() {
-        // todo: calculate frames on the fly for the first run, rather than all at the start
         let delta = this.clock.getDelta();
         this.time += delta;
 
         if (this.time >= this.config.duration) this.time = 0;
-        let frame = Math.floor(this.time * this.config.fps);
-        if (frame != this.oldFrame) { // a very rough approach of managing the time keys
-            this.points.geometry.setAttribute('position', this.frames[frame]); // set the data of points
+
+        let currentFrame = Math.floor(this.time * this.config.fps);
+
+        if (currentFrame != this.oldFrame) {
+            let frameBuffer: THREE.BufferAttribute
+
+            if (this.frameBuffers[currentFrame] == undefined) {
+                frameBuffer = this.getFrameBuffer(currentFrame)
+                if (this.config.cacheFrames) {
+                    this.frameBuffers[currentFrame] = frameBuffer
+                }
+            }
+            else {
+                frameBuffer = this.frameBuffers[currentFrame]
+            }
+            this.points.geometry.setAttribute('position', frameBuffer);
             this.points.geometry.attributes.position.needsUpdate = true;
-            this.oldFrame = frame;
+            this.oldFrame = currentFrame;
         }
 
         this.renderer.render(this.scene, this.camera);

@@ -1,8 +1,7 @@
-display_scatter <- function() {
+display_scatter <- function(cache_frames = TRUE) {
     init <- function(data) {
-        # TODO Add edges argument
         list(
-            "plot" = list(),
+            "plot" = list(cacheFrames = cache_frames),
             "widget" = "display_scatter"
         )
     }
