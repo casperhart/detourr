@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { ProjectionMatrix, ScatterInputData, Config, Dataset } from './data'
-import { multiply, max } from 'mathjs';
+import { ProjectionMatrix, ScatterInputData, Config, Dataset } from './data';
+import { multiply, max, mean } from 'mathjs';
 
 export class ScatterWidget {
     private container: HTMLElement;
@@ -52,7 +52,7 @@ export class ScatterWidget {
         let pointSize: number = 0.5 * this.dataset.length ** (-1 / 3)
         material.size = max(pointSize, this.minPointSize)
 
-        let frameBuffer = this.getFrameBuffer(0)
+        let frameBuffer = this.getFrameBuffer(0, this.config.center)
         geometry.setAttribute('position', frameBuffer);
         if (this.config.cacheFrames) {
             this.frameBuffers.push(frameBuffer)
@@ -80,10 +80,23 @@ export class ScatterWidget {
         this.animate();
     }
 
-    private getFrameBuffer(i: number): THREE.BufferAttribute {
+    private getFrameBuffer(i: number, center: boolean): THREE.BufferAttribute {
         let positionMatrix: Dataset = multiply(this.dataset, this.projectionMatrices[i]);
+
+        if (center) {
+            positionMatrix = this.center(positionMatrix)
+        }
+
         let flattenedPositionMatrix = new Float32Array([].concat(...positionMatrix));
         return new THREE.BufferAttribute(flattenedPositionMatrix, 3)
+    }
+
+    private center(X: Dataset): Dataset {
+        let colMeans = mean(X, 0)
+        let centered = X.map(function (row: number[]) {
+            return row.map((element, index) => element - colMeans[index])
+        });
+        return centered
     }
 
     private animate() {
@@ -98,7 +111,7 @@ export class ScatterWidget {
             let frameBuffer: THREE.BufferAttribute
 
             if (this.frameBuffers[currentFrame] == undefined) {
-                frameBuffer = this.getFrameBuffer(currentFrame)
+                frameBuffer = this.getFrameBuffer(currentFrame, this.config.center)
                 if (this.config.cacheFrames) {
                     this.frameBuffers[currentFrame] = frameBuffer
                 }

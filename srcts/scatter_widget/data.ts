@@ -4,7 +4,7 @@ export interface ScatterInputData {
     projectionMatrices: Array<ProjectionMatrix>;
 }
 
-export interface Config { fps: number, duration: number, cacheFrames: boolean };
+export interface Config { fps: number, duration: number, cacheFrames: boolean, center: boolean };
 
 export type Dataset = Array<Array<number>>;
 

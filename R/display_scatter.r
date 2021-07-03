@@ -1,7 +1,7 @@
-display_scatter <- function(cache_frames = TRUE) {
+display_scatter <- function(center = TRUE, cache_frames = TRUE) {
     init <- function(data) {
         list(
-            "plot" = list(cacheFrames = cache_frames),
+            "plot" = list(center = center, cacheFrames = cache_frames),
             "widget" = "display_scatter"
         )
     }
