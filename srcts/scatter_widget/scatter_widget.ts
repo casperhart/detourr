@@ -14,8 +14,9 @@ export class ScatterWidget {
     private clock = new THREE.Clock();
     private time: number;
     private oldFrame: number;
-    private frameBuffers: THREE.BufferAttribute[] = [];
+    private pointsBuffers: THREE.BufferAttribute[] = [];
     private points: THREE.Points;
+    private axisSegments: THREE.LineSegments;
     private minPointSize: number = 0.02;
 
     constructor(containerElement: HTMLElement, width: number, height: number) {
@@ -45,21 +46,34 @@ export class ScatterWidget {
 
     private constructPlot() {
 
-        let geometry = new THREE.BufferGeometry();
-        let material = new THREE.PointsMaterial()
-
-        // TODO: calculate size dynamically based on number of points
-        let pointSize: number = 0.5 * this.dataset.length ** (-1 / 3)
-        material.size = max(pointSize, this.minPointSize)
-
-        let frameBuffer = this.getFrameBuffer(0, this.config.center)
-        geometry.setAttribute('position', frameBuffer);
-        if (this.config.cacheFrames) {
-            this.frameBuffers.push(frameBuffer)
+        //todo: implement this check in the R code
+        if (this.projectionMatrices[0][0].length != 3) {
+            throw new TypeError(`Projection matrix must be of dimension 3. got ${this.projectionMatrices[0][0].length}`)
         }
 
-        this.points = new THREE.Points(geometry, material)
+        let pointsGeometry = new THREE.BufferGeometry();
+        let pointsMaterial = new THREE.PointsMaterial()
+        let pointSize: number = 0.5 * this.dataset.length ** (-1 / 3)
+        let pointsBuffer = this.getPointsBuffer(0, this.config.center)
+
+        pointsMaterial.size = max(pointSize, this.minPointSize)
+        pointsGeometry.setAttribute('position', pointsBuffer);
+
+        if (this.config.cacheFrames) {
+            this.pointsBuffers.push(pointsBuffer)
+        }
+
+        this.points = new THREE.Points(pointsGeometry, pointsMaterial)
         this.scene.add(this.points)
+
+        let axisLinesGeometry = new THREE.BufferGeometry()
+        let axisLinesMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 1 })
+
+        let axisLinesBuffer = this.getAxisLinesBuffer(0)
+        axisLinesGeometry.setAttribute('position', axisLinesBuffer)
+
+        this.axisSegments = new THREE.LineSegments(axisLinesGeometry, axisLinesMaterial)
+        this.scene.add(this.axisSegments)
 
         this.clock = new THREE.Clock();
         this.time = 0;
@@ -80,7 +94,7 @@ export class ScatterWidget {
         this.animate();
     }
 
-    private getFrameBuffer(i: number, center: boolean): THREE.BufferAttribute {
+    private getPointsBuffer(i: number, center: boolean): THREE.BufferAttribute {
         let positionMatrix: Dataset = multiply(this.dataset, this.projectionMatrices[i]);
 
         if (center) {
@@ -89,6 +103,12 @@ export class ScatterWidget {
 
         let flattenedPositionMatrix = new Float32Array([].concat(...positionMatrix));
         return new THREE.BufferAttribute(flattenedPositionMatrix, 3)
+    }
+
+    private getAxisLinesBuffer(i: number): THREE.BufferAttribute {
+        let projectionMatrix = this.projectionMatrices[i]
+        let linesBufferMatrix = projectionMatrix.map(row => [0, 0, 0].concat(row))
+        return new THREE.BufferAttribute(new Float32Array([].concat(...linesBufferMatrix)), 3)
     }
 
     private center(X: Dataset): Dataset {
@@ -110,17 +130,22 @@ export class ScatterWidget {
         if (currentFrame != this.oldFrame) {
             let frameBuffer: THREE.BufferAttribute
 
-            if (this.frameBuffers[currentFrame] == undefined) {
-                frameBuffer = this.getFrameBuffer(currentFrame, this.config.center)
+            if (this.pointsBuffers[currentFrame] == undefined) {
+                frameBuffer = this.getPointsBuffer(currentFrame, this.config.center)
                 if (this.config.cacheFrames) {
-                    this.frameBuffers[currentFrame] = frameBuffer
+                    this.pointsBuffers[currentFrame] = frameBuffer
                 }
             }
             else {
-                frameBuffer = this.frameBuffers[currentFrame]
+                frameBuffer = this.pointsBuffers[currentFrame]
             }
+
             this.points.geometry.setAttribute('position', frameBuffer);
             this.points.geometry.attributes.position.needsUpdate = true;
+
+            this.axisSegments.geometry.setAttribute('position', this.getAxisLinesBuffer(currentFrame))
+            this.axisSegments.geometry.attributes.position.needsUpdate = true;
+
             this.oldFrame = currentFrame;
         }
 
