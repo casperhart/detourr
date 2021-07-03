@@ -21,6 +21,7 @@ export class ScatterWidget {
     private axisSegments: THREE.LineSegments;
     private minPointSize: number = 0.02;
     private orbitControls: OrbitControls;
+    private isPaused: boolean;
 
     constructor(containerElement: HTMLElement, width: number, height: number) {
 
@@ -89,6 +90,11 @@ export class ScatterWidget {
         this.clock = new THREE.Clock();
         this.time = 0;
         this.oldFrame = -1;
+
+        this.isPaused = false;
+
+        // todo: set up proper controls to avoid orbit controls triggering play/pause
+        this.container.addEventListener('click', () => this.setIsPaused(!this.isPaused), false);
     }
 
     public resize(width: number, height: number) {
@@ -132,7 +138,10 @@ export class ScatterWidget {
 
     private animate() {
         let delta = this.clock.getDelta();
-        this.time += delta;
+
+        if (!this.getIsPaused()) {
+            this.time += delta;
+        }
 
         if (this.time >= this.config.duration) this.time = 0;
 
@@ -165,4 +174,15 @@ export class ScatterWidget {
         requestAnimationFrame(() => this.animate());
     }
 
+    private getIsPaused(): boolean {
+        return this.isPaused
+    }
+
+    private setIsPaused(isPaused: boolean) {
+        this.isPaused = isPaused
+
+        if (!isPaused) {
+            this.animate()
+        }
+    }
 }
