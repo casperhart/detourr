@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { ProjectionMatrix, ScatterInputData, Config, Dataset } from './data'
-import { multiply } from 'mathjs';
+import { multiply, max } from 'mathjs';
 
 export class ScatterWidget {
     private container: HTMLElement;
@@ -15,7 +15,8 @@ export class ScatterWidget {
     private time: number;
     private oldFrame: number;
     private frameBuffers: THREE.BufferAttribute[] = [];
-    private points: THREE.Points
+    private points: THREE.Points;
+    private minPointSize: number = 0.02;
 
     constructor(containerElement: HTMLElement, width: number, height: number) {
 
@@ -48,13 +49,14 @@ export class ScatterWidget {
         let material = new THREE.PointsMaterial()
 
         // TODO: calculate size dynamically based on number of points
-        material.size = 0.05
+        let pointSize: number = 0.5 * this.dataset.length ** (-1 / 3)
+        material.size = max(pointSize, this.minPointSize)
+
         let frameBuffer = this.getFrameBuffer(0)
         geometry.setAttribute('position', frameBuffer);
         if (this.config.cacheFrames) {
             this.frameBuffers.push(frameBuffer)
         }
-
 
         this.points = new THREE.Points(geometry, material)
         this.scene.add(this.points)
