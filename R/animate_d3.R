@@ -98,5 +98,16 @@ animate_d3 <- function(data, tour_path = tourr::grand_tour(), display = d3tourr:
     writeLines(jsonlite::toJSON(data, digits = 4, auto_unbox = TRUE), raw_json_outfile)
   }
 
-  htmlwidgets::createWidget(widget, data, width = 900, height = 900, package = "d3tourr")
+  htmlwidgets::createWidget(
+    widget,
+    data,
+    sizingPolicy = htmlwidgets::sizingPolicy(
+      viewer.padding = 0,
+      viewer.paneHeight = 500,
+      browser.fill = TRUE,
+      knitr.defaultWidth = 800,
+      knitr.defaultHeight = 500
+    ),
+    package = "d3tourr",
+  )
 }
