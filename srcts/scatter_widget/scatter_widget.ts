@@ -8,7 +8,7 @@ export class ScatterWidget {
     private container: HTMLElement;
     private canvas: HTMLCanvasElement = document.createElement("canvas");
     private scene: THREE.Scene;
-    private camera: THREE.Camera;
+    private camera: THREE.PerspectiveCamera;
     private renderer: THREE.WebGLRenderer;
     private config: Config;
     private dataset: Matrix;
@@ -97,9 +97,12 @@ export class ScatterWidget {
         this.container.addEventListener('click', () => this.setIsPaused(!this.isPaused), false);
     }
 
-    public resize(width: number, height: number) {
-        this.canvas.width = width;
-        this.canvas.height = height;
+    public resize(newWidth: number, newHeight: number) {
+        this.canvas.width = newWidth;
+        this.canvas.height = newHeight;
+        this.camera.aspect = newWidth / newHeight;
+        this.camera.updateProjectionMatrix()
+        this.renderer.setSize(newWidth, newHeight)
     }
 
     public renderValue(inputData: ScatterInputData) {
