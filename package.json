@@ -1,6 +1,6 @@
 {
+  "name": "d3tourr",
   "dependencies": {
-    "mathjs": "^9.4.2",
     "three": "^0.128.0"
   },
   "devDependencies": {

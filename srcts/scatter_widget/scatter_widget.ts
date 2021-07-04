@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { ProjectionMatrix, ScatterInputData, Config, Dataset } from './data';
-import { multiply, max, mean } from 'mathjs';
+import { ProjectionMatrix, ScatterInputData, Config, Matrix } from './data';
+import { multiply, centerColumns } from './utils'
 import { FRAGMENT_SHADER, VERTEX_SHADER } from './shaders';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
@@ -11,7 +11,7 @@ export class ScatterWidget {
     private camera: THREE.Camera;
     private renderer: THREE.WebGLRenderer;
     private config: Config;
-    private dataset: Dataset;
+    private dataset: Matrix;
     private projectionMatrices: Array<ProjectionMatrix>;
     private clock = new THREE.Clock();
     private time: number;
@@ -60,7 +60,7 @@ export class ScatterWidget {
 
         let pointsMaterial = new THREE.ShaderMaterial({
             uniforms: {
-                size: { value: max(pointSize, this.minPointSize) }
+                size: { value: Math.max(pointSize, this.minPointSize) }
             },
             vertexShader: VERTEX_SHADER,
             fragmentShader: FRAGMENT_SHADER,
@@ -112,10 +112,10 @@ export class ScatterWidget {
     }
 
     private getPointsBuffer(i: number, center: boolean): THREE.BufferAttribute {
-        let positionMatrix: Dataset = multiply(this.dataset, this.projectionMatrices[i]);
+        let positionMatrix: Matrix = multiply(this.dataset, this.projectionMatrices[i]);
 
         if (center) {
-            positionMatrix = this.center(positionMatrix)
+            positionMatrix = centerColumns(positionMatrix)
         }
 
         let flattenedPositionMatrix = new Float32Array([].concat(...positionMatrix));
@@ -128,13 +128,7 @@ export class ScatterWidget {
         return new THREE.BufferAttribute(new Float32Array([].concat(...linesBufferMatrix)), 3)
     }
 
-    private center(X: Dataset): Dataset {
-        let colMeans = mean(X, 0)
-        let centered = X.map(function (row: number[]) {
-            return row.map((element, index) => element - colMeans[index])
-        });
-        return centered
-    }
+
 
     private animate() {
         let delta = this.clock.getDelta();
