@@ -5,8 +5,6 @@
 #' start is by looking at the code for animation methods that have already
 #' implemented in the package.
 #'
-#' See \code{\link{render}} to render animations to disk.
-#'
 #' @param data matrix, or data frame containing numeric columns
 #' @param tour_path tour path generator, defaults to 2d grand tour
 #' @param start projection to start at, if not specified, uses default
@@ -30,16 +28,10 @@
 #' @export
 #' @examples
 #' f <- flea[, 1:6]
-#' animate_d3(f, tourr::grand_tour(), display_xy())
-#' # or in short
-#' animate(f)
-#' animate(f, max_frames = 30)
-#' \dontrun{
-#' animate(f, max_frames = 10, fps = 1, aps = 0.1)
-#' }
-animate_d3 <- function(data, tour_path = tourr::grand_tour(), display = d3tourr::display_xy(),
-                       start = NULL, aps = 1, fps = 10, max_duration_seconds, max_frames = 2,
-                       rescale = TRUE, sphere = FALSE, verbose = FALSE, raw_json_outfile = "", ...) {
+#' animate_tour(f, tourr::grand_tour(), display_xy())
+animate_tour <- function(data, tour_path = tourr::grand_tour(), display = d3tourr::display_xy(),
+                         start = NULL, aps = 1, fps = 10, max_duration_seconds, max_frames = 2,
+                         rescale = TRUE, sphere = FALSE, verbose = FALSE, raw_json_outfile = "", ...) {
   if (!missing(max_duration_seconds)) {
     max_frames <- max_duration_seconds * fps
   }
