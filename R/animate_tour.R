@@ -11,12 +11,14 @@
 #'   associated with tour path
 #' @param display takes the display that is suppose to be used, defaults to
 #'   the xy display
-#' @param aps target angular velocity (in radians per second)
-#' @param fps target frames per second (defaults to 10
-#' @param max_frames the maximum number of bases to generate. Defaults to 1 Unlike the tourr package,
+#' @param render_opts list lof render options. \cr
+#' start:  projection to start at, if not specified, uses default associated with tour path \cr
+#' aps: target angular velocity (in radians per second) \cr
+#' fps: target frames per second (defaults to 10 \cr
+#' max_bases: the maximum number of bases to generate. Defaults to 1 Unlike the tourr package,
 #'    d3tourr can only be used non-interactively so max_frames has to be a finite number. This is so that
 #'    the resulting animations can remain independent of the R runtime.
-#' @param rescale if true, rescale all variables to range [0,1]?
+#' @param rescale if true, rescale all variables to range [0,1]
 #' @param sphere if true, sphere all variables
 #' @param ... ignored
 #' @param raw_json_outfile path to save data which is normally passed to htmlwidgets. Useful for devlelopment.
@@ -29,23 +31,26 @@
 #' @examples
 #' f <- flea[, 1:6]
 #' animate_tour(f, tourr::grand_tour(), display_xy())
-animate_tour <- function(data, tour_path = tourr::grand_tour(), display = d3tourr::display_xy(),
-                         start = NULL, aps = 1, fps = 10, max_duration_seconds, max_frames = 2,
-                         rescale = TRUE, sphere = FALSE, verbose = FALSE, raw_json_outfile = "", ...) {
-  if (!missing(max_duration_seconds)) {
-    max_frames <- max_duration_seconds * fps
-  }
+animate_tour <- function(data,
+                         tour_path = tourr::grand_tour(d = 3),
+                         display = d3tourr::display_scatter(),
+                         render_opts = list(
+                           start = NULL,
+                           aps = 1,
+                           fps = 30,
+                           max_bases = 2
+                         ),
+                         rescale = TRUE,
+                         sphere = FALSE,
+                         raw_json_outfile = "") {
 
-  record <-
-    dplyr::tibble(
-      basis = list(),
-      index_val = numeric(),
-      info = character(),
-      method = character(),
-      alpha = numeric(),
-      tries = numeric(),
-      loop = numeric()
-    )
+  # merge default render_opts with specified
+  render_opts_defaults <- eval(formals()$render_opts)
+  for (key in names(render_opts)) {
+    render_opts_defaults[[key]] <- render_opts[[key]]
+  }
+  render_opts <- render_opts_defaults
+
   if (!is.matrix(data)) {
     if (verbose) {
       message("Converting input data to the required matrix format.")
@@ -55,34 +60,33 @@ animate_tour <- function(data, tour_path = tourr::grand_tour(), display = d3tour
 
   if (rescale) data <- tourr::rescale(data)
   if (sphere) data <- tourr::sphere_data(data)
-
   # can only run non-interactively, unlike in tourr
-  if (max_frames == Inf) {
-    stop("Argument max_frames must be a finite number")
+  if (render_opts$max_bases == Inf) {
+    abort("Argument max_frames must be a finite number")
   }
 
-  tour <- tourr::new_tour(data, tour_path, start, ...)
-  start <- tour(0, ...)
+  bases <- tourr::save_history(
+    data = data,
+    tour_path = tour_path,
+    max_bases = render_opts$max_bases,
+    start = render_opts$start
+  )
 
-  projections <- vector("list", max_frames)
-
-  # convert projection matrix to a list so it can later be serialised to json
-  for (i in 1:max_frames) {
-    proj_mat <- quiet(tour(aps / fps, ...)$proj)
-    projections[[i]] <- (proj_mat)
-  }
+  projectionMatrices <- tourr::interpolate(bases, render_opts$aps / render_opts$fps)
+  projectionMatrices <- apply(projectionMatrices, 3, identity, simplify = FALSE)
+  n_frames <- length(projectionMatrices)
 
   config <- display$init(data)
   plot_config <- config[["plot"]]
   widget <- config[["widget"]]
 
-  plot_config[["fps"]] <- fps
-  plot_config[["duration"]] <- max_frames / fps
+  plot_config[["fps"]] <- render_opts$fps
+  plot_config[["duration"]] <- n_frames / render_opts$fps
 
   data <- list(
     "config" = plot_config,
     "dataset" = data,
-    "projectionMatrices" = projections
+    "projectionMatrices" = projectionMatrices
   )
 
   # useful for regenerating sample data for development
