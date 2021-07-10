@@ -1,5 +1,6 @@
 {
   "name": "d3tourr",
+  "license": "MIT",
   "dependencies": {
     "three": "^0.128.0"
   },
@@ -15,7 +16,7 @@
     "webpack-dev-server": "^4.0.0-beta.3"
   },
   "scripts": {
-    "build": "rm -rf inst/htmlwidgets/lib/scatter_widget && webpack --config ./webpack/package.config.ts && R CMD INSTALL $(git rev-parse --show-toplevel)",
+    "build": "rm -rf inst/htmlwidgets/lib/scatter_widget && webpack --config ./webpack/package.config.ts && R CMD INSTALL $(git rev-parse --show-toplevel) && R -q -e 'devtools::document()'",
     "build-dev": "rm -rf dev_build && webpack --config ./webpack/dev.config.ts",
     "start-dev": "yarn webpack serve --config webpack/dev.config.ts --open",
     "clean": "rm -rf dev_build inst/htmlwidgets/lib/scatter_widget"

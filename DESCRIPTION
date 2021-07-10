@@ -1,12 +1,13 @@
 Package: d3tourr
 Type: Package
-Title: D3.js Animations for {tourr}
+Title: Animations for {tourr} using htmlwidgets
 Version: 0.1.0
-Author: Casper Hart
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Authors@R: c(
+    person("Casper", "Hart", email = "casperhart93@gmail.com", role = c("aut", "cre")),
+    person("Earo", "Wang", email = "earo.wang@gmail.com", role = c("aut", "ths"), comment = c(ORCID = "0000-0001-6448-5260"))
+    )
+Description: Animations for {tourr} using htmlwidgets for performance and portability.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: 
@@ -14,4 +15,7 @@ Imports:
     tibble,
     dplyr,
     htmlwidgets,
-    tidyselect
+    tidyselect,
+    rlang
+RoxygenNote: 7.1.1
+Roxygen: list(markdown = TRUE)

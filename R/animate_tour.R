@@ -4,26 +4,21 @@
 #' to write your own tour animation method, the best place to
 #' start is by looking at the code for animation methods that have already
 #' implemented in the package.
-#'
+#' @inheritParams tourr::animate
 #' @param data data frame containing columns to use for the tour.
 #' @param cols column selection for the tour. Specified columns must be numeric. Uses tidyselect syntax
 #' @param tour_path tour path generator, defaults to 3d grand tour
-#' @param start projection to start at, if not specified, uses default
-#'   associated with tour path
 #' @param display takes the display that is suppose to be used, defaults to
-#'   the xy display
-#' @param render_opts list lof render options. \cr
-#' start:  projection to start at, if not specified, uses default associated with tour path \cr
-#' aps: target angular velocity (in radians per second) \cr
-#' fps: target frames per second (defaults to 10 \cr
-#' max_bases: the maximum number of bases to generate. Defaults to 1 Unlike the tourr package,
+#'   the (3D) scatter display
+#' @param render_opts list of render options containing some or all of:
+#' - start:  projection to start at, if not specified, uses default associated with tour path \cr
+#' - aps: target angular velocity (in radians per second)
+#' - fps: target frames per second (defaults to 30)
+#' - max_bases: the maximum number of bases to generate. Defaults to 1 Unlike the tourr package,
 #'    d3tourr can only be used non-interactively so max_frames has to be a finite number. This is so that
 #'    the resulting animations can remain independent of the R runtime.
-#' @param rescale if true, rescale all variables to range [0,1]
-#' @param sphere if true, sphere all variables
-#' @param ... ignored
+#'
 #' @param raw_json_outfile path to save data which is normally passed to htmlwidgets. Useful for devlelopment.
-#' @return an (invisible) list of bases visited during this tour
 #' @export
 #' @examples
 #' animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
@@ -40,15 +35,12 @@ animate_tour <- function(data,
                          rescale = TRUE,
                          sphere = FALSE,
                          raw_json_outfile = "") {
-  col_spec <- enquo(cols)
+  col_spec <- rlang::enquo(cols)
   tour_data <- get_tour_data_matrix(data, col_spec)
 
   # merge default render_opts with specified
   render_opts_defaults <- eval(formals()$render_opts)
-  for (key in names(render_opts)) {
-    render_opts_defaults[[key]] <- render_opts[[key]]
-  }
-  render_opts <- render_opts_defaults
+  render_opts <- merge_defaults_list(render_opts, render_opts_defaults)
 
   if (rescale) tour_data <- tourr::rescale(tour_data)
   if (sphere) tour_data <- tourr::sphere_data(tour_data)
