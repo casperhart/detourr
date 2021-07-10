@@ -5,8 +5,9 @@
 #' start is by looking at the code for animation methods that have already
 #' implemented in the package.
 #'
-#' @param data matrix, or data frame containing numeric columns
-#' @param tour_path tour path generator, defaults to 2d grand tour
+#' @param data data frame containing columns to use for the tour.
+#' @param cols column selection for the tour. Specified columns must be numeric. Uses tidyselect syntax
+#' @param tour_path tour path generator, defaults to 3d grand tour
 #' @param start projection to start at, if not specified, uses default
 #'   associated with tour path
 #' @param display takes the display that is suppose to be used, defaults to
@@ -23,15 +24,11 @@
 #' @param ... ignored
 #' @param raw_json_outfile path to save data which is normally passed to htmlwidgets. Useful for devlelopment.
 #' @return an (invisible) list of bases visited during this tour
-#' @references Hadley Wickham, Dianne Cook, Heike Hofmann, Andreas Buja
-#'   (2011). tourr: An R Package for Exploring Multivariate Data with
-#'   Projections. Journal of Statistical Software, 40(2), 1-18.
-#'   \url{https://www.jstatsoft.org/v40/i02/}.
 #' @export
 #' @examples
-#' f <- flea[, 1:6]
-#' animate_tour(f, tourr::grand_tour(), display_xy())
+#' animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
 animate_tour <- function(data,
+                         cols = everything(),
                          tour_path = tourr::grand_tour(d = 3),
                          display = d3tourr::display_scatter(),
                          render_opts = list(
@@ -43,6 +40,8 @@ animate_tour <- function(data,
                          rescale = TRUE,
                          sphere = FALSE,
                          raw_json_outfile = "") {
+  col_spec <- enquo(cols)
+  tour_data <- get_tour_data_matrix(data, col_spec)
 
   # merge default render_opts with specified
   render_opts_defaults <- eval(formals()$render_opts)
@@ -51,22 +50,15 @@ animate_tour <- function(data,
   }
   render_opts <- render_opts_defaults
 
-  if (!is.matrix(data)) {
-    if (verbose) {
-      message("Converting input data to the required matrix format.")
-    }
-    data <- as.matrix(data)
-  }
-
-  if (rescale) data <- tourr::rescale(data)
-  if (sphere) data <- tourr::sphere_data(data)
+  if (rescale) tour_data <- tourr::rescale(tour_data)
+  if (sphere) tour_data <- tourr::sphere_data(tour_data)
   # can only run non-interactively, unlike in tourr
   if (render_opts$max_bases == Inf) {
     abort("Argument max_frames must be a finite number")
   }
 
   bases <- tourr::save_history(
-    data = data,
+    data = tour_data,
     tour_path = tour_path,
     max_bases = render_opts$max_bases,
     start = render_opts$start
@@ -76,27 +68,27 @@ animate_tour <- function(data,
   projectionMatrices <- apply(projectionMatrices, 3, identity, simplify = FALSE)
   n_frames <- length(projectionMatrices)
 
-  config <- display$init(data)
+  config <- display$init(tour_data)
   plot_config <- config[["plot"]]
   widget <- config[["widget"]]
 
   plot_config[["fps"]] <- render_opts$fps
   plot_config[["duration"]] <- n_frames / render_opts$fps
 
-  data <- list(
+  plot_data <- list(
     "config" = plot_config,
-    "dataset" = data,
+    "dataset" = tour_data,
     "projectionMatrices" = projectionMatrices
   )
 
   # useful for regenerating sample data for development
   if (raw_json_outfile != "") {
-    writeLines(jsonlite::toJSON(data, digits = 4, auto_unbox = TRUE), raw_json_outfile)
+    writeLines(jsonlite::toJSON(plot_data, digits = 4, auto_unbox = TRUE), raw_json_outfile)
   }
 
   htmlwidgets::createWidget(
     widget,
-    data,
+    plot_data,
     sizingPolicy = htmlwidgets::sizingPolicy(
       viewer.padding = 0,
       viewer.paneHeight = 500,

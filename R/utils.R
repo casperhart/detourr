@@ -30,3 +30,16 @@ compute_half_range <- function(half_range, data, center) {
 col2hex <- function(col) {
   rgb(t(grDevices::col2rgb(col)), maxColorValue = 255)
 }
+
+merge_defaults_list <- function(l, default_l) {
+  default_l[names(default_l) %in% names(l)] <- l
+  default_l
+}
+
+get_tour_data_matrix <- function(data, col_spec) {
+  tour_cols <- tidyselect::eval_select(col_spec, data)
+  if (!all(sapply(tour_cols, is.numeric))) {
+    abort("all specified cols must be numeric")
+  }
+  tour_cols <- as.matrix(data[tour_cols])
+}
