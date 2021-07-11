@@ -35,6 +35,7 @@ animate_tour <- function(data,
                          rescale = TRUE,
                          sphere = FALSE,
                          raw_json_outfile = "") {
+  # todo: subtract aesthetic columns from col_spec if col_spec is not specified
   col_spec <- rlang::enquo(cols)
   tour_data <- get_tour_data_matrix(data, col_spec)
 
@@ -60,9 +61,11 @@ animate_tour <- function(data,
   projectionMatrices <- apply(projectionMatrices, 3, identity, simplify = FALSE)
   n_frames <- length(projectionMatrices)
 
-  config <- display$init(tour_data)
+  # todo: tidy this up
+  config <- display$init(data)
   plot_config <- config[["plot"]]
   widget <- config[["widget"]]
+  mapping <- config[["mapping"]]
 
   plot_config[["fps"]] <- render_opts$fps
   plot_config[["duration"]] <- n_frames / render_opts$fps
@@ -70,6 +73,7 @@ animate_tour <- function(data,
   plot_data <- list(
     "config" = plot_config,
     "dataset" = tour_data,
+    "mapping" = mapping,
     "projectionMatrices" = projectionMatrices
   )
 

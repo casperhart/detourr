@@ -23,13 +23,16 @@ export class ScatterWidget {
     private orbitControls: OrbitControls;
     private isPaused: boolean;
     private colMeans: Matrix;
+    private mapping: { colour: string[] };
+    private pointColours: THREE.BufferAttribute;
 
     constructor(containerElement: HTMLElement, width: number, height: number) {
 
-        this.scene = new THREE.Scene()
-
+        let scene = new THREE.Scene()
+        scene.background = new THREE.Color(0xfffffff);
         const light = new THREE.AmbientLight(0x404040); // soft white light
-        this.scene.add(light);
+        scene.add(light);
+        this.scene = scene;
 
         this.canvas.width = width;
         this.canvas.height = height;
@@ -57,6 +60,8 @@ export class ScatterWidget {
         }
         this.colMeans = getColMeans(this.dataset);
 
+        this.pointColours = this.coloursToBufferAttribute(this.mapping.colour)
+
         let pointsGeometry = new THREE.BufferGeometry();
         let pointSize: number = this.dataset.length ** (-1 / 3)
 
@@ -76,10 +81,11 @@ export class ScatterWidget {
         }
 
         this.points = new THREE.Points(pointsGeometry, pointsMaterial)
+        this.points.geometry.setAttribute('color', this.pointColours)
         this.scene.add(this.points)
 
         let axisLinesGeometry = new THREE.BufferGeometry()
-        let axisLinesMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 1 })
+        let axisLinesMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 1 })
 
         let axisLinesBuffer = this.getAxisLinesBuffer(0)
         axisLinesGeometry.setAttribute('position', axisLinesBuffer)
@@ -111,6 +117,7 @@ export class ScatterWidget {
         this.config = inputData.config;
         this.dataset = inputData.dataset;
         this.projectionMatrices = inputData.projectionMatrices;
+        this.mapping = inputData.mapping
 
         this.constructPlot();
         this.animate();
@@ -134,7 +141,22 @@ export class ScatterWidget {
         return new THREE.BufferAttribute(new Float32Array([].concat(...linesBufferMatrix)), 3)
     }
 
+    private coloursToBufferAttribute(colours: string[]): THREE.BufferAttribute {
+        let colour = new THREE.Color;
+        let bufferArray = new Float32Array(this.dataset.length * 3)
 
+        if (colours.length > 0) {
+            let j = 0;
+            for (let i = 0; i < colours.length; i++) {
+                j = 3 * i;
+                colour.set(colours[i])
+                bufferArray[j] = colour.r
+                bufferArray[j + 1] = colour.g
+                bufferArray[j + 2] = colour.b
+            }
+        }
+        return new THREE.BufferAttribute(bufferArray, 3)
+    }
 
     private animate() {
         let delta = this.clock.getDelta();

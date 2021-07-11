@@ -29,6 +29,7 @@ library(d3tourr)
 animate_tour(
   tourr::flea,
   -species,
+  display = display_scatter(tour_aes(colour = species)),
   render_opts = list(max_bases = 10)
 )
 ```
