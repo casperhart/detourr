@@ -49,14 +49,14 @@ animate_tour <- function(data,
     abort("Argument max_frames must be a finite number")
   }
 
-  bases <- tourr::save_history(
+  bases <- quiet(tourr::save_history(
     data = tour_data,
     tour_path = tour_path,
     max_bases = render_opts$max_bases,
     start = render_opts$start
-  )
+  ))
 
-  projectionMatrices <- tourr::interpolate(bases, render_opts$aps / render_opts$fps)
+  projectionMatrices <- quiet(tourr::interpolate(bases, render_opts$aps / render_opts$fps))
   projectionMatrices <- apply(projectionMatrices, 3, identity, simplify = FALSE)
   n_frames <- length(projectionMatrices)
 
