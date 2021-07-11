@@ -2,6 +2,7 @@ export interface ScatterInputData {
     config: Config;
     dataset: Matrix;
     projectionMatrices: Array<ProjectionMatrix>;
+    mapping: { colour: string[] }
 }
 
 export interface Config { fps: number, duration: number, cacheFrames: boolean, center: boolean };

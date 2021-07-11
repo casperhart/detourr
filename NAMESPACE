@@ -2,3 +2,4 @@
 
 export(animate_tour)
 export(display_scatter)
+export(tour_aes)

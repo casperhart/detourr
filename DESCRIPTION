@@ -16,6 +16,7 @@ Imports:
     dplyr,
     htmlwidgets,
     tidyselect,
-    rlang
+    rlang,
+    purrr
 RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
