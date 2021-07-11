@@ -58,7 +58,7 @@ animate_tour <- function(data,
   ))
 
   projectionMatrices <- quiet(tourr::interpolate(bases, render_opts$aps / render_opts$fps))
-  projectionMatrices <- apply(projectionMatrices, 3, identity, simplify = FALSE)
+  projectionMatrices <- purrr::array_branch(projectionMatrices, 3)
   n_frames <- length(projectionMatrices)
 
   # todo: tidy this up
