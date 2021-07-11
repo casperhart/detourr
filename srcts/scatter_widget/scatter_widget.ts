@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { ProjectionMatrix, ScatterInputData, Config, Matrix } from './data';
-import { multiply, centerColumns } from './utils'
+import { multiply, centerColumns, getColMeans } from './utils'
 import { FRAGMENT_SHADER, VERTEX_SHADER } from './shaders';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
@@ -22,6 +22,7 @@ export class ScatterWidget {
     private minPointSize: number = 0.02;
     private orbitControls: OrbitControls;
     private isPaused: boolean;
+    private colMeans: Matrix;
 
     constructor(containerElement: HTMLElement, width: number, height: number) {
 
@@ -54,6 +55,7 @@ export class ScatterWidget {
         if (this.projectionMatrices[0][0].length != 3) {
             throw new TypeError(`Projection matrix must be of dimension 3. got ${this.projectionMatrices[0][0].length}`)
         }
+        this.colMeans = getColMeans(this.dataset);
 
         let pointsGeometry = new THREE.BufferGeometry();
         let pointSize: number = this.dataset.length ** (-1 / 3)
@@ -118,7 +120,8 @@ export class ScatterWidget {
         let positionMatrix: Matrix = multiply(this.dataset, this.projectionMatrices[i]);
 
         if (center) {
-            positionMatrix = centerColumns(positionMatrix)
+            let colMeans = multiply(this.colMeans, this.projectionMatrices[i]);
+            positionMatrix = centerColumns(positionMatrix, colMeans)
         }
 
         let flattenedPositionMatrix = new Float32Array([].concat(...positionMatrix));
