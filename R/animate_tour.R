@@ -45,9 +45,10 @@ animate_tour <- function(data,
 
   if (rescale) tour_data <- tourr::rescale(tour_data)
   if (sphere) tour_data <- tourr::sphere_data(tour_data)
+
   # can only run non-interactively, unlike in tourr
   if (render_opts$max_bases == Inf) {
-    abort("Argument max_frames must be a finite number")
+    rlang::abort("Argument `max_frames` must be a finite number.")
   }
 
   bases <- quiet(tourr::save_history(
