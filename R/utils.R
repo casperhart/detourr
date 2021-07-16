@@ -22,7 +22,8 @@ col2hex <- function(col) {
 }
 
 merge_defaults_list <- function(l, default_l) {
-  default_l[names(default_l) %in% names(l)] <- l
+  item_names <- intersect(names(l), names(default_l))
+  default_l[item_names] <- l[item_names]
   default_l
 }
 
