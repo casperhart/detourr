@@ -5,11 +5,17 @@ module.exports = {
     mode: "production",
     entry: { scatter_widget: './srcts/scatter_widget/index.ts' },
     module: {
-        rules: [{
-            test: /\.ts$/,
-            exclude: /node_modules/,
-            use: 'ts-loader',
-        }]
+        rules: [
+            {
+                test: /\.ts$/,
+                exclude: /node_modules/,
+                use: 'ts-loader',
+            },
+            {
+                test: /\.css$/i,
+                use: ["style-loader", "css-loader"],
+            },
+        ]
     },
     resolve: {
         modules: ['node_modules'],

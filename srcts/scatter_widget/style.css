@@ -1,0 +1,31 @@
+button {
+  background-color: transparent;
+  position: absolute;
+  color: rgb(0, 0, 0);
+  text-align: center;
+  width: 30px;
+  height: 30px;
+  border-color: transparent;
+}
+
+button:hover {
+  color: rgb(56, 56, 56);
+}
+
+button.playPauseButton {
+  top: 10px;
+  left: 10px;
+}
+
+button.resetButton {
+  top: 45px;
+  left: 10px;
+}
+
+.scatterWidgetContainer {
+  position: relative;
+}
+
+.scatterWidgetCanvas {
+  position: absolute;
+}

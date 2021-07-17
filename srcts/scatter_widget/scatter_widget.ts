@@ -3,6 +3,8 @@ import { ProjectionMatrix, ScatterInputData, Config, Matrix } from './data';
 import { multiply, centerColumns, getColMeans } from './utils'
 import { FRAGMENT_SHADER, VERTEX_SHADER } from './shaders';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { playIcon, pauseIcon, resetIcon } from './icons'
+import './style.css'
 
 export class ScatterWidget {
     private container: HTMLElement;
@@ -36,9 +38,12 @@ export class ScatterWidget {
 
         this.canvas.width = width;
         this.canvas.height = height;
+        this.canvas.id = `${containerElement.id}-canvas`
+        this.canvas.className = "scatterWidgetCanvas"
 
         this.container = containerElement;
         this.container.appendChild(this.canvas)
+        this.container.className = "scatterWidgetContainer"
 
         this.renderer = new THREE.WebGLRenderer({
             canvas: this.canvas
@@ -50,6 +55,8 @@ export class ScatterWidget {
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(width, height);
         this.renderer.render(this.scene, this.camera);
+
+        this.addControls();
     }
 
     private constructPlot() {
@@ -100,9 +107,6 @@ export class ScatterWidget {
         this.oldFrame = -1;
 
         this.isPaused = false;
-
-        // todo: set up proper controls to avoid orbit controls triggering play/pause
-        this.container.addEventListener('click', () => this.setIsPaused(!this.isPaused), false);
     }
 
     public resize(newWidth: number, newHeight: number) {
@@ -158,6 +162,21 @@ export class ScatterWidget {
         return new THREE.BufferAttribute(bufferArray, 3)
     }
 
+    private addControls() {
+
+        let playPauseButton = document.createElement("button");
+        playPauseButton.innerHTML = pauseIcon;
+        playPauseButton.className = "playPauseButton";
+        playPauseButton.onclick = () => this.setIsPaused(!this.getIsPaused())
+        this.container.appendChild(playPauseButton);
+
+        let resetButton = document.createElement("button");
+        resetButton.innerHTML = resetIcon;
+        resetButton.className = "resetButton";
+        resetButton.onclick = () => this.resetClock();
+        this.container.appendChild(resetButton);
+    }
+
     private animate() {
         let delta = this.clock.getDelta();
 
@@ -202,9 +221,18 @@ export class ScatterWidget {
 
     private setIsPaused(isPaused: boolean) {
         this.isPaused = isPaused
+        let playPauseButton = this.container.querySelector('.playPauseButton')
 
         if (!isPaused) {
             this.animate()
+            playPauseButton.innerHTML = pauseIcon
         }
+        else {
+            playPauseButton.innerHTML = playIcon
+        }
+    }
+
+    private resetClock() {
+        this.time = 0
     }
 }
