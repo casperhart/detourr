@@ -21,16 +21,32 @@ Animations for {tourr} using htmlwidgets for performance and portability.
 
 # Installation
 
+Install this package by running `remotes::install_github("casperhart/d3tourr")` in R.
+
+# Development
+
 This project uses TypeScript code which needs to be compiled and bundled for the package to work. To do this, you will need `node.js`, and `yarn` installed.
 
-After cloning this repository, you can install the `R` package by running the following code from the {d3tourr} folder:
+After cloning this repository, you can install the node.js dependencies via:
 
 ```{bash, eval=FALSE}
 yarn install
+```
+
+Compile and bundle the TypeScript code and install the R package from source by running:
+
+```{bash, eval=FALSE}
 yarn run build
 ```
 
-Note: Installing using `remotes::install_github` does _not_ work (yet).
+The TypeScript code which powers the HTMLWidgets can also be run as a standalone app using `webpack-dev-server` as follows:
+
+```{bash, eval=FALSE}
+yarn run start-dev
+```
+
+This will start the webpack dev server, which will automatically recompile and reload the TypeScript code as changes are made.
+The sample data and HTML used for development can be found in `./dev`
 
 # Examples
 

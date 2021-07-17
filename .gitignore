@@ -41,5 +41,4 @@ vignettes/*.pdf
 
 dev_build
 node_modules
-inst/htmlwidgets/lib/scatter_widget/*
 temp\.*
