@@ -3,4 +3,6 @@ dependencies:
     src: htmlwidgets/lib/scatter_widget
     version: 0.1.0
     script:
+      # these have to be in order of loading
+      - three.bundle.js
       - scatter_widget.bundle.js
