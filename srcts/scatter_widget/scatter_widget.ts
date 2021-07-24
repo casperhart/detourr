@@ -27,36 +27,21 @@ export class ScatterWidget {
     private colMeans: Matrix;
     private mapping: { colour: string[] };
     private pointColours: THREE.BufferAttribute;
+    private width: number;
+    private height: number;
 
     constructor(containerElement: HTMLElement, width: number, height: number) {
+        this.width = width;
+        this.height = height;
+        this.addContainerElement(containerElement);
+        this.addCanvas();
+        this.addScene();
 
-        let scene = new THREE.Scene()
-        scene.background = new THREE.Color(0xfffffff);
-        const light = new THREE.AmbientLight(0x404040); // soft white light
-        scene.add(light);
-        this.scene = scene;
-
-        this.canvas.width = width;
-        this.canvas.height = height;
-        this.canvas.id = `${containerElement.id}-canvas`
-        this.canvas.className = "scatterWidgetCanvas"
-
-        this.container = containerElement;
-        this.container.appendChild(this.canvas)
-        this.container.className = "scatterWidgetContainer"
-
-        this.renderer = new THREE.WebGLRenderer({
-            canvas: this.canvas
-        });
-
-        this.camera = new THREE.PerspectiveCamera(45, width / height, 0.01, 1000);
-        this.camera.position.setZ(4);
-
-        this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.setSize(width, height);
-        this.renderer.render(this.scene, this.camera);
-
+        this.addCamera();
+        this.addRenderer();
         this.addControls();
+
+        this.renderer.render(this.scene, this.camera);
     }
 
     private constructPlot() {
@@ -125,6 +110,44 @@ export class ScatterWidget {
 
         this.constructPlot();
         this.animate();
+    }
+
+    private addContainerElement(containerElement: HTMLElement) {
+        containerElement.className = "scatterWidgetContainer";
+        this.container = containerElement;
+    }
+
+    private addScene() {
+        let scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xfffffff);
+        const light = new THREE.AmbientLight(0x404040); // soft white light
+        scene.add(light);
+        this.scene = scene;
+    }
+
+    private addCanvas() {
+        let canvas = document.createElement("canvas");
+        canvas.width = this.width;
+        canvas.height = this.height;
+        canvas.id = `${this.container.id}-canvas`;
+        canvas.className = "scatterWidgetCanvas";
+        this.container.appendChild(canvas);
+        this.canvas = canvas;
+    }
+
+    private addCamera() {
+        let camera = new THREE.PerspectiveCamera(45, this.width / this.height, 0.01, 1000);
+        camera.position.setZ(4);
+        this.camera = camera;
+    }
+
+    private addRenderer() {
+        let renderer = new THREE.WebGLRenderer({
+            canvas: this.canvas
+        });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(this.width, this.height);
+        this.renderer = renderer;
     }
 
     private getPointsBuffer(i: number, center: boolean): THREE.BufferAttribute {
