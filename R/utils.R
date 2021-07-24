@@ -30,7 +30,7 @@ merge_defaults_list <- function(l, default_l) {
 get_tour_data_matrix <- function(data, col_spec) {
   tour_cols <- tidyselect::eval_select(col_spec, data)
   if (!all(sapply(tour_cols, is.numeric))) {
-    abort("all specified cols must be numeric")
+    rlang::abort("all specified cols must be numeric")
   }
   tour_cols <- as.matrix(data[tour_cols])
 }
@@ -64,8 +64,8 @@ pal_discrete <- function(n) {
 }
 
 vec_to_colour <- function(vec) {
-  if (typeof(vec) == "double") {
-    warn("`colour` aesthetic is of type double, but only discrete colours are implemented")
+  if (is.numeric(vec)) {
+    rlang::warn("`colour` aesthetic is numeric, but only discrete colours are implemented")
   }
   vec <- as.factor(vec)
   pal <- pal_discrete(length(unique(vec)))
