@@ -9,4 +9,6 @@ export interface Config { fps: number, duration: number, cacheFrames: boolean, c
 
 export type Matrix = Array<Array<number>>;
 
-export type ProjectionMatrix = Array<[number, number, number]>
+export type ProjectionMatrix = Array<[number, number, number]> | Array<[number, number]>
+
+export type Dim = 2 | 3;

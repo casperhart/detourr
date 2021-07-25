@@ -7,7 +7,7 @@
 animate_tour(
   data,
   cols = everything(),
-  tour_path = tourr::grand_tour(d = 3),
+  tour_path = tourr::grand_tour(d = 2),
   display = d3tourr::display_scatter(),
   render_opts = list(start = NULL, aps = 1, fps = 30, max_bases = 2),
   rescale = TRUE,
@@ -20,7 +20,7 @@ animate_tour(
 
 \item{cols}{column selection for the tour. Specified columns must be numeric. Uses tidyselect syntax}
 
-\item{tour_path}{tour path generator, defaults to 3d grand tour}
+\item{tour_path}{tour path generator, defaults to 2d grand tour}
 
 \item{display}{takes the display that is suppose to be used, defaults to
 the (3D) scatter display}

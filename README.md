@@ -11,6 +11,29 @@ portability.
 Install this package by running
 `remotes::install_github("casperhart/d3tourr")` in R.
 
+# Examples
+
+``` r
+# 2D scatter
+library(d3tourr)
+animate_tour(
+  tourr::olive, -area,
+  display = display_scatter(tour_aes(colour = region)),
+  render_opts = list(max_bases = 10)
+)
+```
+
+``` r
+# 3D scatter
+animate_tour(
+  tourr::flea,
+  -species,
+  tour_path = tourr::grand_tour(3),
+  display = display_scatter(tour_aes(colour = species)),
+  render_opts = list(max_bases = 10)
+)
+```
+
 # Development
 
 This project uses TypeScript code which needs to be compiled and bundled
@@ -41,15 +64,3 @@ yarn run start-dev
 This will start the webpack dev server, which will automatically
 recompile and reload the TypeScript code as changes are made. The sample
 data and HTML used for development can be found in `./dev`
-
-# Examples
-
-``` r
-library(d3tourr)
-animate_tour(
-  tourr::flea,
-  -species,
-  display = display_scatter(tour_aes(colour = species)),
-  render_opts = list(max_bases = 10)
-)
-```
