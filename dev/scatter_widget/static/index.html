@@ -20,10 +20,13 @@
         // run scatterwidget using sample data
         response.json().then(function (data) {
           let el = document.getElementById("plot");
-          let width = 900;
-          let height = 900;
+          let width = window.innerWidth;
+          let height = window.innerHeight;
           let scatter = new scatter_widget.ScatterWidget(el, width, height);
           scatter.renderValue(data);
+          window.addEventListener("resize", (event) =>
+            scatter.resize(window.innerWidth, window.innerHeight)
+          );
         });
       });
     </script>

@@ -7,7 +7,6 @@
 #' @inheritParams tourr::animate
 #' @param data data frame containing columns to use for the tour.
 #' @param cols column selection for the tour. Specified columns must be numeric. Uses tidyselect syntax
-#' @param tour_path tour path generator, defaults to 3d grand tour
 #' @param display takes the display that is suppose to be used, defaults to
 #'   the (3D) scatter display
 #' @param render_opts list of render options containing some or all of:
@@ -24,7 +23,7 @@
 #' animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
 animate_tour <- function(data,
                          cols = everything(),
-                         tour_path = tourr::grand_tour(d = 3),
+                         tour_path = tourr::grand_tour(d = 2),
                          display = d3tourr::display_scatter(),
                          render_opts = list(
                            start = NULL,

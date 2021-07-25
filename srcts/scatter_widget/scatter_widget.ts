@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { ProjectionMatrix, ScatterInputData, Config, Matrix } from './data';
-import { multiply, centerColumns, getColMeans } from './utils'
+import { ProjectionMatrix, ScatterInputData, Config, Matrix, Dim } from './data';
+import { multiply2, multiply3, centerColumns, getColMeans } from './utils'
 import { FRAGMENT_SHADER, VERTEX_SHADER } from './shaders';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { playIcon, pauseIcon, resetIcon } from './icons'
@@ -10,7 +10,7 @@ export class ScatterWidget {
     private container: HTMLElement;
     private canvas: HTMLCanvasElement = document.createElement("canvas");
     private scene: THREE.Scene;
-    private camera: THREE.PerspectiveCamera;
+    private camera: THREE.PerspectiveCamera | THREE.OrthographicCamera;
     private renderer: THREE.WebGLRenderer;
     private config: Config;
     private dataset: Matrix;
@@ -29,6 +29,8 @@ export class ScatterWidget {
     private pointColours: THREE.BufferAttribute;
     private width: number;
     private height: number;
+    private dim: Dim;
+    private multiply: Function;
 
     constructor(containerElement: HTMLElement, width: number, height: number) {
         this.width = width;
@@ -37,19 +39,12 @@ export class ScatterWidget {
         this.addCanvas();
         this.addScene();
 
-        this.addCamera();
         this.addRenderer();
         this.addControls();
-
-        this.renderer.render(this.scene, this.camera);
     }
 
     private constructPlot() {
 
-        //todo: implement this check in the R code
-        if (this.projectionMatrices[0][0].length != 3) {
-            throw new TypeError(`Projection matrix must be of dimension 3. got ${this.projectionMatrices[0][0].length}`)
-        }
         this.colMeans = getColMeans(this.dataset);
 
         this.pointColours = this.coloursToBufferAttribute(this.mapping.colour)
@@ -85,7 +80,7 @@ export class ScatterWidget {
         this.axisSegments = new THREE.LineSegments(axisLinesGeometry, axisLinesMaterial)
         this.scene.add(this.axisSegments)
 
-        this.orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.orbitControls = this.addOrbitControls(this.camera, this.renderer.domElement, this.dim);
 
         this.clock = new THREE.Clock();
         this.time = 0;
@@ -95,9 +90,18 @@ export class ScatterWidget {
     }
 
     public resize(newWidth: number, newHeight: number) {
+        let aspect = newWidth / newHeight;
         this.canvas.width = newWidth;
         this.canvas.height = newHeight;
-        this.camera.aspect = newWidth / newHeight;
+        if (this.dim == 3) {
+            (this.camera as THREE.PerspectiveCamera).aspect = aspect;
+        }
+        else {
+            (this.camera as THREE.OrthographicCamera).left = - 1 * aspect;
+            (this.camera as THREE.OrthographicCamera).right = 1 * aspect;
+            (this.camera as THREE.OrthographicCamera).top = 1;
+            (this.camera as THREE.OrthographicCamera).bottom = - 1;
+        }
         this.camera.updateProjectionMatrix()
         this.renderer.setSize(newWidth, newHeight)
     }
@@ -106,6 +110,13 @@ export class ScatterWidget {
         this.config = inputData.config;
         this.dataset = inputData.dataset;
         this.projectionMatrices = inputData.projectionMatrices;
+        this.dim = inputData.projectionMatrices[0][0].length;
+        if (this.dim == 3) {
+            this.multiply = multiply3
+        } else {
+            this.multiply = multiply2
+        }
+        this.addCamera(this.dim);
         this.mapping = inputData.mapping
 
         this.constructPlot();
@@ -135,8 +146,15 @@ export class ScatterWidget {
         this.canvas = canvas;
     }
 
-    private addCamera() {
-        let camera = new THREE.PerspectiveCamera(45, this.width / this.height, 0.01, 1000);
+    private addCamera(dim: Dim) {
+        let camera: THREE.PerspectiveCamera | THREE.OrthographicCamera;
+        let aspect = this.width / this.height;
+        if (dim == 3) {
+            camera = new THREE.PerspectiveCamera(45, aspect, 0.01, 1000);
+        }
+        else {
+            camera = new THREE.OrthographicCamera(-1 * aspect, 1 * aspect, 1, -1, -1000, 1000);
+        }
         camera.position.setZ(4);
         this.camera = camera;
     }
@@ -150,11 +168,25 @@ export class ScatterWidget {
         this.renderer = renderer;
     }
 
+    private addOrbitControls(camera: THREE.PerspectiveCamera | THREE.OrthographicCamera, el: HTMLElement, dim: Dim): OrbitControls {
+        let orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
+        if (this.dim == 2) {
+            orbitControls.enableRotate = false;
+            orbitControls.enablePan = true;
+            orbitControls.mouseButtons = {
+                LEFT: THREE.MOUSE.PAN,
+                MIDDLE: THREE.MOUSE.DOLLY,
+                RIGHT: THREE.MOUSE.PAN
+            }
+        }
+        return orbitControls
+    }
+
     private getPointsBuffer(i: number, center: boolean): THREE.BufferAttribute {
-        let positionMatrix: Matrix = multiply(this.dataset, this.projectionMatrices[i]);
+        let positionMatrix: Matrix = this.multiply(this.dataset, this.projectionMatrices[i]);
 
         if (center) {
-            let colMeans = multiply(this.colMeans, this.projectionMatrices[i]);
+            let colMeans = this.multiply(this.colMeans, this.projectionMatrices[i]);
             positionMatrix = centerColumns(positionMatrix, colMeans)
         }
 
@@ -164,7 +196,12 @@ export class ScatterWidget {
 
     private getAxisLinesBuffer(i: number): THREE.BufferAttribute {
         let projectionMatrix = this.projectionMatrices[i]
-        let linesBufferMatrix = projectionMatrix.map(row => [0, 0, 0].concat(row))
+        let linesBufferMatrix;
+        if (this.dim == 3) {
+            linesBufferMatrix = projectionMatrix.map(row => [0, 0, 0].concat(row))
+        } else if (this.dim == 2) {
+            linesBufferMatrix = projectionMatrix.map(row => [0, 0, 0].concat(row).concat([0]))
+        }
         return new THREE.BufferAttribute(new Float32Array([].concat(...linesBufferMatrix)), 3)
     }
 
