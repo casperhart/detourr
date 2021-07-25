@@ -13,10 +13,9 @@ void main(){
 }
 `
 
-export const VERTEX_SHADER = `
+export const VERTEX_SHADER_3D = `
 uniform float size;
 attribute vec3 color;
-
 varying vec3 vColor;
 
 void main(){
@@ -24,5 +23,20 @@ void main(){
     vec4 mvPosition = modelViewMatrix * vec4( position, 1.0);
     gl_Position = projectionMatrix * mvPosition;
     gl_PointSize = 200.0 * size / -mvPosition.z;
+}
+`
+
+export const VERTEX_SHADER_2D = `
+uniform float size;
+uniform float zoom;
+
+attribute vec3 color;
+varying vec3 vColor;
+
+void main(){
+    vColor=color;
+    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0);
+    gl_Position = projectionMatrix * mvPosition;
+    gl_PointSize = 100.0 * size * sqrt(zoom);
 }
 `

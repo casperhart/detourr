@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { ProjectionMatrix, ScatterInputData, Config, Matrix, Dim } from './data';
 import { multiply2, multiply3, centerColumns, getColMeans } from './utils'
-import { FRAGMENT_SHADER, VERTEX_SHADER } from './shaders';
+import { FRAGMENT_SHADER, VERTEX_SHADER_2D, VERTEX_SHADER_3D } from './shaders';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { playIcon, pauseIcon, resetIcon } from './icons'
 import './style.css'
@@ -52,13 +52,8 @@ export class ScatterWidget {
         let pointsGeometry = new THREE.BufferGeometry();
         let pointSize: number = this.dataset.length ** (-1 / 3)
 
-        let pointsMaterial = new THREE.ShaderMaterial({
-            uniforms: {
-                size: { value: Math.max(pointSize, this.minPointSize) }
-            },
-            vertexShader: VERTEX_SHADER,
-            fragmentShader: FRAGMENT_SHADER,
-        });
+        let shaderOpts = this.getShaderOpts(pointSize, this.dim);
+        let pointsMaterial = new THREE.ShaderMaterial(shaderOpts);
 
         let pointsBuffer = this.getPointsBuffer(0, this.config.center)
         pointsGeometry.setAttribute('position', pointsBuffer);
@@ -182,6 +177,30 @@ export class ScatterWidget {
         return orbitControls
     }
 
+    private getShaderOpts(pointSize: number, dim: Dim) {
+        let shaderOpts: any;
+        if (dim == 2) {
+            shaderOpts = {
+                uniforms: {
+                    size: { value: Math.max(pointSize, this.minPointSize) },
+                    zoom: { value: this.camera.zoom },
+                },
+                vertexShader: VERTEX_SHADER_2D,
+                fragmentShader: FRAGMENT_SHADER,
+            }
+        }
+        else {
+            shaderOpts = {
+                uniforms: {
+                    size: { value: Math.max(pointSize, this.minPointSize) },
+                },
+                vertexShader: VERTEX_SHADER_3D,
+                fragmentShader: FRAGMENT_SHADER,
+            }
+        }
+        return shaderOpts
+    }
+
     private getPointsBuffer(i: number, center: boolean): THREE.BufferAttribute {
         let positionMatrix: Matrix = this.multiply(this.dataset, this.projectionMatrices[i]);
 
@@ -269,7 +288,9 @@ export class ScatterWidget {
 
             this.oldFrame = currentFrame;
         }
-
+        if (this.dim == 2) {
+            (this.points.material as THREE.ShaderMaterial).uniforms.zoom.value = this.camera.zoom;
+        }
         this.renderer.render(this.scene, this.camera);
 
         requestAnimationFrame(() => this.animate());
