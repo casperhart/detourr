@@ -29,14 +29,14 @@ export function multiply2(a: Matrix, b: ProjectionMatrix): Matrix {
         const row = new Array(3);
         result[r] = row;
         const ar = a[r];
-        for (let c = 0; c < 2; ++c) {
+        for (let c = 0; c < 2; c++) {
             let sum = 0.;
             for (let i = 0; i < aCols; ++i) {
                 sum += ar[i] * b[i][c];
             }
-            row[c] = sum;
+            row[c * 2] = sum;
         }
-        row[2] = 0; // no z dimension for 2D
+        row[1] = 0 // no y dimension for 2D
     }
     return result;
 }
