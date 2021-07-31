@@ -146,11 +146,15 @@ export class ScatterWidget {
         let aspect = this.width / this.height;
         if (dim == 3) {
             camera = new THREE.PerspectiveCamera(45, aspect, 0.01, 1000);
+            camera.position.setZ(4);
         }
         else {
             camera = new THREE.OrthographicCamera(-1 * aspect, 1 * aspect, 1, -1, -1000, 1000);
+            // orbit controls don't rotate along camera z axis at all, so as a hack, we disable rotation
+            // on the y axis and change the camera view
+            camera.position.setY(4);
+            camera.up.set(0, -1, 0)
         }
-        camera.position.setZ(4);
         this.camera = camera;
     }
 
@@ -165,14 +169,11 @@ export class ScatterWidget {
 
     private addOrbitControls(camera: THREE.PerspectiveCamera | THREE.OrthographicCamera, el: HTMLElement, dim: Dim): OrbitControls {
         let orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
-        if (this.dim == 2) {
-            orbitControls.enableRotate = false;
-            orbitControls.enablePan = true;
-            orbitControls.mouseButtons = {
-                LEFT: THREE.MOUSE.PAN,
-                MIDDLE: THREE.MOUSE.DOLLY,
-                RIGHT: THREE.MOUSE.PAN
-            }
+        if (dim == 2) {
+            // We can only disable rotation on the x and y axes, so to get around this, we need 
+            // to disable rotation on y, and modify the camera view to be top-down
+            orbitControls.minPolarAngle = Math.PI;
+            orbitControls.maxPolarAngle = Math.PI;
         }
         return orbitControls
     }
@@ -219,7 +220,7 @@ export class ScatterWidget {
         if (this.dim == 3) {
             linesBufferMatrix = projectionMatrix.map(row => [0, 0, 0].concat(row))
         } else if (this.dim == 2) {
-            linesBufferMatrix = projectionMatrix.map(row => [0, 0, 0].concat(row).concat([0]))
+            linesBufferMatrix = projectionMatrix.map(row => [0, 0, 0, row[0], 0, row[1]])
         }
         return new THREE.BufferAttribute(new Float32Array([].concat(...linesBufferMatrix)), 3)
     }
@@ -254,6 +255,31 @@ export class ScatterWidget {
         resetButton.className = "resetButton";
         resetButton.onclick = () => this.resetClock();
         this.container.appendChild(resetButton);
+
+        let orbitPanSlider = this.makeSlider("orbitPan");
+        orbitPanSlider.querySelector("input").onclick = () => this.toggleOrbitPan();
+        this.container.appendChild(orbitPanSlider);
+
+    }
+
+    private makeSlider(className: string): HTMLElement {
+        // create a slider button that looks like this:
+        // <label class="switch {className}">
+        //   <input type="checkbox">
+        //   <span class="slider"></span>
+        // </label>
+
+        let label = document.createElement("label");
+        label.className = `switch ${className}`;
+        let input: HTMLInputElement = document.createElement("input")
+        input.type = "checkbox"
+        let span = document.createElement("span")
+        span.className = "slider"
+
+        label.appendChild(input);
+        label.appendChild(span);
+
+        return label
     }
 
     private animate() {
@@ -310,6 +336,27 @@ export class ScatterWidget {
         }
         else {
             playPauseButton.innerHTML = playIcon
+        }
+    }
+
+    private toggleOrbitPan() {
+        let orbitPanToggle: HTMLInputElement = this.container.querySelector('.switch.orbitPan > input[type=checkbox]');
+
+        // pan control
+        if (orbitPanToggle.checked) {
+            this.orbitControls.mouseButtons = {
+                LEFT: THREE.MOUSE.PAN,
+                MIDDLE: THREE.MOUSE.DOLLY,
+                RIGHT: THREE.MOUSE.ROTATE
+            }
+        }
+        // Orbit control
+        else {
+            this.orbitControls.mouseButtons = {
+                LEFT: THREE.MOUSE.ROTATE,
+                MIDDLE: THREE.MOUSE.DOLLY,
+                RIGHT: THREE.MOUSE.PAN
+            }
         }
     }
 
