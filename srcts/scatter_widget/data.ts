@@ -12,3 +12,5 @@ export type Matrix = Array<Array<number>>;
 export type ProjectionMatrix = Array<[number, number, number]> | Array<[number, number]>
 
 export type Dim = 2 | 3;
+
+export type ControlType = "PAN" | "ORBIT"
