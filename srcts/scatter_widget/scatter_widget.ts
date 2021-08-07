@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { ProjectionMatrix, ScatterInputData, Config, Matrix, Dim } from './data';
+import { ProjectionMatrix, ScatterInputData, Config, Matrix, Dim, ControlType } from './data';
 import { multiply2, multiply3, centerColumns, getColMeans } from './utils'
 import { FRAGMENT_SHADER, VERTEX_SHADER_2D, VERTEX_SHADER_3D } from './shaders';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { playIcon, pauseIcon, resetIcon } from './icons'
+import { playIcon, pauseIcon, resetIcon, panIcon, orbitIcon } from './icons'
 import './style.css'
 
 export class ScatterWidget {
@@ -31,6 +31,7 @@ export class ScatterWidget {
     private height: number;
     private dim: Dim;
     private multiply: Function;
+    private controlType: ControlType;
 
     constructor(containerElement: HTMLElement, width: number, height: number) {
         this.width = width;
@@ -243,43 +244,18 @@ export class ScatterWidget {
     }
 
     private addControls() {
-
-        let playPauseButton = document.createElement("button");
-        playPauseButton.innerHTML = pauseIcon;
-        playPauseButton.className = "playPauseButton";
-        playPauseButton.onclick = () => this.setIsPaused(!this.getIsPaused())
-        this.container.appendChild(playPauseButton);
-
-        let resetButton = document.createElement("button");
-        resetButton.innerHTML = resetIcon;
-        resetButton.className = "resetButton";
-        resetButton.onclick = () => this.resetClock();
-        this.container.appendChild(resetButton);
-
-        let orbitPanSlider = this.makeSlider("orbitPan");
-        orbitPanSlider.querySelector("input").onclick = () => this.toggleOrbitPan();
-        this.container.appendChild(orbitPanSlider);
-
+        this.addButton("playPause", "Play / Pause", pauseIcon, () => this.setIsPaused(!this.getIsPaused()));
+        this.addButton("reset", "Restart tour", resetIcon, () => this.resetClock());
+        this.addButton("pan", "Switch to pan controls", panIcon, () => this.setControlType(this.controlType == "PAN" ? "ORBIT" : "PAN"))
     }
 
-    private makeSlider(className: string): HTMLElement {
-        // create a slider button that looks like this:
-        // <label class="switch {className}">
-        //   <input type="checkbox">
-        //   <span class="slider"></span>
-        // </label>
-
-        let label = document.createElement("label");
-        label.className = `switch ${className}`;
-        let input: HTMLInputElement = document.createElement("input")
-        input.type = "checkbox"
-        let span = document.createElement("span")
-        span.className = "slider"
-
-        label.appendChild(input);
-        label.appendChild(span);
-
-        return label
+    private addButton(name: string, hoverText: string, icon: string, buttonCallback: Function) {
+        let button = document.createElement("button");
+        button.innerHTML = icon;
+        button.title = hoverText;
+        button.className = `${name}Button`;
+        button.onclick = () => buttonCallback();
+        this.container.appendChild(button);
     }
 
     private animate() {
@@ -339,25 +315,30 @@ export class ScatterWidget {
         }
     }
 
-    private toggleOrbitPan() {
-        let orbitPanToggle: HTMLInputElement = this.container.querySelector('.switch.orbitPan > input[type=checkbox]');
-
-        // pan control
-        if (orbitPanToggle.checked) {
-            this.orbitControls.mouseButtons = {
-                LEFT: THREE.MOUSE.PAN,
-                MIDDLE: THREE.MOUSE.DOLLY,
-                RIGHT: THREE.MOUSE.ROTATE
-            }
-        }
-        // Orbit control
-        else {
+    private setControlType(controlType: ControlType) {
+        let buttonClassName = controlType == "ORBIT" ? ".orbitButton" : ".panButton"
+        let orbitPanButton: HTMLButtonElement = this.container.querySelector(buttonClassName);
+        if (controlType == "ORBIT") {
+            orbitPanButton.innerHTML = panIcon;
+            orbitPanButton.title = "Switch to pan controls"
+            orbitPanButton.className = "panButton"
             this.orbitControls.mouseButtons = {
                 LEFT: THREE.MOUSE.ROTATE,
                 MIDDLE: THREE.MOUSE.DOLLY,
                 RIGHT: THREE.MOUSE.PAN
             }
         }
+        else {
+            orbitPanButton.innerHTML = orbitIcon;
+            orbitPanButton.title = "Switch to orbit controls";
+            orbitPanButton.className = "orbitButton";
+            this.orbitControls.mouseButtons = {
+                LEFT: THREE.MOUSE.PAN,
+                MIDDLE: THREE.MOUSE.DOLLY,
+                RIGHT: THREE.MOUSE.ROTATE
+            }
+        }
+        this.controlType = controlType;
     }
 
     private resetClock() {
