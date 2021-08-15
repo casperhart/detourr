@@ -3,7 +3,9 @@ import { ProjectionMatrix, ScatterInputData, Config, Matrix, Dim, ControlType, C
 import { multiply2, multiply3, centerColumns, getColMeans } from './utils'
 import { FRAGMENT_SHADER, VERTEX_SHADER_2D, VERTEX_SHADER_3D } from './shaders';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { playIcon, pauseIcon, resetIcon, panIcon, orbitIcon } from './icons'
+import { SelectionBox } from 'three/examples/jsm/interactive/SelectionBox.js';
+import { SelectionHelper } from 'three/examples/jsm/interactive/SelectionHelper.js';
+import { playIcon, pauseIcon, resetIcon, panIcon, orbitIcon, selectIcon } from './icons'
 import './style.css'
 
 export class ScatterWidget {
@@ -34,6 +36,10 @@ export class ScatterWidget {
     private multiply: Function;
     private controlType: ControlType;
     private pickingTexture: THREE.WebGLRenderTarget;
+    private selectionBox: SelectionBox;
+    private selectionHelper: SelectionHelper
+    private selectedPointIndices: number[];
+    private isSelecting = false;
 
     constructor(containerElement: HTMLElement, width: number, height: number) {
         this.width = width;
@@ -86,9 +92,9 @@ export class ScatterWidget {
             this.width,
             this.height
         );
-        //this.pickingTexture.texture.minFilter = THREE.LinearFilter;
-        // this.pickingTexture.texture.minFilter = THREE.LinearFilter;
-        this.container.addEventListener('mousemove', (e: MouseEvent) => this.getPointIndicesFromBoxSelection(e));
+
+        this.selectionBox = new SelectionBox(this.camera, this.scene);
+        this.selectionHelper = new SelectionHelper(this.selectionBox, this.renderer, 'disabled');
 
         this.clock = new THREE.Clock();
         this.time = 0;
@@ -277,6 +283,7 @@ export class ScatterWidget {
         this.addButton("playPause", "Play / Pause", pauseIcon, () => this.setIsPaused(!this.getIsPaused()));
         this.addButton("reset", "Restart tour", resetIcon, () => this.resetClock());
         this.addButton("pan", "Switch to pan controls", panIcon, () => this.setControlType(this.controlType == "PAN" ? "ORBIT" : "PAN"))
+        this.addButton("select", "Switch to selection controls", selectIcon, () => this.setSelection(!this.isSelecting))
     }
 
     private addButton(name: string, hoverText: string, icon: string, buttonCallback: Function) {
@@ -288,34 +295,37 @@ export class ScatterWidget {
         this.container.appendChild(button);
     }
 
-    private getPointIndicesFromBoxSelection(e: MouseEvent) {
-        let pixelBuffer = new Uint8Array(4);
+    private getPointIndicesFromBoxSelection(selection: SelectionBox): number[] {
         const { pickingTexture, renderer, camera, scene } = this;
 
-        let selection: BoxSelection = {
-            x: e.clientX,
-            y: e.clientY,
-            width: 1,
-            height: 1
-        };
+        let x = Math.min(selection.startPoint.x, selection.endPoint.x);
+        let y = Math.max(selection.startPoint.y, selection.endPoint.y);
+        let width = Math.abs(selection.startPoint.x - selection.endPoint.x);
+        let height = Math.abs(selection.startPoint.y - selection.endPoint.y);
+
+        let pixelBuffer = new Uint8Array(4 * width * height);
 
         this.renderer.readRenderTargetPixels(
             pickingTexture,
-            selection.x,                            // x
-            pickingTexture.height - selection.y,    // y
-            selection.width,                        // width
-            selection.height,                       // height
+            x,                            // x
+            pickingTexture.height - y,    // y
+            width,                        // width
+            height,                       // height
             pixelBuffer);
 
-        const id =
-            (pixelBuffer[0] << 16) |
-            (pixelBuffer[1] << 8) |
-            (pixelBuffer[2]);
-
-        //console.log(rect.x, rect.y, rect.width, rect.height, x, y)
-        if (id != 16777215) {
-            console.log(id)
+        let selectedPointIndices = new Set<number>()
+        let id;
+        for (let i = 0; i < width * height; i++) {
+            id =
+                (pixelBuffer[4 * i] << 16) |
+                (pixelBuffer[4 * i + 1] << 8) |
+                (pixelBuffer[4 * i + 2]);
+            if (id != 0 && id != 0xffffff) {
+                selectedPointIndices.add(id);
+            }
         }
+
+        return Array.from(selectedPointIndices)
     }
 
     private animate() {
@@ -409,6 +419,62 @@ export class ScatterWidget {
         }
         this.controlType = controlType;
     }
+
+    private selectionStartEventListener = (event: MouseEvent) => {
+        this.selectionBox.startPoint.set(
+            Math.floor(event.clientX),
+            Math.floor(event.clientY),
+            0);
+    }
+
+    private selectionMoveEventListener = (event: MouseEvent) => {
+        if (this.selectionHelper.isDown) {
+            this.selectionBox.endPoint.set(
+                Math.floor(event.clientX),
+                Math.floor(event.clientY),
+                0);
+        }
+    }
+
+    private selectionEndEventListener = (event: MouseEvent) => {
+        this.selectionBox.endPoint.set(
+            Math.floor(event.clientX),
+            Math.floor(event.clientY),
+            0);
+        this.selectedPointIndices = this.getPointIndicesFromBoxSelection(this.selectionBox);
+        console.log(this.selectedPointIndices)
+    }
+
+    private setSelection(enable: boolean) {
+
+        let selectButton = this.container.querySelector("button.selectButton");
+
+        if (enable) {
+
+            this.orbitControls.enabled = false;
+            selectButton.className = "selectButton enabled"
+            this.selectionHelper.element.className = "selectBox enabled"
+
+            this.renderer.domElement.addEventListener('pointerdown', this.selectionStartEventListener);
+            this.renderer.domElement.addEventListener('pointermove', this.selectionMoveEventListener)
+            this.renderer.domElement.addEventListener('pointerup', this.selectionEndEventListener);
+
+        } else {
+
+            selectButton.className = "selectButton disabled"
+            this.orbitControls.enabled = true;
+            this.renderer.domElement.removeEventListener('pointerdown', this.selectionStartEventListener);
+            this.renderer.domElement.removeEventListener('pointermove', this.selectionMoveEventListener)
+            this.renderer.domElement.removeEventListener('pointerup', this.selectionEndEventListener)
+
+            // make selection box invisible
+            this.selectionHelper.element.className = "selectBox disabled"
+
+        }
+
+        this.isSelecting = enable;
+    }
+
 
     private resetClock() {
         this.time = 0
