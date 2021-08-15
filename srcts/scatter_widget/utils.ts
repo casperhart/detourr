@@ -1,4 +1,4 @@
-import { Matrix, ProjectionMatrix, Dim } from "./data";
+import { Matrix, ProjectionMatrix, Dim } from "./types";
 
 export function multiply3(a: Matrix, b: ProjectionMatrix): Matrix {
     // TODO: return flattened result as Float32Array for performance

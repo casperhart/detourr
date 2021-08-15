@@ -13,4 +13,13 @@ export type ProjectionMatrix = Array<[number, number, number]> | Array<[number, 
 
 export type Dim = 2 | 3;
 
-export type ControlType = "PAN" | "ORBIT"
+export type ControlType = "PAN" | "ORBIT";
+
+export type Camera = THREE.PerspectiveCamera | THREE.OrthographicCamera;
+
+export interface BoxSelection {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
