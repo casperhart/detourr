@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { ProjectionMatrix, ScatterInputData, Config, Matrix, Dim, ControlType } from './data';
+import { ProjectionMatrix, ScatterInputData, Config, Matrix, Dim, ControlType, Camera, BoxSelection } from './types';
 import { multiply2, multiply3, centerColumns, getColMeans } from './utils'
 import { FRAGMENT_SHADER, VERTEX_SHADER_2D, VERTEX_SHADER_3D } from './shaders';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -10,7 +10,7 @@ export class ScatterWidget {
     private container: HTMLElement;
     private canvas: HTMLCanvasElement = document.createElement("canvas");
     private scene: THREE.Scene;
-    private camera: THREE.PerspectiveCamera | THREE.OrthographicCamera;
+    private camera: Camera;
     private renderer: THREE.WebGLRenderer;
     private config: Config;
     private dataset: Matrix;
@@ -27,11 +27,13 @@ export class ScatterWidget {
     private colMeans: Matrix;
     private mapping: { colour: string[] };
     private pointColours: THREE.BufferAttribute;
+    private pickingColours: THREE.BufferAttribute;
     private width: number;
     private height: number;
     private dim: Dim;
     private multiply: Function;
     private controlType: ControlType;
+    private pickingTexture: THREE.WebGLRenderTarget;
 
     constructor(containerElement: HTMLElement, width: number, height: number) {
         this.width = width;
@@ -48,7 +50,8 @@ export class ScatterWidget {
 
         this.colMeans = getColMeans(this.dataset);
 
-        this.pointColours = this.coloursToBufferAttribute(this.mapping.colour)
+        this.pointColours = this.coloursToBufferAttribute(this.mapping.colour);
+        this.pickingColours = this.getPickingColours();
 
         let pointsGeometry = new THREE.BufferGeometry();
         let pointSize: number = this.dataset.length ** (-1 / 3)
@@ -76,7 +79,16 @@ export class ScatterWidget {
         this.axisSegments = new THREE.LineSegments(axisLinesGeometry, axisLinesMaterial)
         this.scene.add(this.axisSegments)
 
-        this.orbitControls = this.addOrbitControls(this.camera, this.renderer.domElement, this.dim);
+        this.addOrbitControls();
+
+        // resize picking renderer
+        this.pickingTexture = new THREE.WebGLRenderTarget(
+            this.width,
+            this.height
+        );
+        //this.pickingTexture.texture.minFilter = THREE.LinearFilter;
+        // this.pickingTexture.texture.minFilter = THREE.LinearFilter;
+        this.container.addEventListener('mousemove', (e: MouseEvent) => this.getPointIndicesFromBoxSelection(e));
 
         this.clock = new THREE.Clock();
         this.time = 0;
@@ -100,6 +112,12 @@ export class ScatterWidget {
         }
         this.camera.updateProjectionMatrix()
         this.renderer.setSize(newWidth, newHeight)
+
+        // resize picking renderer
+        this.pickingTexture = new THREE.WebGLRenderTarget(
+            newWidth,
+            newHeight
+        );
     }
 
     public renderValue(inputData: ScatterInputData) {
@@ -143,7 +161,7 @@ export class ScatterWidget {
     }
 
     private addCamera(dim: Dim) {
-        let camera: THREE.PerspectiveCamera | THREE.OrthographicCamera;
+        let camera: Camera;
         let aspect = this.width / this.height;
         if (dim == 3) {
             camera = new THREE.PerspectiveCamera(45, aspect, 0.01, 1000);
@@ -168,15 +186,15 @@ export class ScatterWidget {
         this.renderer = renderer;
     }
 
-    private addOrbitControls(camera: THREE.PerspectiveCamera | THREE.OrthographicCamera, el: HTMLElement, dim: Dim): OrbitControls {
+    private addOrbitControls() {
         let orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
-        if (dim == 2) {
+        if (this.dim == 2) {
             // We can only disable rotation on the x and y axes, so to get around this, we need 
             // to disable rotation on y, and modify the camera view to be top-down
             orbitControls.minPolarAngle = Math.PI;
             orbitControls.maxPolarAngle = Math.PI;
         }
-        return orbitControls
+        this.orbitControls = orbitControls;
     }
 
     private getShaderOpts(pointSize: number, dim: Dim) {
@@ -243,6 +261,18 @@ export class ScatterWidget {
         return new THREE.BufferAttribute(bufferArray, 3)
     }
 
+    private getPickingColours(): THREE.BufferAttribute {
+        let bufferArray = new Float32Array(this.dataset.length * 3)
+        let j = 0;
+        for (let i = 1; i <= this.dataset.length; i++) {
+            bufferArray[j] = 0
+            bufferArray[j + 1] = Math.floor(i / 255) / 255
+            bufferArray[j + 2] = (i % 255) / 255
+            j += 3;
+        }
+        return new THREE.BufferAttribute(bufferArray, 3)
+    }
+
     private addControls() {
         this.addButton("playPause", "Play / Pause", pauseIcon, () => this.setIsPaused(!this.getIsPaused()));
         this.addButton("reset", "Restart tour", resetIcon, () => this.resetClock());
@@ -256,6 +286,36 @@ export class ScatterWidget {
         button.className = `${name}Button`;
         button.onclick = () => buttonCallback();
         this.container.appendChild(button);
+    }
+
+    private getPointIndicesFromBoxSelection(e: MouseEvent) {
+        let pixelBuffer = new Uint8Array(4);
+        const { pickingTexture, renderer, camera, scene } = this;
+
+        let selection: BoxSelection = {
+            x: e.clientX,
+            y: e.clientY,
+            width: 1,
+            height: 1
+        };
+
+        this.renderer.readRenderTargetPixels(
+            pickingTexture,
+            selection.x,                            // x
+            pickingTexture.height - selection.y,    // y
+            selection.width,                        // width
+            selection.height,                       // height
+            pixelBuffer);
+
+        const id =
+            (pixelBuffer[0] << 16) |
+            (pixelBuffer[1] << 8) |
+            (pixelBuffer[2]);
+
+        //console.log(rect.x, rect.y, rect.width, rect.height, x, y)
+        if (id != 16777215) {
+            console.log(id)
+        }
     }
 
     private animate() {
@@ -293,6 +353,15 @@ export class ScatterWidget {
         if (this.dim == 2) {
             (this.points.material as THREE.ShaderMaterial).uniforms.zoom.value = this.camera.zoom;
         }
+
+        // render the picking scene for box selection
+        this.points.geometry.setAttribute('color', this.pickingColours)
+        this.renderer.setRenderTarget(this.pickingTexture)
+        this.renderer.render(this.scene, this.camera);
+
+        // render the scene
+        this.renderer.setRenderTarget(null);
+        this.points.geometry.setAttribute('color', this.pointColours)
         this.renderer.render(this.scene, this.camera);
 
         requestAnimationFrame(() => this.animate());
