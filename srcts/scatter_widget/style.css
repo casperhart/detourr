@@ -32,10 +32,28 @@ button.orbitButton {
   border: 5px;
 }
 
+button.selectButton {
+  top: 115px;
+  border: 5px;
+}
+button.selectButton.enabled {
+  color: rgb(0, 0, 204);
+}
+
+button.selectButton.disabled {
+  color: rgb(0, 0, 0);
+}
+
 .scatterWidgetContainer {
   position: relative;
 }
 
 .scatterWidgetCanvas {
   position: absolute;
+}
+
+.selectBox.enabled {
+  border: 1px solid #55aaff;
+  background-color: rgba(75, 160, 255, 0.3);
+  position: fixed;
 }
