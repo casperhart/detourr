@@ -44,6 +44,14 @@ button.selectButton.disabled {
   color: rgb(0, 0, 0);
 }
 
+input.colourSelector {
+  position: absolute;
+  top: 150px;
+  left: 10px;
+  width: 22px;
+  height: 22px;
+}
+
 .scatterWidgetContainer {
   position: relative;
 }
