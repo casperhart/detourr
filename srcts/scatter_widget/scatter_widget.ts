@@ -88,9 +88,10 @@ export class ScatterWidget {
         this.addOrbitControls();
 
         // resize picking renderer
+        let dpr = this.renderer.getPixelRatio();
         this.pickingTexture = new THREE.WebGLRenderTarget(
-            this.width,
-            this.height
+            this.width * dpr,
+            this.height * dpr
         );
 
         this.selectionBox = new SelectionBox(this.camera, this.scene);
@@ -105,6 +106,7 @@ export class ScatterWidget {
 
     public resize(newWidth: number, newHeight: number) {
         let aspect = newWidth / newHeight;
+        let dpr = this.renderer.getPixelRatio();
         this.canvas.width = newWidth;
         this.canvas.height = newHeight;
         if (this.dim == 3) {
@@ -120,9 +122,9 @@ export class ScatterWidget {
         this.renderer.setSize(newWidth, newHeight)
 
         // resize picking renderer
-        this.pickingTexture = new THREE.WebGLRenderTarget(
-            newWidth,
-            newHeight
+        this.pickingTexture.setSize(
+            newWidth * dpr,
+            newHeight * dpr
         );
     }
 
@@ -272,9 +274,10 @@ export class ScatterWidget {
         let bufferArray = new Float32Array(this.dataset.length * 3)
         let j = 0;
         for (let i = 1; i <= this.dataset.length; i++) {
-            bufferArray[j] = 0
-            bufferArray[j + 1] = Math.floor(i / 255) / 255
-            bufferArray[j + 2] = (i % 255) / 255
+            // bit masking
+            bufferArray[j] = ((i >> 16) & 0xff) / 255
+            bufferArray[j + 1] = ((i >> 8) & 0xff) / 255
+            bufferArray[j + 2] = (i & 0xff) / 255
             j += 3;
         }
         return new THREE.BufferAttribute(bufferArray, 3)
@@ -308,21 +311,24 @@ export class ScatterWidget {
     }
 
     private setPointIndicesFromBoxSelection(selection: SelectionBox) {
-        const { pickingTexture, renderer, camera, scene } = this;
+        const { pickingTexture, renderer, canvas } = this;
+        const dpr = renderer.getPixelRatio();
 
-        let x = Math.min(selection.startPoint.x, selection.endPoint.x);
-        let y = Math.max(selection.startPoint.y, selection.endPoint.y);
-        let width = Math.abs(selection.startPoint.x - selection.endPoint.x);
-        let height = Math.abs(selection.startPoint.y - selection.endPoint.y);
+        let canvas_coords = canvas.getBoundingClientRect();
+        let x = (Math.min(selection.startPoint.x, selection.endPoint.x) - canvas_coords.left) * dpr;
+        let y = (Math.max(selection.startPoint.y, selection.endPoint.y) - canvas_coords.top) * dpr;
+        let width = Math.abs(selection.startPoint.x - selection.endPoint.x) * dpr;
+        let height = Math.abs(selection.startPoint.y - selection.endPoint.y) * dpr;
+
 
         let pixelBuffer = new Uint8Array(4 * width * height);
 
         this.renderer.readRenderTargetPixels(
             pickingTexture,
-            x,                            // x
-            pickingTexture.height - y,    // y
-            width,                        // width
-            height,                       // height
+            x,
+            pickingTexture.height - y,
+            width,
+            height,
             pixelBuffer);
 
         let selectedPointIndices = new Set<number>()
@@ -462,7 +468,6 @@ export class ScatterWidget {
         let colour = new THREE.Color(selector.value);
 
         for (const ind of this.selectedPointIndices) {
-
             this.pointColours.set([colour.r, colour.g, colour.b], (ind - 1) * 3)
             this.pointColours.needsUpdate = true
         }
