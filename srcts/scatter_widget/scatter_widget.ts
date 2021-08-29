@@ -268,6 +268,7 @@ export class ScatterWidget {
     }
 
     private getPickingColours(): THREE.BufferAttribute {
+        // picking colours are just sequential IDs converted to RGB values
         let bufferArray = new Float32Array(this.dataset.length * 3)
         let j = 0;
         for (let i = 1; i <= this.dataset.length; i++) {
@@ -282,8 +283,9 @@ export class ScatterWidget {
     private addControls() {
         this.addButton("playPause", "Play / Pause", pauseIcon, () => this.setIsPaused(!this.getIsPaused()));
         this.addButton("reset", "Restart tour", resetIcon, () => this.resetClock());
-        this.addButton("pan", "Switch to pan controls", panIcon, () => this.setControlType(this.controlType == "PAN" ? "ORBIT" : "PAN"))
-        this.addButton("select", "Switch to selection controls", selectIcon, () => this.setSelection(!this.isSelecting))
+        this.addButton("pan", "Switch to pan controls", panIcon, () => this.setControlType(this.controlType == "PAN" ? "ORBIT" : "PAN"));
+        this.addButton("select", "Switch to selection controls", selectIcon, () => this.setSelectionMode(!this.isSelecting));
+        this.addColourSelector();
     }
 
     private addButton(name: string, hoverText: string, icon: string, buttonCallback: Function) {
@@ -295,7 +297,17 @@ export class ScatterWidget {
         this.container.appendChild(button);
     }
 
-    private getPointIndicesFromBoxSelection(selection: SelectionBox): number[] {
+    private addColourSelector() {
+        // add colour picker
+        let colourSelector = document.createElement("input");
+        colourSelector.setAttribute("type", "color");
+        colourSelector.className = "colourSelector";
+        colourSelector.setAttribute("value", "#619CFF");
+        colourSelector.setAttribute("title", "Select colour to apply using selection box")
+        this.container.appendChild(colourSelector)
+    }
+
+    private setPointIndicesFromBoxSelection(selection: SelectionBox) {
         const { pickingTexture, renderer, camera, scene } = this;
 
         let x = Math.min(selection.startPoint.x, selection.endPoint.x);
@@ -325,7 +337,7 @@ export class ScatterWidget {
             }
         }
 
-        return Array.from(selectedPointIndices)
+        this.selectedPointIndices = Array.from(selectedPointIndices)
     }
 
     private animate() {
@@ -441,11 +453,22 @@ export class ScatterWidget {
             Math.floor(event.clientX),
             Math.floor(event.clientY),
             0);
-        this.selectedPointIndices = this.getPointIndicesFromBoxSelection(this.selectionBox);
-        console.log(this.selectedPointIndices)
+        this.setPointIndicesFromBoxSelection(this.selectionBox);
+        this.setSelectedPointColour();
     }
 
-    private setSelection(enable: boolean) {
+    private setSelectedPointColour() {
+        let selector: HTMLInputElement = this.container.querySelector(".colourSelector");
+        let colour = new THREE.Color(selector.value);
+
+        for (const ind of this.selectedPointIndices) {
+
+            this.pointColours.set([colour.r, colour.g, colour.b], (ind - 1) * 3)
+            this.pointColours.needsUpdate = true
+        }
+    }
+
+    private setSelectionMode(enable: boolean) {
 
         let selectButton = this.container.querySelector("button.selectButton");
 
@@ -474,7 +497,6 @@ export class ScatterWidget {
 
         this.isSelecting = enable;
     }
-
 
     private resetClock() {
         this.time = 0
