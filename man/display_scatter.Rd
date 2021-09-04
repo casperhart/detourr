@@ -4,14 +4,12 @@
 \alias{display_scatter}
 \title{3D Scatterplot display for tours}
 \usage{
-display_scatter(mapping = NULL, center = TRUE, cache_frames = TRUE)
+display_scatter(mapping = NULL, center = TRUE)
 }
 \arguments{
 \item{mapping}{mapping created via \code{tour_aes()}. Currently only supports colour mapping.}
 
 \item{center}{If TRUE, center the projected data to (0, 0, 0).}
-
-\item{cache_frames}{if TRUE, cache projected data at each frame of the animation. Reduces CPU usage if the tour is cycling, but can increase memory usage considerably.}
 }
 \description{
 Display method for a high performance 3D scatterplot.

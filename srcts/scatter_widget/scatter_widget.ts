@@ -20,7 +20,6 @@ export class ScatterWidget {
     private clock = new THREE.Clock();
     private time: number;
     private oldFrame: number;
-    private pointsBuffers: THREE.BufferAttribute[] = [];
     private points: THREE.Points;
     private axisSegments: THREE.LineSegments;
     private minPointSize: number = 0.02;
@@ -67,10 +66,6 @@ export class ScatterWidget {
 
         let pointsBuffer = this.getPointsBuffer(0, this.config.center)
         pointsGeometry.setAttribute('position', pointsBuffer);
-
-        if (this.config.cacheFrames) {
-            this.pointsBuffers.push(pointsBuffer)
-        }
 
         this.points = new THREE.Points(pointsGeometry, pointsMaterial)
         this.points.geometry.setAttribute('color', this.pointColours)
@@ -360,15 +355,7 @@ export class ScatterWidget {
         if (currentFrame != this.oldFrame) {
             let frameBuffer: THREE.BufferAttribute
 
-            if (this.pointsBuffers[currentFrame] == undefined) {
-                frameBuffer = this.getPointsBuffer(currentFrame, this.config.center)
-                if (this.config.cacheFrames) {
-                    this.pointsBuffers[currentFrame] = frameBuffer
-                }
-            }
-            else {
-                frameBuffer = this.pointsBuffers[currentFrame]
-            }
+            frameBuffer = this.getPointsBuffer(currentFrame, this.config.center)
 
             this.points.geometry.setAttribute('position', frameBuffer);
             this.points.geometry.attributes.position.needsUpdate = true;
