@@ -281,9 +281,11 @@ export class ScatterWidget {
     private addControls() {
         this.addButton("playPause", "Play / Pause", pauseIcon, () => this.setIsPaused(!this.getIsPaused()));
         this.addButton("reset", "Restart tour", resetIcon, () => this.resetClock());
-        this.addButton("pan", "Switch to pan controls", panIcon, () => this.setControlType(this.controlType == "PAN" ? "ORBIT" : "PAN"));
-        this.addButton("select", "Switch to selection controls", selectIcon, () => this.setSelectionMode(!this.isSelecting));
+        this.addButton("pan", "Switch to pan controls", panIcon, () => this.setControlType("PAN"));
+        this.addButton("orbit", "Switch to orbit controls", orbitIcon, () => this.setControlType("ORBIT"));
+        this.addButton("select", "Switch to selection controls", selectIcon, () => this.setControlType("SELECT"));
         this.addColourSelector();
+        this.controlType = "ORBIT";
     }
 
     private addButton(name: string, hoverText: string, icon: string, buttonCallback: Function) {
@@ -400,29 +402,45 @@ export class ScatterWidget {
     }
 
     private setControlType(controlType: ControlType) {
-        let buttonClassName = controlType == "ORBIT" ? ".orbitButton" : ".panButton"
-        let orbitPanButton: HTMLButtonElement = this.container.querySelector(buttonClassName);
-        if (controlType == "ORBIT") {
-            orbitPanButton.innerHTML = panIcon;
-            orbitPanButton.title = "Switch to pan controls"
-            orbitPanButton.className = "panButton"
-            this.orbitControls.mouseButtons = {
-                LEFT: THREE.MOUSE.ROTATE,
-                MIDDLE: THREE.MOUSE.DOLLY,
-                RIGHT: THREE.MOUSE.PAN
+        let currentButtonClassName = `${this.controlType.toString().toLowerCase()}Button`;
+        let selectedButtonClassName = `${controlType.toString().toLowerCase()}Button`;
+
+        let currentButton: HTMLButtonElement = this.container.querySelector(`.${currentButtonClassName}`);
+        let selectedButton: HTMLButtonElement = this.container.querySelector(`.${selectedButtonClassName}`);
+
+        switch (controlType) {
+            case "ORBIT": {
+                if (this.controlType == "SELECT") {
+                    this.setSelectionMode(false);
+                }
+                this.orbitControls.mouseButtons = {
+                    LEFT: THREE.MOUSE.ROTATE,
+                    MIDDLE: THREE.MOUSE.DOLLY,
+                    RIGHT: THREE.MOUSE.PAN
+                }
+                break;
+            }
+            case "PAN": {
+                if (this.controlType == "SELECT") {
+                    this.setSelectionMode(false);
+                }
+                this.orbitControls.mouseButtons = {
+                    LEFT: THREE.MOUSE.PAN,
+                    MIDDLE: THREE.MOUSE.DOLLY,
+                    RIGHT: THREE.MOUSE.ROTATE
+                }
+                break;
+            }
+            case "SELECT": {
+                this.setSelectionMode(true);
+            }
+            default: {
+                break;
             }
         }
-        else {
-            orbitPanButton.innerHTML = orbitIcon;
-            orbitPanButton.title = "Switch to orbit controls";
-            orbitPanButton.className = "orbitButton";
-            this.orbitControls.mouseButtons = {
-                LEFT: THREE.MOUSE.PAN,
-                MIDDLE: THREE.MOUSE.DOLLY,
-                RIGHT: THREE.MOUSE.ROTATE
-            }
-        }
-        this.controlType = controlType;
+        this.controlType = controlType
+        currentButton.className = `${currentButtonClassName} unselected`;
+        selectedButton.className = `${selectedButtonClassName} selected`
     }
 
     private selectionStartEventListener = (event: MouseEvent) => {
@@ -467,8 +485,8 @@ export class ScatterWidget {
         if (enable) {
 
             this.orbitControls.enabled = false;
-            selectButton.className = "selectButton enabled"
-            this.selectionHelper.element.className = "selectBox enabled"
+            selectButton.className = "selectButton selected";
+            this.selectionHelper.element.className = "selectBox enabled";
 
             this.renderer.domElement.addEventListener('pointerdown', this.selectionStartEventListener);
             this.renderer.domElement.addEventListener('pointermove', this.selectionMoveEventListener)
@@ -476,7 +494,7 @@ export class ScatterWidget {
 
         } else {
 
-            selectButton.className = "selectButton disabled"
+            selectButton.className = "selectButton unselected"
             this.orbitControls.enabled = true;
             this.renderer.domElement.removeEventListener('pointerdown', this.selectionStartEventListener);
             this.renderer.domElement.removeEventListener('pointermove', this.selectionMoveEventListener)

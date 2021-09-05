@@ -13,7 +13,7 @@ export type ProjectionMatrix = Array<[number, number, number]> | Array<[number, 
 
 export type Dim = 2 | 3;
 
-export type ControlType = "PAN" | "ORBIT";
+export type ControlType = "PAN" | "ORBIT" | "SELECT";
 
 export type Camera = THREE.PerspectiveCamera | THREE.OrthographicCamera;
 
