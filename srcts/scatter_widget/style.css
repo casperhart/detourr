@@ -28,25 +28,26 @@ button.panButton {
 }
 
 button.orbitButton {
-  top: 80px;
+  top: 115px;
   border: 5px;
 }
 
 button.selectButton {
-  top: 115px;
+  top: 150px;
   border: 5px;
 }
-button.selectButton.enabled {
-  color: rgb(0, 0, 204);
+
+button.unselected {
+  color: rgb(75, 75, 75);
 }
 
-button.selectButton.disabled {
-  color: rgb(0, 0, 0);
+button.selected {
+  color: rgb(44, 44, 240);
 }
 
 input.colourSelector {
   position: absolute;
-  top: 150px;
+  top: 185px;
   left: 10px;
   width: 22px;
   height: 22px;
