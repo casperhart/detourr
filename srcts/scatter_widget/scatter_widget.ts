@@ -285,7 +285,11 @@ export class ScatterWidget {
         this.addButton("orbit", "Switch to orbit controls", orbitIcon, () => this.setControlType("ORBIT"));
         this.addButton("select", "Switch to selection controls", selectIcon, () => this.setControlType("SELECT"));
         this.addColourSelector();
+
+        // set orbit as default
         this.controlType = "ORBIT";
+        let currentButton: HTMLButtonElement = this.container.querySelector(`.orbitButton`);
+        currentButton.className = 'orbitButton selected';
     }
 
     private addButton(name: string, hoverText: string, icon: string, buttonCallback: Function) {
