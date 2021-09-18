@@ -5,7 +5,7 @@ export interface ScatterInputData {
     mapping: { colour: string[] }
 }
 
-export interface Config { fps: number, duration: number, s: boolean, center: boolean };
+export interface Config { fps: number, duration: number, center: boolean, size: number };
 
 export type Matrix = Array<Array<number>>;
 

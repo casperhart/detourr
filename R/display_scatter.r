@@ -5,10 +5,11 @@
 #' Performance is achieved through the use of Three.js / WebGL.
 #' @param mapping mapping created via `tour_aes()`. Currently only supports colour mapping.
 #' @param center If TRUE, center the projected data to (0, 0, 0).
+#' @param size point size, defaults to 1
 #' @export
 #' @examples
 #' animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
-display_scatter <- function(mapping = NULL, center = TRUE) {
+display_scatter <- function(mapping = NULL, center = TRUE, size = 1) {
     init <- function(data) {
         default_mapping <- list(colour = character(0))
         mapping <- purrr::map(mapping, get_mapping_cols, data)
@@ -21,7 +22,7 @@ display_scatter <- function(mapping = NULL, center = TRUE) {
 
         list(
             "mapping" = mapping,
-            "plot" = list("center" = center),
+            "plot" = list("center" = center, "size" = size),
             "widget" = "display_scatter"
         )
     }

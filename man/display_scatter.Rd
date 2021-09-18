@@ -4,12 +4,14 @@
 \alias{display_scatter}
 \title{3D Scatterplot display for tours}
 \usage{
-display_scatter(mapping = NULL, center = TRUE)
+display_scatter(mapping = NULL, center = TRUE, size = 1)
 }
 \arguments{
 \item{mapping}{mapping created via \code{tour_aes()}. Currently only supports colour mapping.}
 
 \item{center}{If TRUE, center the projected data to (0, 0, 0).}
+
+\item{size}{point size, defaults to 1}
 }
 \description{
 Display method for a high performance 3D scatterplot.

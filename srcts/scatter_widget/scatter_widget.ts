@@ -59,7 +59,7 @@ export class ScatterWidget {
         this.pickingColours = this.getPickingColours();
 
         let pointsGeometry = new THREE.BufferGeometry();
-        let pointSize: number = this.dataset.length ** (-1 / 3)
+        let pointSize = this.config.size / 10;
 
         let shaderOpts = this.getShaderOpts(pointSize, this.dim);
         let pointsMaterial = new THREE.ShaderMaterial(shaderOpts);
