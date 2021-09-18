@@ -39,6 +39,8 @@ export class ScatterWidget {
     private selectionHelper: SelectionHelper
     private selectedPointIndices: number[];
     private isSelecting = false;
+    private axisLabels: Array<AxisLabel>;
+    private hasAxisLabels: boolean;
 
     constructor(containerElement: HTMLElement, width: number, height: number) {
         this.width = width;
@@ -79,6 +81,8 @@ export class ScatterWidget {
 
         this.axisSegments = new THREE.LineSegments(axisLinesGeometry, axisLinesMaterial)
         this.scene.add(this.axisSegments)
+
+        this.addAxisLabels();
 
         this.addOrbitControls();
 
@@ -311,6 +315,17 @@ export class ScatterWidget {
         this.container.appendChild(colourSelector)
     }
 
+    private addAxisLabels() {
+        if (this.config.labels == []) {
+            this.hasAxisLabels = false
+        } else {
+            this.hasAxisLabels = true
+            this.axisLabels = this.config.labels.map(label => {
+                return new AxisLabel(label, [0, 0, 0], this.container, this.canvas, this.camera, this.dim)
+            });
+        }
+    };
+
     private setPointIndicesFromBoxSelection(selection: SelectionBox) {
         const { pickingTexture, renderer, canvas } = this;
         const dpr = renderer.getPixelRatio();
@@ -385,6 +400,10 @@ export class ScatterWidget {
         this.points.geometry.setAttribute('color', this.pointColours)
         this.renderer.render(this.scene, this.camera);
 
+        // update axis labels
+        if (this.hasAxisLabels) {
+            this.axisLabels.map((x, i) => x.updatePosition(this.projectionMatrices[currentFrame][i], this.camera))
+        }
         requestAnimationFrame(() => this.animate());
     }
 
@@ -516,3 +535,45 @@ export class ScatterWidget {
         this.time = 0
     }
 }
+
+
+class AxisLabel {
+    private div: HTMLDivElement;
+    private canvas: HTMLCanvasElement;
+    private text: string;
+    private position: THREE.Vector3;
+    private dim: Dim;
+
+    constructor(text: string, pos: number[],
+        container: HTMLElement, canvas: HTMLCanvasElement, camera: Camera, dim: Dim) {
+        this.div = document.createElement('div');
+        this.div.innerHTML = text;
+        this.div.className = "axisLabel"
+
+        this.canvas = canvas;
+        this.text = text;
+        this.position = new THREE.Vector3(...pos);
+        this.dim = dim;
+
+        container.appendChild(this.div);
+        this.updatePosition(pos, camera);
+    }
+    public updatePosition(pos: number[], camera: Camera) {
+        if (this.dim == 3) {
+            this.position.set(pos[0], pos[1], pos[2])
+        } else {
+            this.position.set(pos[0], 0, pos[1])
+        }
+        var coords2d = this.get2DCoords(camera);
+
+        this.div.style.left = coords2d.x + 'px';
+        this.div.style.top = coords2d.y + 'px';
+    }
+
+    private get2DCoords(camera: Camera) {
+        var vector = this.position.project(camera);
+        vector.x = (vector.x + 1) / 2 * this.canvas.width;
+        vector.y = -(vector.y - 1) / 2 * this.canvas.height;
+        return vector;
+    }
+};
