@@ -66,3 +66,8 @@ input.colourSelector {
   background-color: rgba(75, 160, 255, 0.3);
   position: fixed;
 }
+
+div.axisLabel {
+  position: absolute;
+  font-family: Helvetica, Sans-serif;
+}
