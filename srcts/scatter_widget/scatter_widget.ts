@@ -125,6 +125,8 @@ export class ScatterWidget {
             newWidth * dpr,
             newHeight * dpr
         );
+
+        this.axisLabels.map(x => x.setDpr(dpr));
     }
 
     public renderValue(inputData: ScatterInputData) {
@@ -316,12 +318,13 @@ export class ScatterWidget {
     }
 
     private addAxisLabels() {
+        let dpr = this.renderer.getPixelRatio();
         if (this.config.labels == []) {
             this.hasAxisLabels = false
         } else {
             this.hasAxisLabels = true
             this.axisLabels = this.config.labels.map(label => {
-                return new AxisLabel(label, [0, 0, 0], this.container, this.canvas, this.camera, this.dim)
+                return new AxisLabel(label, [0, 0, 0], this.container, this.canvas, this.camera, this.dim, dpr)
             });
         }
     };
@@ -543,22 +546,25 @@ class AxisLabel {
     private text: string;
     private position: THREE.Vector3;
     private dim: Dim;
+    private dpr: number;
 
     constructor(text: string, pos: number[],
-        container: HTMLElement, canvas: HTMLCanvasElement, camera: Camera, dim: Dim) {
+        container: HTMLElement, canvas: HTMLCanvasElement, camera: Camera, dim: Dim, dpr: number) {
         this.div = document.createElement('div');
         this.div.innerHTML = text;
         this.div.className = "axisLabel"
 
         this.canvas = canvas;
         this.text = text;
-        this.position = new THREE.Vector3(...pos);
+        this.position = new THREE.Vector3();
         this.dim = dim;
+        this.dpr = dpr;
 
         container.appendChild(this.div);
         this.updatePosition(pos, camera);
     }
-    public updatePosition(pos: number[], camera: Camera) {
+
+    public updatePosition(pos: number[], camera: Camera,) {
         if (this.dim == 3) {
             this.position.set(pos[0], pos[1], pos[2])
         } else {
@@ -570,10 +576,14 @@ class AxisLabel {
         this.div.style.top = coords2d.y + 'px';
     }
 
+    public setDpr(dpr: number) {
+        this.dpr = dpr;
+    }
+
     private get2DCoords(camera: Camera) {
         var vector = this.position.project(camera);
-        vector.x = (vector.x + 1) / 2 * this.canvas.width;
-        vector.y = -(vector.y - 1) / 2 * this.canvas.height;
+        vector.x = (vector.x + 1) * this.canvas.width / (2 * this.dpr);
+        vector.y = -(vector.y - 1) * this.canvas.height / (2 * this.dpr);
         return vector;
     }
 };
