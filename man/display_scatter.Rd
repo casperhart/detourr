@@ -4,7 +4,7 @@
 \alias{display_scatter}
 \title{3D Scatterplot display for tours}
 \usage{
-display_scatter(mapping = NULL, center = TRUE, size = 1, labels = NULL)
+display_scatter(mapping = NULL, center = TRUE, size = 1, labels = TRUE)
 }
 \arguments{
 \item{mapping}{mapping created via \code{tour_aes()}. Currently only supports colour mapping.}
@@ -13,7 +13,13 @@ display_scatter(mapping = NULL, center = TRUE, size = 1, labels = NULL)
 
 \item{size}{point size, defaults to 1}
 
-\item{labels}{character vector of axis labels. The default of \code{labels=NULL} will give abbreviated column names. Use \code{labels=character(0)} to remove axis labels entirely.}
+\item{labels}{axis labels. Can be:
+\itemize{
+\item \code{TRUE} to use column names for axis labels
+\item \code{FALSE} for no labels
+\item An unnamed vector of labels with the same length as \code{cols}
+\item A named vector in the form \code{c("h" = "head")}, where \code{head} is renamed to \code{h}
+}}
 }
 \description{
 Display method for a high performance 3D scatterplot.
