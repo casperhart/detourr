@@ -2,12 +2,14 @@ export interface ScatterInputData {
     config: Config;
     dataset: Matrix;
     projectionMatrices: Array<ProjectionMatrix>;
-    mapping: { colour: string[] }
+    mapping: { colour: string[] };
 }
 
-export interface Config { fps: number, duration: number, center: boolean, size: number, labels: string[] };
+export interface Config {
+    fps: number, duration: number, center: boolean, size: number, labels: string[], axes: number[][], edges: Matrix;
+};
 
-export type Matrix = Array<Array<number>>;
+export type Matrix = number[][];
 
 export type ProjectionMatrix = Array<[number, number, number]> | Array<[number, number]>
 
