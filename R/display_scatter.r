@@ -11,10 +11,11 @@
 #'  - `FALSE` for no labels
 #'  - An unnamed vector of labels with the same length as `cols`
 #'  - A named vector in the form `c("h" = "head")`, where `head` is renamed to `h`
+#' @param edges A two column data frame or numeric matrix giving indices of ends of lines.
 #' @export
 #' @examples
 #' animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
-display_scatter <- function(mapping = NULL, center = TRUE, size = 1, labels = TRUE) {
+display_scatter <- function(mapping = NULL, center = TRUE, size = 1, labels = TRUE, edges = NULL) {
     init <- function(data, col_spec) {
         default_mapping <- list(colour = character(0))
         mapping <- purrr::map(mapping, get_mapping_cols, data)
@@ -41,7 +42,8 @@ display_scatter <- function(mapping = NULL, center = TRUE, size = 1, labels = TR
         }
         else if (rlang::has_length(labels, length(data_cols))) {
             axis_labels <- as.character(labels)
-        } else {
+        }
+        else {
             rlang::abort(c(
                 "length of `labels` argument should match the number of data columns.",
                 i = sprintf("expected: %s", length(default_labels)),
@@ -49,12 +51,36 @@ display_scatter <- function(mapping = NULL, center = TRUE, size = 1, labels = TR
             ))
         }
 
+        if (is.null(edges)) {
+            edges <- character(0)
+        }
+        else if (is.null(dim(edges)) | length(dim(edges)) != 2) {
+            rlang::abort(c("invalid edges argument", i = "expected a dataframe or matrix", x = sprintf("got a `%s`", typeof(edges))))
+        }
+        else if (ncol(edges) != 2) {
+            rlang::abort(c("invalid edges argument", i = "expected 2 columns", x = sprintf("got %s columns", ncol(edges))))
+        }
+        else if (!is.numeric(as.matrix(edges))) {
+            browser()
+            rlang::abort(c("invalid edges argument",
+                i = "expected all numeric values",
+                x = sprintf("found column with types %s", typeof(as.matrix(edges)))
+            ))
+        }
+        else if (any(is.na(edges))) {
+            rlang::abort(c("invalid edges argument", i = "expected no NAs", x = sprintf("found %s NA(s)", sum(is.na(edges)))))
+        }
+        else {
+            edges <- as.matrix(edges)
+        }
+
         list(
             "mapping" = mapping,
             "plot" = list(
                 "center" = center,
                 "size" = size,
-                "labels" = axis_labels
+                "labels" = axis_labels,
+                "edges" = edges
             ),
             "widget" = "display_scatter"
         )

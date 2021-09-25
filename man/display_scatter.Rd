@@ -4,7 +4,13 @@
 \alias{display_scatter}
 \title{3D Scatterplot display for tours}
 \usage{
-display_scatter(mapping = NULL, center = TRUE, size = 1, labels = TRUE)
+display_scatter(
+  mapping = NULL,
+  center = TRUE,
+  size = 1,
+  labels = TRUE,
+  edges = NULL
+)
 }
 \arguments{
 \item{mapping}{mapping created via \code{tour_aes()}. Currently only supports colour mapping.}
@@ -20,6 +26,8 @@ display_scatter(mapping = NULL, center = TRUE, size = 1, labels = TRUE)
 \item An unnamed vector of labels with the same length as \code{cols}
 \item A named vector in the form \code{c("h" = "head")}, where \code{head} is renamed to \code{h}
 }}
+
+\item{edges}{A two column data frame or numeric matrix giving indices of ends of lines.}
 }
 \description{
 Display method for a high performance 3D scatterplot.

@@ -41,6 +41,9 @@ export class ScatterWidget {
     private isSelecting = false;
     private axisLabels: Array<AxisLabel>;
     private hasAxisLabels: boolean;
+    private hasEdges = false;
+    private edges: number[];
+    private edgeSegments: THREE.LineSegments;
 
     constructor(containerElement: HTMLElement, width: number, height: number) {
         this.width = width;
@@ -81,6 +84,20 @@ export class ScatterWidget {
 
         this.axisSegments = new THREE.LineSegments(axisLinesGeometry, axisLinesMaterial)
         this.scene.add(this.axisSegments)
+
+        if (this.hasEdges) {
+            let edgesGeometry = new THREE.BufferGeometry()
+            let edgesMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 1 })
+
+            let edgesBuffer = this.getEdgesBuffer(pointsBuffer)
+            edgesGeometry.setAttribute('position', edgesBuffer)
+
+            console.log(this.edges)
+            console.log(edgesBuffer)
+
+            this.edgeSegments = new THREE.LineSegments(edgesGeometry, edgesMaterial)
+            this.scene.add(this.edgeSegments)
+        }
 
         this.addAxisLabels();
 
@@ -130,15 +147,24 @@ export class ScatterWidget {
     }
 
     public renderValue(inputData: ScatterInputData) {
+
         this.config = inputData.config;
         this.dataset = inputData.dataset;
+
         this.projectionMatrices = inputData.projectionMatrices;
         this.dim = inputData.projectionMatrices[0][0].length;
+
         if (this.dim == 3) {
             this.multiply = multiply3
         } else {
             this.multiply = multiply2
         }
+
+        if (inputData.config.edges[0]) {
+            this.hasEdges = true;
+            this.edges = [].concat(...inputData.config.edges)
+        }
+
         this.addCamera(this.dim);
         this.mapping = inputData.mapping
 
@@ -251,6 +277,23 @@ export class ScatterWidget {
             linesBufferMatrix = projectionMatrix.map(row => [0, 0, 0, row[0], 0, row[1]])
         }
         return new THREE.BufferAttribute(new Float32Array([].concat(...linesBufferMatrix)), 3)
+    }
+
+    private getEdgesBuffer(frameBuffer: THREE.BufferAttribute) {
+        let bufferArray = new Float32Array(this.edges.length * 3)
+        let edgesBuffer = new THREE.BufferAttribute(bufferArray, 3);
+
+        // `edges` contains indices with format [from, to, from, to, ...]
+        // `edgesBuffer` has format [fromX, fromY, fromZ, toX, toY, toZ, ...]
+
+        for (let i = 0; i < this.edges.length; i++) {
+            edgesBuffer.set([
+                frameBuffer.getX(this.edges[i] - 1),
+                frameBuffer.getY(this.edges[i] - 1),
+                frameBuffer.getZ(this.edges[i] - 1)
+            ], i * 3)
+        }
+        return edgesBuffer
     }
 
     private coloursToBufferAttribute(colours: string[]): THREE.BufferAttribute {
@@ -386,6 +429,11 @@ export class ScatterWidget {
 
             this.axisSegments.geometry.setAttribute('position', this.getAxisLinesBuffer(currentFrame))
             this.axisSegments.geometry.attributes.position.needsUpdate = true;
+
+            if (this.hasEdges) {
+                let edgesBuffer = this.getEdgesBuffer(frameBuffer)
+                this.edgeSegments.geometry.setAttribute('position', edgesBuffer)
+            }
 
             this.oldFrame = currentFrame;
         }
