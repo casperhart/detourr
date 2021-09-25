@@ -39,6 +39,7 @@ export class ScatterWidget {
     private selectionHelper: SelectionHelper
     private selectedPointIndices: number[];
     private isSelecting = false;
+    private hasAxes: boolean;
     private axisLabels: Array<AxisLabel>;
     private hasAxisLabels: boolean;
     private hasEdges = false;
@@ -76,30 +77,14 @@ export class ScatterWidget {
         this.points.geometry.setAttribute('color', this.pointColours)
         this.scene.add(this.points)
 
-        let axisLinesGeometry = new THREE.BufferGeometry()
-        let axisLinesMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 1 })
-
-        let axisLinesBuffer = this.getAxisLinesBuffer(0)
-        axisLinesGeometry.setAttribute('position', axisLinesBuffer)
-
-        this.axisSegments = new THREE.LineSegments(axisLinesGeometry, axisLinesMaterial)
-        this.scene.add(this.axisSegments)
-
-        if (this.hasEdges) {
-            let edgesGeometry = new THREE.BufferGeometry()
-            let edgesMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 1 })
-
-            let edgesBuffer = this.getEdgesBuffer(pointsBuffer)
-            edgesGeometry.setAttribute('position', edgesBuffer)
-
-            console.log(this.edges)
-            console.log(edgesBuffer)
-
-            this.edgeSegments = new THREE.LineSegments(edgesGeometry, edgesMaterial)
-            this.scene.add(this.edgeSegments)
+        if (this.hasAxes) {
+            this.addAxisSegments()
+            this.addAxisLabels();
         }
 
-        this.addAxisLabels();
+        if (this.hasEdges) {
+            this.addEdgeSegments(pointsBuffer)
+        }
 
         this.addOrbitControls();
 
@@ -165,11 +150,38 @@ export class ScatterWidget {
             this.edges = [].concat(...inputData.config.edges)
         }
 
+        this.hasAxes = this.config.axes;
+
         this.addCamera(this.dim);
         this.mapping = inputData.mapping
 
         this.constructPlot();
         this.animate();
+    }
+
+    private addAxisSegments() {
+        let axisLinesGeometry = new THREE.BufferGeometry()
+        let axisLinesMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 1 })
+
+        let axisLinesBuffer = this.getAxisLinesBuffer(0)
+        axisLinesGeometry.setAttribute('position', axisLinesBuffer)
+
+        this.axisSegments = new THREE.LineSegments(axisLinesGeometry, axisLinesMaterial)
+        this.scene.add(this.axisSegments)
+    }
+
+    private addEdgeSegments(pointsBuffer: THREE.BufferAttribute) {
+        let edgesGeometry = new THREE.BufferGeometry()
+        let edgesMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 1 })
+
+        let edgesBuffer = this.getEdgesBuffer(pointsBuffer)
+        edgesGeometry.setAttribute('position', edgesBuffer)
+
+        console.log(this.edges)
+        console.log(edgesBuffer)
+
+        this.edgeSegments = new THREE.LineSegments(edgesGeometry, edgesMaterial)
+        this.scene.add(this.edgeSegments)
     }
 
     private addContainerElement(containerElement: HTMLElement) {
@@ -427,9 +439,10 @@ export class ScatterWidget {
             this.points.geometry.setAttribute('position', frameBuffer);
             this.points.geometry.attributes.position.needsUpdate = true;
 
-            this.axisSegments.geometry.setAttribute('position', this.getAxisLinesBuffer(currentFrame))
-            this.axisSegments.geometry.attributes.position.needsUpdate = true;
-
+            if (this.hasAxes) {
+                this.axisSegments.geometry.setAttribute('position', this.getAxisLinesBuffer(currentFrame))
+                this.axisSegments.geometry.attributes.position.needsUpdate = true;
+            }
             if (this.hasEdges) {
                 let edgesBuffer = this.getEdgesBuffer(frameBuffer)
                 this.edgeSegments.geometry.setAttribute('position', edgesBuffer)

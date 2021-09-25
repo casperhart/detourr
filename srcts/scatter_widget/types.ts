@@ -6,7 +6,13 @@ export interface ScatterInputData {
 }
 
 export interface Config {
-    fps: number, duration: number, center: boolean, size: number, labels: string[], axes: number[][], edges: Matrix;
+    fps: number;
+    duration: number;
+    center: boolean;
+    size: number;
+    labels: string[];
+    axes: boolean;
+    edges: Matrix;
 };
 
 export type Matrix = number[][];

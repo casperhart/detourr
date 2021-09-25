@@ -9,7 +9,8 @@ display_scatter(
   center = TRUE,
   size = 1,
   labels = TRUE,
-  edges = NULL
+  edges = NULL,
+  axes = TRUE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ display_scatter(
 }}
 
 \item{edges}{A two column data frame or numeric matrix giving indices of ends of lines.}
+
+\item{axes}{Whether to draw axes. TRUE or FALSE}
 }
 \description{
 Display method for a high performance 3D scatterplot.
