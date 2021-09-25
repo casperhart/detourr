@@ -12,10 +12,12 @@
 #'  - An unnamed vector of labels with the same length as `cols`
 #'  - A named vector in the form `c("h" = "head")`, where `head` is renamed to `h`
 #' @param edges A two column data frame or numeric matrix giving indices of ends of lines.
+#' @param axes Whether to draw axes. TRUE or FALSE
 #' @export
 #' @examples
 #' animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
-display_scatter <- function(mapping = NULL, center = TRUE, size = 1, labels = TRUE, edges = NULL) {
+display_scatter <- function(mapping = NULL, center = TRUE, size = 1,
+                            labels = TRUE, edges = NULL, axes = TRUE) {
     init <- function(data, col_spec) {
         default_mapping <- list(colour = character(0))
         mapping <- purrr::map(mapping, get_mapping_cols, data)
@@ -74,13 +76,24 @@ display_scatter <- function(mapping = NULL, center = TRUE, size = 1, labels = TR
             edges <- as.matrix(edges)
         }
 
+        if (identical(axes, FALSE)) {
+            labels <- character(0)
+        }
+        else if (!identical(axes, TRUE)) {
+            rlang::abort(c("invalid `axes` argument",
+                i = "expected `TRUE` or `FALSE`",
+                x = sprintf("got %s", ifelse(is.null(axes), "NULL", paste0(axes, collapse = ",")))
+            ))
+        }
+
         list(
             "mapping" = mapping,
             "plot" = list(
                 "center" = center,
                 "size" = size,
                 "labels" = axis_labels,
-                "edges" = edges
+                "edges" = edges,
+                "axes" = axes
             ),
             "widget" = "display_scatter"
         )
