@@ -28,7 +28,7 @@ display_scatter(
 \item A named vector in the form \code{c("h" = "head")}, where \code{head} is renamed to \code{h}
 }}
 
-\item{edges}{A two column data frame or numeric matrix giving indices of ends of lines.}
+\item{edges}{A two column numeric matrix giving indices of ends of lines.}
 
 \item{axes}{Whether to draw axes. TRUE or FALSE}
 }

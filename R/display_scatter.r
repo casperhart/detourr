@@ -11,7 +11,7 @@
 #'  - `FALSE` for no labels
 #'  - An unnamed vector of labels with the same length as `cols`
 #'  - A named vector in the form `c("h" = "head")`, where `head` is renamed to `h`
-#' @param edges A two column data frame or numeric matrix giving indices of ends of lines.
+#' @param edges A two column numeric matrix giving indices of ends of lines.
 #' @param axes Whether to draw axes. TRUE or FALSE
 #' @export
 #' @examples
@@ -31,10 +31,10 @@ display_scatter <- function(mapping = NULL, center = TRUE, size = 1,
         data_cols <- tidyselect::eval_select(col_spec, data)
         default_labels <- names(data_cols)
 
-        if (identical(labels, TRUE)) {
+        if (rlang::is_true(labels)) {
             axis_labels <- default_labels
         }
-        else if (identical(labels, FALSE)) {
+        else if (rlang::is_false(labels)) {
             axis_labels <- character(0)
         }
         else if (rlang::is_named(labels)) {
@@ -56,33 +56,31 @@ display_scatter <- function(mapping = NULL, center = TRUE, size = 1,
         if (is.null(edges)) {
             edges <- character(0)
         }
-        else if (is.null(dim(edges)) | length(dim(edges)) != 2) {
-            rlang::abort(c("invalid edges argument", i = "expected a dataframe or matrix", x = sprintf("got a `%s`", typeof(edges))))
+        else if (!is.matrix(edges)) {
+            rlang::abort(c("invalid edges argument", i = "expected a matrix", x = sprintf("got a `%s`", class(edges)[1])))
         }
         else if (ncol(edges) != 2) {
             rlang::abort(c("invalid edges argument", i = "expected 2 columns", x = sprintf("got %s columns", ncol(edges))))
         }
-        else if (!is.numeric(as.matrix(edges))) {
-            browser()
+        else if (!is.numeric(edges)) {
             rlang::abort(c("invalid edges argument",
-                i = "expected all numeric values",
-                x = sprintf("found column with types %s", typeof(as.matrix(edges)))
+                i = "expected a numeric matrix",
+                x = sprintf("got a %s matrix", typeof(edges))
             ))
         }
-        else if (any(is.na(edges))) {
-            rlang::abort(c("invalid edges argument", i = "expected no NAs", x = sprintf("found %s NA(s)", sum(is.na(edges)))))
+        else if (anyNA(edges)) {
+            rlang::abort(c("invalid edges argument", x = "NA values not allowed"))
         }
         else {
             edges <- as.matrix(edges)
         }
 
-        if (identical(axes, FALSE)) {
+        if (rlang::is_false(axes)) {
             labels <- character(0)
         }
-        else if (!identical(axes, TRUE)) {
+        else if (!rlang::is_true(axes)) {
             rlang::abort(c("invalid `axes` argument",
-                i = "expected `TRUE` or `FALSE`",
-                x = sprintf("got %s", ifelse(is.null(axes), "NULL", paste0(axes, collapse = ",")))
+                i = "expected `TRUE` or `FALSE`"
             ))
         }
 
