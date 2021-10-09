@@ -53,26 +53,24 @@ display_scatter <- function(mapping = NULL, center = TRUE, size = 1,
             ))
         }
 
-        if (is.null(edges)) {
+        if (is.matrix(edges)) {
+            if (ncol(edges) != 2) {
+                rlang::abort(c("invalid edges argument", i = "expected 2 columns", x = sprintf("got %s columns", ncol(edges))))
+            }
+            else if (!is.numeric(edges)) {
+                rlang::abort(c("invalid edges argument",
+                    i = "expected a numeric matrix",
+                    x = sprintf("got a %s matrix", typeof(edges))
+                ))
+            }
+            else if (anyNA(edges)) {
+                rlang::abort(c("invalid edges argument", x = "NA values not allowed"))
+            }
+        } else if (is.null(edges)) {
             edges <- character(0)
         }
-        else if (!is.matrix(edges)) {
-            rlang::abort(c("invalid edges argument", i = "expected a matrix", x = sprintf("got a `%s`", class(edges)[1])))
-        }
-        else if (ncol(edges) != 2) {
-            rlang::abort(c("invalid edges argument", i = "expected 2 columns", x = sprintf("got %s columns", ncol(edges))))
-        }
-        else if (!is.numeric(edges)) {
-            rlang::abort(c("invalid edges argument",
-                i = "expected a numeric matrix",
-                x = sprintf("got a %s matrix", typeof(edges))
-            ))
-        }
-        else if (anyNA(edges)) {
-            rlang::abort(c("invalid edges argument", x = "NA values not allowed"))
-        }
         else {
-            edges <- as.matrix(edges)
+            rlang::abort(c("invalid edges argument", i = "expected a matrix", x = sprintf("got a `%s`", class(edges)[1])))
         }
 
         if (rlang::is_false(axes)) {
