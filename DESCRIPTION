@@ -17,6 +17,7 @@ Imports:
     htmlwidgets,
     tidyselect,
     rlang,
-    purrr
+    purrr,
+    viridis
 RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
