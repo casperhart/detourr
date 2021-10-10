@@ -58,16 +58,49 @@ get_mapping_cols <- function(q, data) {
   data[[col]]
 }
 
-pal_discrete <- function(n) {
-  hues <- seq(15, 375, length = n + 1)
-  hcl(h = hues, l = 65, c = 100)[1:n]
-}
+col2hex <- function(col) rgb(t(col2rgb(col)), maxColorValue = 255)
 
-vec_to_colour <- function(vec) {
+vec_to_colour <- function(vec, pal) {
   if (is.numeric(vec)) {
-    rlang::warn("`colour` aesthetic is numeric, but only discrete colours are implemented")
+    if (is.function(pal)) {
+      n <- 8
+      pal <- pal(n)
+    } else {
+      n <- length(pal)
+    }
+
+    vec <- cut(vec, n)
   }
-  vec <- as.factor(vec)
-  pal <- pal_discrete(length(unique(vec)))
-  pal[vec]
+
+  else {
+    if (is.character(vec) || is.logical(vec)) {
+      vec <- as.factor(vec)
+    } else if (!is.factor(vec)) {
+      rlang::abort(c("invalid type for colour aesthetic",
+        x = "expected numeric, character, factor, or logical vector",
+        i = sprintf("got %s", class(vec))
+      ))
+    }
+
+    if (is.function(pal)) {
+      pal <- pal(length(levels(vec)))
+    } else if (length(pal) != length(levels(vec))) {
+      rlang::abort("Number of colours in `palette` does not match the number of levels of the colour aesthetic")
+    }
+  }
+
+  if (is.character(pal)) {
+    # convert colour names and rgba values to rgb hex
+    pal <- col2hex(pal)
+  } else {
+    rlang::abort("Invalid `palette` argument", x = "expected function or character vector", sprintf("got: %s", class(pal)))
+  }
+
+  names(pal) <- levels(vec)
+  vec <- unname(pal[vec])
+
+  list(
+    colours = vec,
+    pal = pal
+  )
 }

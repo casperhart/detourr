@@ -13,18 +13,29 @@
 #'  - A named vector in the form `c("h" = "head")`, where `head` is renamed to `h`
 #' @param edges A two column numeric matrix giving indices of ends of lines.
 #' @param axes Whether to draw axes. TRUE or FALSE
+#' @param palette Colour palette to use with the colour aesthetic. Can be:
+#'  - A character vector of R colours. This should match the number of levels of the colour aesthetic, or the number of bins to use
+#'  for continuous colours.
+#'  - A function which takes the number of colours to use as input and returns a character vector of colour names and / or hex values as output.
 #' @export
 #' @examples
 #' animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
 display_scatter <- function(mapping = NULL, center = TRUE, size = 1,
-                            labels = TRUE, edges = NULL, axes = TRUE) {
+                            labels = TRUE, edges = NULL, axes = TRUE,
+                            palette = viridis::viridis) {
     init <- function(data, col_spec) {
         default_mapping <- list(colour = character(0))
         mapping <- purrr::map(mapping, get_mapping_cols, data)
 
         if ("colour" %in% names(mapping)) {
-            mapping[["colour"]] <- vec_to_colour(mapping[["colour"]])
+            colours <- vec_to_colour(mapping[["colour"]], palette)
         }
+        else {
+            colours <- vec_to_colour(rep("", nrow(data)), palette)
+        }
+
+        mapping[["colour"]] <- colours[["colours"]]
+        pal <- colours[["pal"]]
 
         mapping <- merge_defaults_list(mapping, default_mapping)
 

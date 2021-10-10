@@ -10,7 +10,8 @@ display_scatter(
   size = 1,
   labels = TRUE,
   edges = NULL,
-  axes = TRUE
+  axes = TRUE,
+  palette = viridis::viridis
 )
 }
 \arguments{
@@ -31,6 +32,13 @@ display_scatter(
 \item{edges}{A two column numeric matrix giving indices of ends of lines.}
 
 \item{axes}{Whether to draw axes. TRUE or FALSE}
+
+\item{palette}{Colour palette to use with the colour aesthetic. Can be:
+\itemize{
+\item A character vector of R colours. This should match the number of levels of the colour aesthetic, or the number of bins to use
+for continuous colours.
+\item A function which takes the number of colours to use as input and returns a character vector of colour names and / or hex values as output.
+}}
 }
 \description{
 Display method for a high performance 3D scatterplot.
