@@ -69,6 +69,8 @@ export class ScatterWidget {
 
         let shaderOpts = this.getShaderOpts(pointSize, this.dim);
         let pointsMaterial = new THREE.ShaderMaterial(shaderOpts);
+        // allow for opacity
+        pointsMaterial.transparent = true;
 
         let pointsBuffer = this.getPointsBuffer(0, this.config.center)
         pointsGeometry.setAttribute('position', pointsBuffer);
@@ -85,7 +87,6 @@ export class ScatterWidget {
         if (this.hasEdges) {
             this.addEdgeSegments(pointsBuffer)
         }
-
         this.addOrbitControls();
 
         // resize picking renderer
@@ -251,6 +252,7 @@ export class ScatterWidget {
                 uniforms: {
                     size: { value: Math.max(pointSize, this.minPointSize) },
                     zoom: { value: this.camera.zoom },
+                    alpha: { value: this.config.alpha },
                 },
                 vertexShader: VERTEX_SHADER_2D,
                 fragmentShader: FRAGMENT_SHADER,
@@ -260,6 +262,7 @@ export class ScatterWidget {
             shaderOpts = {
                 uniforms: {
                     size: { value: Math.max(pointSize, this.minPointSize) },
+                    alpha: { value: this.config.alpha },
                 },
                 vertexShader: VERTEX_SHADER_3D,
                 fragmentShader: FRAGMENT_SHADER,
