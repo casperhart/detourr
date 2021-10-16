@@ -8,6 +8,7 @@ display_scatter(
   mapping = NULL,
   palette = viridis::viridis,
   size = 1,
+  alpha = 1,
   center = TRUE,
   axes = TRUE,
   labels = TRUE,
@@ -22,9 +23,12 @@ display_scatter(
 \item A character vector of R colours. This should match the number of levels of the colour aesthetic, or the number of bins to use
 for continuous colours.
 \item A function which takes the number of colours to use as input and returns a character vector of colour names and / or hex values as output.
+Note that the alpha channel of \code{palette} is ignored. For opacity, please use the \code{alpha} argument.
 }}
 
 \item{size}{point size, defaults to 1}
+
+\item{alpha}{opacity of points ranging from 0 to 1. 0 is fully transparent and 1 is fully opaque.}
 
 \item{center}{If TRUE, center the projected data to (0, 0, 0).}
 

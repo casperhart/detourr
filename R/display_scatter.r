@@ -8,7 +8,9 @@
 #'  - A character vector of R colours. This should match the number of levels of the colour aesthetic, or the number of bins to use
 #'  for continuous colours.
 #'  - A function which takes the number of colours to use as input and returns a character vector of colour names and / or hex values as output.
+#'  Note that the alpha channel of `palette` is ignored. For opacity, please use the `alpha` argument.
 #' @param size point size, defaults to 1
+#' @param alpha opacity of points ranging from 0 to 1. 0 is fully transparent and 1 is fully opaque.
 #' @param center If TRUE, center the projected data to (0, 0, 0).
 #' @param axes Whether to draw axes. TRUE or FALSE
 #' @param labels axis labels. Can be:
@@ -20,7 +22,7 @@
 #' @export
 #' @examples
 #' animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
-display_scatter <- function(mapping = NULL, palette = viridis::viridis, size = 1,
+display_scatter <- function(mapping = NULL, palette = viridis::viridis, size = 1, alpha = 1,
                             center = TRUE, axes = TRUE, labels = TRUE, edges = NULL) {
     init <- function(data, col_spec) {
         default_mapping <- list(colour = character(0))
@@ -92,6 +94,10 @@ display_scatter <- function(mapping = NULL, palette = viridis::viridis, size = 1
             ))
         }
 
+        if (!is.numeric(alpha) || length(alpha) != 1 || alpha < 0 || alpha > 1) {
+            rlang::abort(c("invalid alpha argument", i = "expected a single numeric value between 0 and 1"))
+        }
+
         list(
             "mapping" = mapping,
             "plot" = list(
@@ -99,7 +105,8 @@ display_scatter <- function(mapping = NULL, palette = viridis::viridis, size = 1
                 "size" = size,
                 "labels" = axis_labels,
                 "edges" = edges,
-                "axes" = axes
+                "axes" = axes,
+                "alpha" = alpha
             ),
             "widget" = "display_scatter"
         )

@@ -13,6 +13,7 @@ export interface Config {
     labels: string[];
     axes: boolean;
     edges: Matrix;
+    alpha: number;
 };
 
 export type Matrix = number[][];
