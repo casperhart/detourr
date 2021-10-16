@@ -71,6 +71,8 @@ export class ScatterWidget {
         let pointsMaterial = new THREE.ShaderMaterial(shaderOpts);
         // allow for opacity
         pointsMaterial.transparent = true;
+        // prevent weird edge artifacts with antialiasing
+        pointsMaterial.depthTest = false;
 
         let pointsBuffer = this.getPointsBuffer(0, this.config.center)
         pointsGeometry.setAttribute('position', pointsBuffer);
@@ -226,8 +228,9 @@ export class ScatterWidget {
     }
 
     private addRenderer() {
+        // antialiasing here works for axis lines. For points, this is done in shaders.ts
         let renderer = new THREE.WebGLRenderer({
-            canvas: this.canvas
+            canvas: this.canvas, antialias: true
         });
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(this.width, this.height);
