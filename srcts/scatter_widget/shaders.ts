@@ -4,13 +4,17 @@ varying vec3 vColor;
 varying float vAlpha;
 
 void main(){
-    gl_FragColor = vec4( vColor, vAlpha);
-
+    
     // make points circular
     float distance = length(2.0 * gl_PointCoord - 1.0);
     if (distance > 1.0) {
         discard;
     }
+    // alpha value for antialiased edges. fwidth is fragment width, i.e. 1px
+    float delta = fwidth(distance);
+    float edgeAlpha = smoothstep(1.0, 1.0-delta, distance);
+
+    gl_FragColor = vec4(vColor, edgeAlpha*vAlpha);
 }
 `
 
