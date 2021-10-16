@@ -69,10 +69,6 @@ export class ScatterWidget {
 
         let shaderOpts = this.getShaderOpts(pointSize, this.dim);
         let pointsMaterial = new THREE.ShaderMaterial(shaderOpts);
-        // allow for opacity
-        pointsMaterial.transparent = true;
-        // prevent weird edge artifacts with antialiasing
-        pointsMaterial.depthTest = false;
 
         let pointsBuffer = this.getPointsBuffer(0, this.config.center)
         pointsGeometry.setAttribute('position', pointsBuffer);
@@ -249,7 +245,7 @@ export class ScatterWidget {
     }
 
     private getShaderOpts(pointSize: number, dim: Dim) {
-        let shaderOpts: any;
+        let shaderOpts: THREE.ShaderMaterialParameters;
         if (dim == 2) {
             shaderOpts = {
                 uniforms: {
@@ -258,7 +254,6 @@ export class ScatterWidget {
                     alpha: { value: this.config.alpha },
                 },
                 vertexShader: VERTEX_SHADER_2D,
-                fragmentShader: FRAGMENT_SHADER,
             }
         }
         else {
@@ -268,9 +263,17 @@ export class ScatterWidget {
                     alpha: { value: this.config.alpha },
                 },
                 vertexShader: VERTEX_SHADER_3D,
-                fragmentShader: FRAGMENT_SHADER,
             }
         }
+
+        shaderOpts.fragmentShader = FRAGMENT_SHADER;
+        // enable `fwidth` shader function in rstudio viewer for antialiasing
+        shaderOpts.extensions = { derivatives: true };
+        // enable opacity
+        shaderOpts.transparent = true;
+        // prevent edge artifacts with antialiasing
+        shaderOpts.depthTest = false;
+
         return shaderOpts
     }
 

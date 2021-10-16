@@ -6,7 +6,7 @@
 \usage{
 display_scatter(
   mapping = NULL,
-  palette = viridis::viridis,
+  palette = viridisLite::viridis,
   size = 1,
   alpha = 1,
   center = TRUE,

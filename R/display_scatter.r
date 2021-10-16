@@ -22,8 +22,10 @@
 #' @export
 #' @examples
 #' animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
-display_scatter <- function(mapping = NULL, palette = viridis::viridis, size = 1, alpha = 1,
+display_scatter <- function(mapping = NULL, palette = viridisLite::viridis, size = 1, alpha = 1,
                             center = TRUE, axes = TRUE, labels = TRUE, edges = NULL) {
+    if (missing(palette) && !("colour" %in% names(mapping))) palette <- "black"
+
     init <- function(data, col_spec) {
         default_mapping <- list(colour = character(0))
         mapping <- purrr::map(mapping, get_mapping_cols, data)
