@@ -42,48 +42,10 @@ display_scatter <- function(mapping = NULL, palette = viridis::viridis, size = 1
 
         data_cols <- tidyselect::eval_select(col_spec, data)
         default_labels <- names(data_cols)
+        labels <- validate_labels(labels, default_labels)
 
-        if (rlang::is_true(labels)) {
-            axis_labels <- default_labels
-        }
-        else if (rlang::is_false(labels)) {
-            axis_labels <- character(0)
-        }
-        else if (rlang::is_named(labels)) {
-            renamed <- tidyselect::eval_rename(labels, data_cols)
-            axis_labels <- default_labels
-            axis_labels[renamed] <- names(renamed)
-        }
-        else if (rlang::has_length(labels, length(data_cols))) {
-            axis_labels <- as.character(labels)
-        }
-        else {
-            rlang::abort(c(
-                "length of `labels` argument should match the number of data columns.",
-                i = sprintf("expected: %s", length(default_labels)),
-                x = sprintf("got: %s", length(labels))
-            ))
-        }
-
-        if (is.matrix(edges)) {
-            if (ncol(edges) != 2) {
-                rlang::abort(c("invalid edges argument", i = "expected 2 columns", x = sprintf("got %s columns", ncol(edges))))
-            }
-            else if (!is.numeric(edges)) {
-                rlang::abort(c("invalid edges argument",
-                    i = "expected a numeric matrix",
-                    x = sprintf("got a %s matrix", typeof(edges))
-                ))
-            }
-            else if (anyNA(edges)) {
-                rlang::abort(c("invalid edges argument", x = "NA values not allowed"))
-            }
-        } else if (is.null(edges)) {
-            edges <- character(0)
-        }
-        else {
-            rlang::abort(c("invalid edges argument", i = "expected a matrix", x = sprintf("got a `%s`", class(edges)[1])))
-        }
+        edges <- validate_edges(edges)
+        alpha <- validate_alpha(alpha)
 
         if (rlang::is_false(axes)) {
             labels <- character(0)
@@ -94,16 +56,12 @@ display_scatter <- function(mapping = NULL, palette = viridis::viridis, size = 1
             ))
         }
 
-        if (!is.numeric(alpha) || length(alpha) != 1 || alpha < 0 || alpha > 1) {
-            rlang::abort(c("invalid alpha argument", i = "expected a single numeric value between 0 and 1"))
-        }
-
         list(
             "mapping" = mapping,
             "plot" = list(
                 "center" = center,
                 "size" = size,
-                "labels" = axis_labels,
+                "labels" = labels,
                 "edges" = edges,
                 "axes" = axes,
                 "alpha" = alpha
@@ -114,4 +72,59 @@ display_scatter <- function(mapping = NULL, palette = viridis::viridis, size = 1
     list(
         "init" = init
     )
+}
+
+validate_labels <- function(labels, default_labels) {
+    if (rlang::is_true(labels)) {
+        axis_labels <- default_labels
+    }
+    else if (rlang::is_false(labels)) {
+        axis_labels <- character(0)
+    }
+    else if (rlang::is_named(labels)) {
+        renamed <- tidyselect::eval_rename(labels, data_cols)
+        axis_labels <- default_labels
+        axis_labels[renamed] <- names(renamed)
+    }
+    else if (rlang::has_length(labels, length(data_cols))) {
+        axis_labels <- as.character(labels)
+    }
+    else {
+        rlang::abort(c(
+            "length of `labels` argument should match the number of data columns.",
+            i = sprintf("expected: %s", length(default_labels)),
+            x = sprintf("got: %s", length(labels))
+        ))
+    }
+    axis_labels
+}
+
+validate_edges <- function(edges) {
+    if (is.matrix(edges)) {
+        if (ncol(edges) != 2) {
+            rlang::abort(c("invalid edges argument", i = "expected 2 columns", x = sprintf("got %s columns", ncol(edges))))
+        }
+        else if (!is.numeric(edges)) {
+            rlang::abort(c("invalid edges argument",
+                i = "expected a numeric matrix",
+                x = sprintf("got a %s matrix", typeof(edges))
+            ))
+        }
+        else if (anyNA(edges)) {
+            rlang::abort(c("invalid edges argument", x = "NA values not allowed"))
+        }
+    } else if (is.null(edges)) {
+        edges <- character(0)
+    }
+    else {
+        rlang::abort(c("invalid edges argument", i = "expected a matrix", x = sprintf("got a `%s`", class(edges)[1])))
+    }
+    edges
+}
+
+validate_alpha <- function(alpha) {
+    if (!is.numeric(alpha) || length(alpha) != 1 || alpha < 0 || alpha > 1) {
+        rlang::abort(c("invalid alpha argument", i = "expected a single numeric value between 0 and 1"))
+    }
+    alpha
 }
