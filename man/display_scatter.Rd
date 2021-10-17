@@ -16,13 +16,14 @@ display_scatter(
 )
 }
 \arguments{
-\item{mapping}{mapping created via \code{tour_aes()}. Currently only supports colour mapping.}
+\item{mapping}{mapping created via \code{tour_aes()}. Currently supports \code{colour} and (hover) \code{labels}.}
 
 \item{palette}{Colour palette to use with the colour aesthetic. Can be:
 \itemize{
-\item A character vector of R colours. This should match the number of levels of the colour aesthetic, or the number of bins to use
-for continuous colours.
-\item A function which takes the number of colours to use as input and returns a character vector of colour names and / or hex values as output.
+\item A character vector of R colours. This should match the number of levels of the colour aesthetic,
+or the number of bins to use for continuous colours.
+\item A function which takes the number of colours to use as input and returns a character vector of colour
+names and / or hex values as output.
 Note that the alpha channel of \code{palette} is ignored. For opacity, please use the \code{alpha} argument.
 }}
 

@@ -71,3 +71,17 @@ div.axisLabel {
   position: absolute;
   font-family: Helvetica, Sans-serif;
 }
+
+div.tooltip {
+  position: absolute;
+  background: rgba(0,0,0,0.5);
+  padding: 5px;
+  visibility: hidden;
+  border-radius: 5px;
+  color: white;
+  font-family: sans-serif;
+}
+
+div.tooltip.visible {
+  visibility: visible;
+}

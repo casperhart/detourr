@@ -2,7 +2,7 @@ export interface ScatterInputData {
     config: Config;
     dataset: Matrix;
     projectionMatrices: Array<ProjectionMatrix>;
-    mapping: { colour: string[] };
+    mapping: Mapping;
 }
 
 export interface Config {
@@ -10,11 +10,16 @@ export interface Config {
     duration: number;
     center: boolean;
     size: number;
-    labels: string[];
+    axisLabels: string[];
     axes: boolean;
     edges: Matrix;
     alpha: number;
 };
+
+export interface Mapping {
+	colour: string[];
+	labels: string[];
+}
 
 export type Matrix = number[][];
 

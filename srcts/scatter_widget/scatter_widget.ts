@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { ProjectionMatrix, ScatterInputData, Config, Matrix, Dim, ControlType, Camera, BoxSelection } from './types';
+import { ProjectionMatrix, ScatterInputData, Config, Matrix, Dim, ControlType, Camera, Mapping } from './types';
 import { multiply2, multiply3, centerColumns, getColMeans } from './utils'
 import { FRAGMENT_SHADER, VERTEX_SHADER_2D, VERTEX_SHADER_3D } from './shaders';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -26,7 +26,7 @@ export class ScatterWidget {
     private orbitControls: OrbitControls;
     private isPaused: boolean;
     private colMeans: Matrix;
-    private mapping: { colour: string[] };
+    private mapping: Mapping;
     private pointColours: THREE.BufferAttribute;
     private pickingColours: THREE.BufferAttribute;
     private width: number;
@@ -38,13 +38,14 @@ export class ScatterWidget {
     private selectionBox: SelectionBox;
     private selectionHelper: SelectionHelper
     private selectedPointIndices: number[];
-    private isSelecting = false;
     private hasAxes: boolean;
     private axisLabels: Array<AxisLabel>;
     private hasAxisLabels: boolean;
+    private hasPointLabels: boolean;
     private hasEdges = false;
     private edges: number[];
     private edgeSegments: THREE.LineSegments;
+    private toolTip: HTMLDivElement;
 
     constructor(containerElement: HTMLElement, width: number, height: number) {
         this.width = width;
@@ -63,6 +64,11 @@ export class ScatterWidget {
 
         this.pointColours = this.coloursToBufferAttribute(this.mapping.colour);
         this.pickingColours = this.getPickingColours();
+
+        if (this.hasPointLabels) {
+            this.addToolTip();
+            this.canvas.addEventListener("mousemove", (event: MouseEvent) => this.setTooltipFromHover(event));
+        }
 
         let pointsGeometry = new THREE.BufferGeometry();
         let pointSize = this.config.size / 10;
@@ -149,6 +155,7 @@ export class ScatterWidget {
             this.edges = [].concat(...inputData.config.edges)
         }
 
+        this.hasPointLabels = inputData.mapping.labels == [] ? false : true;
         this.hasAxes = this.config.axes;
 
         this.addCamera(this.dim);
@@ -239,6 +246,16 @@ export class ScatterWidget {
             orbitControls.maxPolarAngle = Math.PI;
         }
         this.orbitControls = orbitControls;
+    }
+
+    private addToolTip() {
+        let toolTip = document.createElement("div");
+        let toolTipText = document.createElement("span");
+        toolTip.appendChild(toolTipText);
+        toolTipText.innerHTML = "hello";
+        toolTip.className = "tooltip";
+        this.container.appendChild(toolTip)
+        this.toolTip = toolTip;
     }
 
     private getShaderOpts(pointSize: number, dim: Dim) {
@@ -382,11 +399,11 @@ export class ScatterWidget {
 
     private addAxisLabels() {
         let dpr = this.renderer.getPixelRatio();
-        if (this.config.labels == []) {
+        if (this.config.axisLabels == []) {
             this.hasAxisLabels = false
         } else {
             this.hasAxisLabels = true
-            this.axisLabels = this.config.labels.map(label => {
+            this.axisLabels = this.config.axisLabels.map(label => {
                 return new AxisLabel(label, [0, 0, 0], this.container, this.canvas, this.camera, this.dim, dpr)
             });
         }
@@ -405,7 +422,7 @@ export class ScatterWidget {
 
         let pixelBuffer = new Uint8Array(4 * width * height);
 
-        this.renderer.readRenderTargetPixels(
+        renderer.readRenderTargetPixels(
             pickingTexture,
             x,
             pickingTexture.height - y,
@@ -426,6 +443,42 @@ export class ScatterWidget {
         }
 
         this.selectedPointIndices = Array.from(selectedPointIndices)
+    }
+
+    private setTooltipFromHover(event: MouseEvent) {
+        const { pickingTexture, renderer, canvas } = this;
+        const dpr = renderer.getPixelRatio();
+
+        let canvas_coords = canvas.getBoundingClientRect();
+        let x = (event.x - canvas_coords.left) * dpr;
+        let y = (event.y - canvas_coords.top) * dpr;
+        let width = 1;
+        let height = 1;
+
+        let pixelBuffer = new Uint8Array(12);
+
+        renderer.readRenderTargetPixels(
+            pickingTexture,
+            x,
+            pickingTexture.height - y,
+            width,
+            height,
+            pixelBuffer);
+
+        let id =
+            (pixelBuffer[0] << 16) |
+            (pixelBuffer[1] << 8) |
+            (pixelBuffer[2]);
+        if (id != 0 && id != 0xffffff) {
+            let toolTipCoords = this.toolTip.getBoundingClientRect();
+            this.toolTip.style.left = `${Math.floor(x / dpr) - toolTipCoords.width}px`;
+            this.toolTip.style.top = `${Math.floor(y / dpr) - toolTipCoords.height}px`;
+            this.toolTip.className = "tooltip visible";
+            let span = this.toolTip.querySelector("span");
+            span.innerHTML = `${this.mapping.labels[id - 1]}`;
+        } else {
+            this.toolTip.className = "tooltip"
+        }
     }
 
     private animate() {
@@ -602,8 +655,6 @@ export class ScatterWidget {
             this.selectionHelper.element.className = "selectBox disabled"
 
         }
-
-        this.isSelecting = enable;
     }
 
     private resetClock() {
