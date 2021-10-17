@@ -176,9 +176,6 @@ export class ScatterWidget {
         let edgesBuffer = this.getEdgesBuffer(pointsBuffer)
         edgesGeometry.setAttribute('position', edgesBuffer)
 
-        console.log(this.edges)
-        console.log(edgesBuffer)
-
         this.edgeSegments = new THREE.LineSegments(edgesGeometry, edgesMaterial)
         this.scene.add(this.edgeSegments)
     }
@@ -252,6 +249,7 @@ export class ScatterWidget {
                     size: { value: Math.max(pointSize, this.minPointSize) },
                     zoom: { value: this.camera.zoom },
                     alpha: { value: this.config.alpha },
+                    antialias: { value: 1 },
                 },
                 vertexShader: VERTEX_SHADER_2D,
             }
@@ -261,6 +259,7 @@ export class ScatterWidget {
                 uniforms: {
                     size: { value: Math.max(pointSize, this.minPointSize) },
                     alpha: { value: this.config.alpha },
+                    antialias: { value: 1 },
                 },
                 vertexShader: VERTEX_SHADER_3D,
             }
@@ -464,13 +463,16 @@ export class ScatterWidget {
         }
 
         // render the picking scene for box selection
-        this.points.geometry.setAttribute('color', this.pickingColours)
-        this.renderer.setRenderTarget(this.pickingTexture)
+        this.points.geometry.setAttribute('color', this.pickingColours);
+        // disable antialiasing and alpha in picking scene
+        (this.points.material as THREE.ShaderMaterial).uniforms.antialias.value = 0;
+        this.renderer.setRenderTarget(this.pickingTexture);
         this.renderer.render(this.scene, this.camera);
 
         // render the scene
         this.renderer.setRenderTarget(null);
-        this.points.geometry.setAttribute('color', this.pointColours)
+        this.points.geometry.setAttribute('color', this.pointColours);
+        (this.points.material as THREE.ShaderMaterial).uniforms.antialias.value = 1;
         this.renderer.render(this.scene, this.camera);
 
         // update axis labels

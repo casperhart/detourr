@@ -2,6 +2,7 @@ export const FRAGMENT_SHADER = `
 varying float vSize;
 varying vec3 vColor;
 varying float vAlpha;
+varying float vAntialias;
 
 void main(){
     
@@ -14,24 +15,34 @@ void main(){
     float delta = fwidth(distance);
     float edgeAlpha = smoothstep(1.0, 1.0-delta, distance);
 
-    gl_FragColor = vec4(vColor, edgeAlpha*vAlpha);
+    float alpha;
+    if (vAntialias == 1.) {
+        alpha = edgeAlpha*vAlpha;
+    } else {
+        alpha = 1.0;
+    }
+
+    gl_FragColor = vec4(vColor, alpha);
 }
 `
 
 export const VERTEX_SHADER_3D = `
 uniform float size;
 uniform float alpha;
+uniform float antialias;
 
 attribute vec3 color;
 
 // passed to fragment shader
 varying vec3 vColor;
 varying float vAlpha;
+varying float vAntialias;
 
 void main(){
     vColor=color;
     vAlpha=alpha;
-
+    vAntialias = antialias;
+    
     vec4 mvPosition = modelViewMatrix * vec4( position, 1.0);
     gl_Position = projectionMatrix * mvPosition;
     gl_PointSize = 200.0 * size / -mvPosition.z;
@@ -42,16 +53,19 @@ export const VERTEX_SHADER_2D = `
 uniform float size;
 uniform float zoom;
 uniform float alpha;
+uniform float antialias;
 
 attribute vec3 color;
 
 // passed to fragment shader
 varying vec3 vColor;
 varying float vAlpha;
+varying float vAntialias;
 
 void main(){
     vColor=color;
     vAlpha = alpha;
+    vAntialias = antialias;
     vec4 mvPosition = modelViewMatrix * vec4( position, 1.0);
     gl_Position = projectionMatrix * mvPosition;
     gl_PointSize = 100.0 * size * sqrt(zoom);
