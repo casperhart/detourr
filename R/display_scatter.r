@@ -35,7 +35,10 @@ display_scatter <- function(mapping = NULL,
                             axes = TRUE,
                             labels = TRUE,
                             edges = NULL) {
-  names(mapping)[names(mapping) == "color"] <- "colour"
+  if ("color" %in% names(mapping)) {
+    names(mapping)[names(mapping) == "color"] <- "colour"
+  }
+
   if (missing(palette) && !("colour" %in% names(mapping))) palette <- "black"
 
   init <- function(data, col_spec) {
@@ -85,12 +88,11 @@ display_scatter <- function(mapping = NULL,
 }
 
 get_colour_mapping <- function(data, mapping, palette) {
-  browser()
   if ("colour" %in% names(mapping)) {
-    colours <- vec_to_colour(mapping[["colour"]][[1]], palette)
+    colours <- vec_to_colour(mapping[["colour"]], palette)
   }
   else {
-    colours <- vec_to_colour(rep("", nrow(data)), palette)
+    colours <- vec_to_colour(data.frame(rep("", nrow(data))), palette)
   }
   colours
 }
@@ -98,12 +100,12 @@ get_colour_mapping <- function(data, mapping, palette) {
 get_label_mapping <- function(data, mapping) {
   if ("label" %in% names(mapping)) {
     label <- mapping[["label"]]
-    if (inherits(point_labels, "AsIs")) {
-      label <- as.character(point_labels)
+    if (inherits(label, "AsIs")) {
+      label <- as.character(label[[1]])
     }
     else {
-      label <- purrr::map(names(point_labels), ~ paste0(., ": ", point_labels[[.]]))
-      label <- do.call(paste, c(point_labels, sep = "<br>"))
+      label <- purrr::map(names(label), ~ paste0(., ": ", label[[.]]))
+      label <- do.call(paste, c(label, sep = "<br>"))
     }
   }
   else {

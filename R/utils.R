@@ -56,9 +56,9 @@ tour_aes <- function(...) {
 get_mapping_cols <- function(aes, data) {
   if (rlang::quo_is_call(aes, name = "I")) {
     aes_vals <- rlang::eval_tidy(aes, data)
-    if (inherits(aes_vals, "AsIs")) {
-      aes_vals
-    }
+    # recycle in case literal values are being used. E.g. "red" vs. red
+    aes_vals <- rep(aes_vals, length.out = nrow(data))
+    I(data.frame(aes_vals = aes_vals))
   } else {
     col <- tidyselect::vars_select(names(data), !!aes)
     data[col]
@@ -72,50 +72,57 @@ col2hex <- function(col) {
 }
 
 vec_to_colour <- function(vec, pal) {
-  if (is.numeric(vec)) {
-    if (is.function(pal)) {
-      n <- 8
-      pal <- pal(n)
-    } else {
-      n <- length(pal)
-    }
-    vec <- cut(vec, n)
+  if (inherits(vec, "AsIs")) {
+    vec <- as.factor(vec[[1]])
+    pal <- col2hex(levels(vec))
+    names(pal) <- levels(vec)
   }
 
   else {
-    if (is.character(vec) || is.logical(vec)) {
-      vec <- as.factor(vec)
-    } else if (!is.factor(vec)) {
-      rlang::abort(c("invalid type for colour aesthetic",
-        x = "expected numeric, character, factor, or logical vector",
-        i = sprintf("got %s", class(vec))
-      ))
+    vec <- vec[[1]]
+    if (is.numeric(vec)) {
+      if (is.function(pal)) {
+        n <- 8
+        pal <- pal(n)
+      } else {
+        n <- length(pal)
+      }
+      vec <- cut(vec, n)
     }
 
-    if (is.function(pal)) {
-      pal <- pal(length(levels(vec)))
+    else {
+      if (is.character(vec) || is.logical(vec)) {
+        vec <- as.factor(vec)
+      } else if (!is.factor(vec)) {
+        rlang::abort(c("invalid type for colour aesthetic",
+          x = "expected numeric, character, factor, or logical vector",
+          i = sprintf("got %s", class(vec))
+        ))
+      }
+
+      if (is.function(pal)) {
+        pal <- pal(length(levels(vec)))
+      }
+
+      if (!is.character(pal)) {
+        rlang::abort("Invalid palette",
+          x = "expected character vector",
+          sprintf("got: %s", class(pal))
+        )
+      }
+
+      if (length(pal) != length(levels(vec))) {
+        rlang::abort("Number of colours in `palette` does not match the number of levels of the colour aesthetic")
+      }
     }
 
-    if (!is.character(pal)) {
-      rlang::abort("Invalid palette",
-        x = "expected character vector",
-        sprintf("got: %s", class(pal))
-      )
-    }
 
-    if (length(pal) != length(levels(vec))) {
-      rlang::abort("Number of colours in `palette` does not match the \
-                   number of levels of the colour aesthetic")
-    }
+    # convert colour names and rgba values to rgb hex
+    pal <- col2hex(pal)
+
+    names(pal) <- levels(vec)
+    vec <- unname(pal[vec])
   }
-
-
-  # convert colour names and rgba values to rgb hex
-  pal <- col2hex(pal)
-
-  names(pal) <- levels(vec)
-  vec <- unname(pal[vec])
-
   list(
     colours = vec,
     pal = pal
