@@ -24,7 +24,7 @@ void main(){
 
     gl_FragColor = vec4(vColor, alpha);
 }
-`
+`;
 
 export const VERTEX_SHADER_3D = `
 uniform float size;
@@ -47,7 +47,7 @@ void main(){
     gl_Position = projectionMatrix * mvPosition;
     gl_PointSize = 200.0 * size / -mvPosition.z;
 }
-`
+`;
 
 export const VERTEX_SHADER_2D = `
 uniform float size;
@@ -70,4 +70,4 @@ void main(){
     gl_Position = projectionMatrix * mvPosition;
     gl_PointSize = 100.0 * size * sqrt(zoom);
 }
-`
+`;
