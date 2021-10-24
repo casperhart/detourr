@@ -22,7 +22,7 @@
 #' @examples
 #' animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
 animate_tour <- function(data,
-                         cols = everything(),
+                         cols = tidyselect::everything(),
                          tour_path = tourr::grand_tour(d = 2),
                          display = d3tourr::display_scatter(),
                          render_opts = list(
@@ -57,9 +57,12 @@ animate_tour <- function(data,
     start = render_opts$start
   ))
 
-  projectionMatrices <- quiet(tourr::interpolate(bases, render_opts$aps / render_opts$fps))
-  projectionMatrices <- purrr::array_branch(projectionMatrices, 3)
-  n_frames <- length(projectionMatrices)
+  projection_matrices <- quiet(tourr::interpolate(
+    bases,
+    render_opts$aps / render_opts$fps
+  ))
+  projection_matrices <- purrr::array_branch(projection_matrices, 3)
+  n_frames <- length(projection_matrices)
 
   # todo: tidy this up
   config <- display$init(data, col_spec)
@@ -74,7 +77,7 @@ animate_tour <- function(data,
     "config" = plot_config,
     "dataset" = tour_data,
     "mapping" = mapping,
-    "projectionMatrices" = projectionMatrices
+    "projectionMatrices" = projection_matrices
   )
 
   # useful for regenerating sample data for development

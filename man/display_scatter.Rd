@@ -16,20 +16,23 @@ display_scatter(
 )
 }
 \arguments{
-\item{mapping}{mapping created via \code{tour_aes()}. Currently supports \code{colour} and (hover) \code{labels}.}
+\item{mapping}{mapping created via \code{tour_aes()}. Currently supports \code{colour}
+and (hover) \code{labels}.}
 
 \item{palette}{Colour palette to use with the colour aesthetic. Can be:
 \itemize{
-\item A character vector of R colours. This should match the number of levels of the colour aesthetic,
-or the number of bins to use for continuous colours.
-\item A function which takes the number of colours to use as input and returns a character vector of colour
-names and / or hex values as output.
-Note that the alpha channel of \code{palette} is ignored. For opacity, please use the \code{alpha} argument.
+\item A character vector of R colours. This should match the number of levels
+of the colour aesthetic, or the number of bins to use for continuous colours.
+\item A function which takes the number of colours to use as input and returns a
+character vector of colour names and / or hex values as output.
+Note that the alpha channel of \code{palette} is ignored. For opacity, please use
+the \code{alpha} argument.
 }}
 
 \item{size}{point size, defaults to 1}
 
-\item{alpha}{opacity of points ranging from 0 to 1. 0 is fully transparent and 1 is fully opaque.}
+\item{alpha}{opacity of points ranging from 0 to 1. 0 is fully transparent
+and 1 is fully opaque.}
 
 \item{center}{If TRUE, center the projected data to (0, 0, 0).}
 
@@ -40,7 +43,8 @@ Note that the alpha channel of \code{palette} is ignored. For opacity, please us
 \item \code{TRUE} to use column names for axis labels
 \item \code{FALSE} for no labels
 \item An unnamed vector of labels with the same length as \code{cols}
-\item A named vector in the form \code{c("h" = "head")}, where \code{head} is renamed to \code{h}
+\item A named vector in the form \code{c("h" = "head")}, where \code{head} is renamed to
+\code{h}
 }}
 
 \item{edges}{A two column numeric matrix giving indices of ends of lines.}

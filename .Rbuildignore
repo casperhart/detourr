@@ -1,5 +1,14 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^srcts$
+srcts/*
 ^LICENSE\.md$
 ^README\.Rmd$
+temp*
+^package\.json$
+^tsconfig\.json$
+^yarn\.lock$
+dev_build/*
+dev/*
+node_modules/*
+srcts/*
+webpack/*
