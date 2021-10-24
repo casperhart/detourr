@@ -53,9 +53,16 @@ tour_aes <- function(...) {
   rlang::enquos(...)
 }
 
-get_mapping_cols <- function(q, data) {
-  col <- tidyselect::vars_pull(names(data), !!q)
-  data[[col]]
+get_mapping_cols <- function(aes, data) {
+  if (rlang::quo_is_call(aes, name = "I")) {
+    aes_vals <- rlang::eval_tidy(aes, data)
+    if (inherits(aes_vals, "AsIs")) {
+      aes_vals
+    }
+  } else {
+    col <- tidyselect::vars_select(names(data), !!aes)
+    data[col]
+  }
 }
 
 col2hex <- function(col) rgb(t(col2rgb(col)), maxColorValue = 255)

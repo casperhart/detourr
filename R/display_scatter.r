@@ -28,22 +28,29 @@ display_scatter <- function(mapping = NULL, palette = viridisLite::viridis, size
   if (missing(palette) && !("colour" %in% names(mapping))) palette <- "black"
 
   init <- function(data, col_spec) {
-    default_mapping <- list(colour = character(0), labels = character(0))
+    default_mapping <- list(colour = character(0), label = character(0))
     mapping <- purrr::map(mapping, get_mapping_cols, data)
 
     if ("colour" %in% names(mapping)) {
-      colours <- vec_to_colour(mapping[["colour"]], palette)
+      colours <- vec_to_colour(mapping[["colour"]][[1]], palette)
     }
     else {
       colours <- vec_to_colour(rep("", nrow(data)), palette)
     }
 
-
     mapping[["colour"]] <- colours[["colours"]]
     pal <- colours[["pal"]]
 
-    if ("labels" %in% names(mapping)) {
-      mapping[["labels"]] <- as.character(mapping[[labels]])
+    if ("label" %in% names(mapping)) {
+      point_labels <- mapping[["label"]]
+      if (inherits(point_labels, "AsIs")) {
+        point_labels <- as.character(point_labels)
+      }
+      else {
+        point_labels <- purrr::map(names(point_labels), ~ paste0(., ": ", point_labels[[.]]))
+        point_labels <- do.call(paste, c(point_labels, sep = "<br>"))
+      }
+      mapping[["label"]] <- point_labels
     }
 
     mapping <- merge_defaults_list(mapping, default_mapping)

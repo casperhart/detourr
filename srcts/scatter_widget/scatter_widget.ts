@@ -155,7 +155,7 @@ export class ScatterWidget {
             this.edges = [].concat(...inputData.config.edges)
         }
 
-        this.hasPointLabels = inputData.mapping.labels == [] ? false : true;
+        this.hasPointLabels = inputData.mapping.label.length == 0 ? false : true;
         this.hasAxes = this.config.axes;
 
         this.addCamera(this.dim);
@@ -475,7 +475,7 @@ export class ScatterWidget {
             this.toolTip.style.top = `${Math.floor(y / dpr) - toolTipCoords.height}px`;
             this.toolTip.className = "tooltip visible";
             let span = this.toolTip.querySelector("span");
-            span.innerHTML = `${this.mapping.labels[id - 1]}`;
+            span.innerHTML = `${this.mapping.label[id - 1]}`;
         } else {
             this.toolTip.className = "tooltip"
         }
