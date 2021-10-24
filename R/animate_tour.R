@@ -38,6 +38,12 @@ animate_tour <- function(data,
   col_spec <- rlang::enquo(cols)
   tour_data <- get_tour_data_matrix(data, col_spec)
 
+  if (!is.numeric(tour_data)) {
+    rlang::abort(c("Tour data must be numeric",
+      i = "Select numeric columns using the `cols` argument"
+    ))
+  }
+
   # merge default render_opts with specified
   render_opts_defaults <- eval(formals()$render_opts)
   render_opts <- merge_defaults_list(render_opts, render_opts_defaults)
@@ -82,7 +88,10 @@ animate_tour <- function(data,
 
   # useful for regenerating sample data for development
   if (raw_json_outfile != "") {
-    writeLines(jsonlite::toJSON(plot_data, digits = 4, auto_unbox = TRUE), raw_json_outfile)
+    writeLines(
+      jsonlite::toJSON(plot_data, digits = 4, auto_unbox = TRUE),
+      raw_json_outfile
+    )
   }
 
   htmlwidgets::createWidget(
