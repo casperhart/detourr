@@ -18,7 +18,7 @@ export interface Config {
 
 export interface Mapping {
 	colour: string[];
-	labels: string[];
+	label: string[];
 }
 
 export type Matrix = number[][];
