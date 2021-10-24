@@ -35,36 +35,18 @@ display_scatter <- function(mapping = NULL,
                             axes = TRUE,
                             labels = TRUE,
                             edges = NULL) {
+  names(mapping)[names(mapping) == "color"] <- "colour"
   if (missing(palette) && !("colour" %in% names(mapping))) palette <- "black"
 
   init <- function(data, col_spec) {
     default_mapping <- list(colour = character(0), label = character(0))
     mapping <- purrr::map(mapping, get_mapping_cols, data)
 
-    if ("colour" %in% names(mapping)) {
-      colours <- vec_to_colour(mapping[["colour"]][[1]], palette)
-    }
-    else {
-      colours <- vec_to_colour(rep("", nrow(data)), palette)
-    }
-
+    colours <- get_colour_mapping(data, mapping, palette)
     mapping[["colour"]] <- colours[["colours"]]
     pal <- colours[["pal"]]
 
-    if ("label" %in% names(mapping)) {
-      point_labels <- mapping[["label"]]
-      if (inherits(point_labels, "AsIs")) {
-        point_labels <- as.character(point_labels)
-      }
-      else {
-        point_labels <- purrr::map(
-          names(point_labels),
-          ~ paste0(., ": ", point_labels[[.]])
-       )
-        point_labels <- do.call(paste, c(point_labels, sep = "<br>"))
-      }
-      mapping[["label"]] <- point_labels
-    }
+    mapping[["label"]] <- get_label_mapping(data, mapping)
 
     mapping <- merge_defaults_list(mapping, default_mapping)
 
@@ -100,6 +82,34 @@ display_scatter <- function(mapping = NULL,
   list(
     "init" = init
   )
+}
+
+get_colour_mapping <- function(data, mapping, palette) {
+  browser()
+  if ("colour" %in% names(mapping)) {
+    colours <- vec_to_colour(mapping[["colour"]][[1]], palette)
+  }
+  else {
+    colours <- vec_to_colour(rep("", nrow(data)), palette)
+  }
+  colours
+}
+
+get_label_mapping <- function(data, mapping) {
+  if ("label" %in% names(mapping)) {
+    label <- mapping[["label"]]
+    if (inherits(point_labels, "AsIs")) {
+      label <- as.character(point_labels)
+    }
+    else {
+      label <- purrr::map(names(point_labels), ~ paste0(., ": ", point_labels[[.]]))
+      label <- do.call(paste, c(point_labels, sep = "<br>"))
+    }
+  }
+  else {
+    label <- character(0)
+  }
+  label
 }
 
 validate_labels <- function(labels, default_labels, data_cols) {
