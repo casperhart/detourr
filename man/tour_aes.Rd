@@ -7,18 +7,18 @@
 tour_aes(...)
 }
 \arguments{
-\item{...}{list of name-value pairs in the form 'aesthetic = variable'. Variables are evaluated
-using {tidyselect} syntax.}
+\item{...}{list of name-value pairs in the form 'aesthetic = variable'.
+Variables are evaluated using {tidyselect} syntax.}
 }
 \description{
-Aesthetic mapping for tours describing how variables in the data are mapped to
-visual properties of the tour animation.
+Aesthetic mapping for tours describing how variables in the data are
+mapped to visual properties of the tour animation.
 }
 \examples{
 animate_tour(
   tourr::flea,
   -species,
-  grand_tour(3),
+  tourr::grand_tour(3),
   display_scatter(tour_aes(colour = species))
 )
 }

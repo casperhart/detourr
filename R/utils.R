@@ -12,13 +12,13 @@ compute_half_range <- function(half_range, data, center) {
   if (center) {
     data <- tourr::center(data)
   }
-  half_range <- tourr:::max_dist(data, center)
+  half_range <- max(sqrt(rowSums(data^2)))
   message("Using half_range ", format(half_range, digits = 2))
   half_range
 }
 
 col2hex <- function(col) {
-  rgb(t(grDevices::col2rgb(col)), maxColorValue = 255)
+  grDevices::rgb(t(grDevices::col2rgb(col)), maxColorValue = 255)
 }
 
 merge_defaults_list <- function(l, default_l) {
@@ -37,15 +37,15 @@ get_tour_data_matrix <- function(data, col_spec) {
 
 #' Aesthetic mapping for tours
 #'
-#' Aesthetic mapping for tours describing how variables in the data are mapped to
-#' visual properties of the tour animation.
-#' @param ... list of name-value pairs in the form 'aesthetic = variable'. Variables are evaluated
-#' using {tidyselect} syntax.
+#' Aesthetic mapping for tours describing how variables in the data are
+#' mapped to visual properties of the tour animation.
+#' @param ... list of name-value pairs in the form 'aesthetic = variable'.
+#' Variables are evaluated using {tidyselect} syntax.
 #' @examples
 #' animate_tour(
 #'   tourr::flea,
 #'   -species,
-#'   grand_tour(3),
+#'   tourr::grand_tour(3),
 #'   display_scatter(tour_aes(colour = species))
 #' )
 #' @export
@@ -65,7 +65,11 @@ get_mapping_cols <- function(aes, data) {
   }
 }
 
-col2hex <- function(col) rgb(t(col2rgb(col)), maxColorValue = 255)
+col2hex <- function(col) {
+  grDevices::rgb(t(grDevices::col2rgb(col)),
+    maxColorValue = 255
+  )
+}
 
 vec_to_colour <- function(vec, pal) {
   if (is.numeric(vec)) {
@@ -93,11 +97,15 @@ vec_to_colour <- function(vec, pal) {
     }
 
     if (!is.character(pal)) {
-      rlang::abort("Invalid palette", x = "expected character vector", sprintf("got: %s", class(pal)))
+      rlang::abort("Invalid palette",
+        x = "expected character vector",
+        sprintf("got: %s", class(pal))
+      )
     }
 
     if (length(pal) != length(levels(vec))) {
-      rlang::abort("Number of colours in `palette` does not match the number of levels of the colour aesthetic")
+      rlang::abort("Number of colours in `palette` does not match the \
+                   number of levels of the colour aesthetic")
     }
   }
 

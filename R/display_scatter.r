@@ -3,28 +3,38 @@
 #'
 #' Display method for a high performance 3D scatterplot.
 #' Performance is achieved through the use of Three.js / WebGL.
-#' @param mapping mapping created via `tour_aes()`. Currently supports `colour` and (hover) `labels`.
+#' @param mapping mapping created via `tour_aes()`. Currently supports `colour`
+#' and (hover) `labels`.
 #' @param palette Colour palette to use with the colour aesthetic. Can be:
-#'  - A character vector of R colours. This should match the number of levels of the colour aesthetic,
-#' or the number of bins to use for continuous colours.
-#'  - A function which takes the number of colours to use as input and returns a character vector of colour
-#' names and / or hex values as output.
-#'  Note that the alpha channel of `palette` is ignored. For opacity, please use the `alpha` argument.
+#'  - A character vector of R colours. This should match the number of levels
+#' of the colour aesthetic, or the number of bins to use for continuous colours.
+#'  - A function which takes the number of colours to use as input and returns a
+#' character vector of colour names and / or hex values as output.
+#' Note that the alpha channel of `palette` is ignored. For opacity, please use
+#' the `alpha` argument.
 #' @param size point size, defaults to 1
-#' @param alpha opacity of points ranging from 0 to 1. 0 is fully transparent and 1 is fully opaque.
+#' @param alpha opacity of points ranging from 0 to 1. 0 is fully transparent
+#' and 1 is fully opaque.
 #' @param center If TRUE, center the projected data to (0, 0, 0).
 #' @param axes Whether to draw axes. TRUE or FALSE
 #' @param labels axis labels. Can be:
 #'  - `TRUE` to use column names for axis labels
 #'  - `FALSE` for no labels
 #'  - An unnamed vector of labels with the same length as `cols`
-#'  - A named vector in the form `c("h" = "head")`, where `head` is renamed to `h`
+#'  - A named vector in the form `c("h" = "head")`, where `head` is renamed to
+#' `h`
 #' @param edges A two column numeric matrix giving indices of ends of lines.
 #' @export
 #' @examples
 #' animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
-display_scatter <- function(mapping = NULL, palette = viridisLite::viridis, size = 1, alpha = 1,
-                            center = TRUE, axes = TRUE, labels = TRUE, edges = NULL) {
+display_scatter <- function(mapping = NULL,
+                            palette = viridisLite::viridis,
+                            size = 1,
+                            alpha = 1,
+                            center = TRUE,
+                            axes = TRUE,
+                            labels = TRUE,
+                            edges = NULL) {
   if (missing(palette) && !("colour" %in% names(mapping))) palette <- "black"
 
   init <- function(data, col_spec) {
@@ -47,7 +57,10 @@ display_scatter <- function(mapping = NULL, palette = viridisLite::viridis, size
         point_labels <- as.character(point_labels)
       }
       else {
-        point_labels <- purrr::map(names(point_labels), ~ paste0(., ": ", point_labels[[.]]))
+        point_labels <- purrr::map(
+          names(point_labels),
+          ~ paste0(., ": ", point_labels[[.]])
+       )
         point_labels <- do.call(paste, c(point_labels, sep = "<br>"))
       }
       mapping[["label"]] <- point_labels
@@ -57,7 +70,7 @@ display_scatter <- function(mapping = NULL, palette = viridisLite::viridis, size
 
     data_cols <- tidyselect::eval_select(col_spec, data)
     default_labels <- names(data_cols)
-    labels <- validate_labels(labels, default_labels)
+    labels <- validate_labels(labels, default_labels, data_cols)
 
     edges <- validate_edges(edges)
     alpha <- validate_alpha(alpha)
@@ -89,7 +102,7 @@ display_scatter <- function(mapping = NULL, palette = viridisLite::viridis, size
   )
 }
 
-validate_labels <- function(labels, default_labels) {
+validate_labels <- function(labels, default_labels, data_cols) {
   if (rlang::is_true(labels)) {
     axis_labels <- default_labels
   }
@@ -135,14 +148,19 @@ validate_edges <- function(edges) {
     edges <- character(0)
   }
   else {
-    rlang::abort(c("invalid edges argument", i = "expected a matrix", x = sprintf("got a `%s`", class(edges)[1])))
+    rlang::abort(c("invalid edges argument",
+      i = "expected a matrix",
+      x = sprintf("got a `%s`", class(edges)[1])
+    ))
   }
   edges
 }
 
 validate_alpha <- function(alpha) {
   if (!is.numeric(alpha) || length(alpha) != 1 || alpha < 0 || alpha > 1) {
-    rlang::abort(c("invalid alpha argument", i = "expected a single numeric value between 0 and 1"))
+    rlang::abort(c("invalid alpha argument",
+      i = "expected a single numeric value between 0 and 1"
+    ))
   }
   alpha
 }

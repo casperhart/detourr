@@ -18,6 +18,8 @@ Imports:
     tidyselect,
     rlang,
     purrr,
-    viridisLite
+    viridisLite,
+    grDevices,
+    jsonlite
 RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
