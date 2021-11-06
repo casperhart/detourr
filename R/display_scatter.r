@@ -16,10 +16,10 @@
 #' @param alpha opacity of points ranging from 0 to 1. 0 is fully transparent
 #' and 1 is fully opaque.
 #' @param center If TRUE, center the projected data to (0, 0, 0).
-#' @param axes Whether to draw axes. TRUE or FALSE
-#' @param labels axis labels. Can be:
-#'  - `TRUE` to use column names for axis labels
-#'  - `FALSE` for no labels
+#' @param axes:
+#'  - `TRUE` draw axes and use column names for axis labels
+#'  - `FALSE` do not draw axes or labels
+#'  - `NULL` draw axes with no labels
 #'  - An unnamed vector of labels with the same length as `cols`
 #'  - A named vector in the form `c("h" = "head")`, where `head` is renamed to
 #' `h`
@@ -33,7 +33,6 @@ display_scatter <- function(mapping = NULL,
                             alpha = 1,
                             center = TRUE,
                             axes = TRUE,
-                            labels = TRUE,
                             edges = NULL) {
   if ("color" %in% names(mapping)) {
     names(mapping)[names(mapping) == "color"] <- "colour"
@@ -55,28 +54,19 @@ display_scatter <- function(mapping = NULL,
 
     data_cols <- tidyselect::eval_select(col_spec, data)
     default_labels <- names(data_cols)
-    labels <- validate_labels(labels, default_labels, data_cols)
+    axes <- validate_axes(axes, default_labels, data_cols)
 
     edges <- validate_edges(edges)
     alpha <- validate_alpha(alpha)
-
-    if (rlang::is_false(axes)) {
-      labels <- character(0)
-    }
-    else if (!rlang::is_true(axes)) {
-      rlang::abort(c("invalid `axes` argument",
-        i = "expected `TRUE` or `FALSE`"
-      ))
-    }
 
     list(
       "mapping" = mapping,
       "plot" = list(
         "center" = center,
         "size" = size,
-        "axisLabels" = labels,
+        "axisLabels" = axes[["labels"]],
         "edges" = edges,
-        "axes" = axes,
+        "axes" = axes[["has_axes"]],
         "alpha" = alpha
       ),
       "widget" = "display_scatter"
@@ -114,29 +104,37 @@ get_label_mapping <- function(data, mapping) {
   label
 }
 
-validate_labels <- function(labels, default_labels, data_cols) {
-  if (rlang::is_true(labels)) {
+validate_axes <- function(axes, default_labels, data_cols) {
+  if (rlang::is_true(axes)) {
     axis_labels <- default_labels
   }
-  else if (rlang::is_false(labels)) {
+  else if (rlang::is_false(axes)) {
     axis_labels <- character(0)
   }
-  else if (rlang::is_named(labels)) {
-    renamed <- tidyselect::eval_rename(labels, data_cols)
+  else if (is.null(axes)) {
+    axis_labels <- character(0)
+    axes <- TRUE
+  }
+  else if (rlang::is_named(axes)) {
+    renamed <- tidyselect::eval_rename(axes, data_cols)
     axis_labels <- default_labels
     axis_labels[renamed] <- names(renamed)
+    axes <- TRUE
   }
-  else if (rlang::has_length(labels, length(data_cols))) {
-    axis_labels <- as.character(labels)
+  else if (rlang::has_length(axes, length(data_cols))) {
+    axis_labels <- as.character(axes)
+    axes <- TRUE
   }
   else {
     rlang::abort(c(
-      "length of `labels` argument should match the number of data columns.",
-      i = sprintf("expected: %s", length(default_labels)),
-      x = sprintf("got: %s", length(labels))
+      "invalid `axes` argument",
+      i = "see `?display_scatter` for valid options",
     ))
   }
-  axis_labels
+  list(
+       labels = axis_labels,
+       has_axes = axes
+  )
 }
 
 validate_edges <- function(edges) {
