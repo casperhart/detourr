@@ -11,7 +11,6 @@ display_scatter(
   alpha = 1,
   center = TRUE,
   axes = TRUE,
-  labels = TRUE,
   edges = NULL
 )
 }
@@ -36,18 +35,16 @@ and 1 is fully opaque.}
 
 \item{center}{If TRUE, center the projected data to (0, 0, 0).}
 
-\item{axes}{Whether to draw axes. TRUE or FALSE}
+\item{edges}{A two column numeric matrix giving indices of ends of lines.}
 
-\item{labels}{axis labels. Can be:
-\itemize{
-\item \code{TRUE} to use column names for axis labels
-\item \code{FALSE} for no labels
+\item{axes:}{\itemize{
+\item \code{TRUE} draw axes and use column names for axis labels
+\item \code{FALSE} do not draw axes or labels
+\item \code{NULL} draw axes with no labels
 \item An unnamed vector of labels with the same length as \code{cols}
 \item A named vector in the form \code{c("h" = "head")}, where \code{head} is renamed to
 \code{h}
 }}
-
-\item{edges}{A two column numeric matrix giving indices of ends of lines.}
 }
 \description{
 Display method for a high performance 3D scatterplot.
