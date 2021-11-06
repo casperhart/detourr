@@ -6,7 +6,7 @@
 \usage{
 animate_tour(
   data,
-  cols = tidyselect::everything(),
+  cols = where(is.numeric),
   tour_path = tourr::grand_tour(d = 2),
   display = d3tourr::display_scatter(),
   render_opts = list(start = NULL, aps = 1, fps = 30, max_bases = 2),
