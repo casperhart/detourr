@@ -45,6 +45,8 @@ export class ScatterWidget {
   private mapping: Mapping;
   private pointColours: THREE.BufferAttribute;
   private pickingColours: THREE.BufferAttribute;
+  private currentFrameBuffer: THREE.BufferAttribute;
+  private nextFrameBuffer: THREE.BufferAttribute;
   private width: number;
   private height: number;
   private dim: Dim;
@@ -94,8 +96,9 @@ export class ScatterWidget {
     let shaderOpts = this.getShaderOpts(pointSize, this.dim);
     let pointsMaterial = new THREE.ShaderMaterial(shaderOpts);
 
-    let pointsBuffer = this.getPointsBuffer(0, this.config.center);
-    pointsGeometry.setAttribute("position", pointsBuffer);
+    this.currentFrameBuffer = this.getPointsBuffer(0, this.config.center);
+    this.nextFrameBuffer = this.getPointsBuffer(1, this.config.center);
+    pointsGeometry.setAttribute("position", this.currentFrameBuffer);
 
     this.points = new THREE.Points(pointsGeometry, pointsMaterial);
     this.points.geometry.setAttribute("color", this.pointColours);
@@ -107,7 +110,7 @@ export class ScatterWidget {
     }
 
     if (this.hasEdges) {
-      this.addEdgeSegments(pointsBuffer);
+      this.addEdgeSegments(this.currentFrameBuffer);
     }
     this.addOrbitControls();
 
@@ -267,6 +270,7 @@ export class ScatterWidget {
     let renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       antialias: true,
+      powerPreference: "high-performance",
     });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(this.width, this.height);
@@ -355,7 +359,7 @@ export class ScatterWidget {
       linesBufferMatrix = projectionMatrix.map((row) => [0, 0, 0].concat(row));
     } else if (this.dim == 2) {
       linesBufferMatrix = projectionMatrix.map(
-        (row) => [0, 0, 0, row[0], 0, row[1]]
+        (row) => [0, 0, 0, row[0], 0, row[1]],
       );
     }
     return new THREE.BufferAttribute(
@@ -500,12 +504,10 @@ export class ScatterWidget {
     const dpr = renderer.getPixelRatio();
 
     let canvas_coords = canvas.getBoundingClientRect();
-    let x =
-      (Math.min(selection.startPoint.x, selection.endPoint.x) -
-        canvas_coords.left) * dpr;
-    let y =
-      (Math.max(selection.startPoint.y, selection.endPoint.y) -
-        canvas_coords.top) * dpr;
+    let x = (Math.min(selection.startPoint.x, selection.endPoint.x) -
+      canvas_coords.left) * dpr;
+    let y = (Math.max(selection.startPoint.y, selection.endPoint.y) -
+      canvas_coords.top) * dpr;
     let width = Math.abs(selection.startPoint.x - selection.endPoint.x) * dpr;
     let height = Math.abs(selection.startPoint.y - selection.endPoint.y) * dpr;
 
@@ -584,12 +586,16 @@ export class ScatterWidget {
     let currentFrame = Math.floor(this.time * this.config.fps);
 
     if (currentFrame != this.oldFrame) {
-      let frameBuffer: THREE.BufferAttribute;
+      this.currentFrameBuffer = this.nextFrameBuffer;
 
-      frameBuffer = this.getPointsBuffer(currentFrame, this.config.center);
-
-      this.points.geometry.setAttribute("position", frameBuffer);
+      this.points.geometry.setAttribute("position", this.currentFrameBuffer);
       this.points.geometry.attributes.position.needsUpdate = true;
+
+      // precalculate point positions for the next frame
+      this.nextFrameBuffer = this.getPointsBuffer(
+        (currentFrame + 1) % this.projectionMatrices.length,
+        this.config.center,
+      );
 
       if (this.hasAxes) {
         this.axisSegments.geometry.setAttribute(
@@ -599,7 +605,7 @@ export class ScatterWidget {
         this.axisSegments.geometry.attributes.position.needsUpdate = true;
       }
       if (this.hasEdges) {
-        let edgesBuffer = this.getEdgesBuffer(frameBuffer);
+        let edgesBuffer = this.getEdgesBuffer(this.currentFrameBuffer);
         this.edgeSegments.geometry.setAttribute("position", edgesBuffer);
       }
 
@@ -610,6 +616,9 @@ export class ScatterWidget {
         this.camera.zoom;
     }
 
+    // render the scene
+    this.renderer.render(this.scene, this.camera);
+
     // render the picking scene for box selection
     this.points.geometry.setAttribute("color", this.pickingColours);
     // disable antialiasing and alpha in picking scene
@@ -617,11 +626,10 @@ export class ScatterWidget {
     this.renderer.setRenderTarget(this.pickingTexture);
     this.renderer.render(this.scene, this.camera);
 
-    // render the scene
+    // reset from picking scene
     this.renderer.setRenderTarget(null);
     this.points.geometry.setAttribute("color", this.pointColours);
     (this.points.material as THREE.ShaderMaterial).uniforms.antialias.value = 1;
-    this.renderer.render(this.scene, this.camera);
 
     // update axis labels
     if (this.hasAxisLabels) {
@@ -629,6 +637,7 @@ export class ScatterWidget {
         x.updatePosition(this.projectionMatrices[currentFrame][i], this.camera)
       );
     }
+
     requestAnimationFrame(() => this.animate());
   }
 
