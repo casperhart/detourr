@@ -22,7 +22,7 @@
 #' @examples
 #' animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
 animate_tour <- function(data,
-                         cols = tidyselect::everything(),
+                         cols = where(is.numeric),
                          tour_path = tourr::grand_tour(d = 2),
                          display = d3tourr::display_scatter(),
                          render_opts = list(
