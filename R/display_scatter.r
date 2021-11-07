@@ -132,8 +132,8 @@ validate_axes <- function(axes, default_labels, data_cols) {
     ))
   }
   list(
-       labels = axis_labels,
-       has_axes = axes
+    labels = axis_labels,
+    has_axes = axes
   )
 }
 

@@ -76,6 +76,7 @@ vec_to_colour <- function(vec, pal) {
     vec <- as.factor(vec[[1]])
     pal <- col2hex(levels(vec))
     names(pal) <- levels(vec)
+    vec <- as.character(vec)
   }
 
   else {
@@ -112,8 +113,10 @@ vec_to_colour <- function(vec, pal) {
       }
 
       if (length(pal) != length(levels(vec))) {
-        rlang::abort(paste("Number of colours in `palette` does not match",
-                           "the number of levels of the colour aesthetic"))
+        rlang::abort(paste(
+          "Number of colours in `palette` does not match",
+          "the number of levels of the colour aesthetic"
+        ))
       }
     }
 
