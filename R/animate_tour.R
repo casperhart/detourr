@@ -106,4 +106,6 @@ animate_tour <- function(data,
     ),
     package = "d3tourr",
   )
+
+  invisible(plot_data)
 }
