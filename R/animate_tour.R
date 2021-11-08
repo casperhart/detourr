@@ -6,18 +6,21 @@
 #' implemented in the package.
 #' @inheritParams tourr::animate
 #' @param data data frame containing columns to use for the tour.
-#' @param cols column selection for the tour. Specified columns must be numeric. Uses tidyselect syntax
+#' @param cols column selection for the tour. Specified columns must be numeric.
+#' Uses tidyselect syntax
 #' @param display takes the display that is suppose to be used, defaults to
 #'   the (3D) scatter display
 #' @param render_opts list of render options containing some or all of:
-#' - start:  projection to start at, if not specified, uses default associated with tour path \cr
+#' - start:  projection to start at, if not specified, uses default associated
+#' with tour path
 #' - aps: target angular velocity (in radians per second)
-#' - fps: target frames per second (defaults to 30)
-#' - max_bases: the maximum number of bases to generate. Defaults to 1 Unlike the tourr package,
-#'    d3tourr can only be used non-interactively so max_frames has to be a finite number. This is so that
-#'    the resulting animations can remain independent of the R runtime.
+#' - fps: target frames per second (defaults to 30). Higher fps can give
+#' smoother animations, but at the expense of memory usage.
+#' - max_bases: the maximum number of bases to generate. Defaults to 1 Unlike
+#' the tourr package, d3tourr can only be used non-interactively so max_frames
+#' has to be a finite number. This is so that the resulting animations can
+#' remain independent of the R runtime.
 #'
-#' @param raw_json_outfile path to save data which is normally passed to htmlwidgets. Useful for devlelopment.
 #' @export
 #' @examples
 #' animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
@@ -32,8 +35,7 @@ animate_tour <- function(data,
                            max_bases = 2
                          ),
                          rescale = TRUE,
-                         sphere = FALSE,
-                         raw_json_outfile = "") {
+                         sphere = FALSE) {
   # todo: subtract aesthetic columns from col_spec if col_spec is not specified
   col_spec <- rlang::enquo(cols)
   tour_data <- get_tour_data_matrix(data, col_spec)
@@ -86,17 +88,20 @@ animate_tour <- function(data,
     "projectionMatrices" = projection_matrices
   )
 
-  # useful for regenerating sample data for development
-  if (raw_json_outfile != "") {
-    writeLines(
-      jsonlite::toJSON(plot_data, digits = 4, auto_unbox = TRUE),
-      raw_json_outfile
-    )
-  }
+  structure(
+    list(
+      plot_data = plot_data,
+      widget = widget
+    ),
+    class = "tour_animation"
+  )
+}
 
-  htmlwidgets::createWidget(
-    widget,
-    plot_data,
+#' @export
+print.tour_animation <- function(x, ...) {
+  print(htmlwidgets::createWidget(
+    x$widget,
+    x$plot_data,
     sizingPolicy = htmlwidgets::sizingPolicy(
       viewer.padding = 0,
       viewer.paneHeight = 500,
@@ -105,7 +110,11 @@ animate_tour <- function(data,
       knitr.defaultHeight = 500
     ),
     package = "d3tourr",
-  )
+  ))
+  invisible(x)
+}
 
-  invisible(plot_data)
+#' @export
+str.tour_animation <- function(object, ...) {
+  jsonlite::toJSON(object$plot_data, digits = 4, auto_unbox = TRUE)
 }

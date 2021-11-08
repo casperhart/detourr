@@ -35,9 +35,8 @@ and 1 is fully opaque.}
 
 \item{center}{If TRUE, center the projected data to (0, 0, 0).}
 
-\item{edges}{A two column numeric matrix giving indices of ends of lines.}
-
-\item{axes:}{\itemize{
+\item{axes}{Can be one of:
+\itemize{
 \item \code{TRUE} draw axes and use column names for axis labels
 \item \code{FALSE} do not draw axes or labels
 \item \code{NULL} draw axes with no labels
@@ -45,6 +44,8 @@ and 1 is fully opaque.}
 \item A named vector in the form \code{c("h" = "head")}, where \code{head} is renamed to
 \code{h}
 }}
+
+\item{edges}{A two column numeric matrix giving indices of ends of lines.}
 }
 \description{
 Display method for a high performance 3D scatterplot.

@@ -11,14 +11,14 @@ animate_tour(
   display = d3tourr::display_scatter(),
   render_opts = list(start = NULL, aps = 1, fps = 30, max_bases = 2),
   rescale = TRUE,
-  sphere = FALSE,
-  raw_json_outfile = ""
+  sphere = FALSE
 )
 }
 \arguments{
 \item{data}{data frame containing columns to use for the tour.}
 
-\item{cols}{column selection for the tour. Specified columns must be numeric. Uses tidyselect syntax}
+\item{cols}{column selection for the tour. Specified columns must be numeric.
+Uses tidyselect syntax}
 
 \item{tour_path}{tour path generator, defaults to 2d grand tour}
 
@@ -27,19 +27,20 @@ the (3D) scatter display}
 
 \item{render_opts}{list of render options containing some or all of:
 \itemize{
-\item start:  projection to start at, if not specified, uses default associated with tour path \cr
+\item start:  projection to start at, if not specified, uses default associated
+with tour path
 \item aps: target angular velocity (in radians per second)
-\item fps: target frames per second (defaults to 30)
-\item max_bases: the maximum number of bases to generate. Defaults to 1 Unlike the tourr package,
-d3tourr can only be used non-interactively so max_frames has to be a finite number. This is so that
-the resulting animations can remain independent of the R runtime.
+\item fps: target frames per second (defaults to 30). Higher fps can give
+smoother animations, but at the expense of memory usage.
+\item max_bases: the maximum number of bases to generate. Defaults to 1 Unlike
+the tourr package, d3tourr can only be used non-interactively so max_frames
+has to be a finite number. This is so that the resulting animations can
+remain independent of the R runtime.
 }}
 
 \item{rescale}{if true, rescale all variables to range [0,1]?}
 
 \item{sphere}{if true, sphere all variables}
-
-\item{raw_json_outfile}{path to save data which is normally passed to htmlwidgets. Useful for devlelopment.}
 }
 \description{
 This is the function that powers all of the tour animations.  If you want
