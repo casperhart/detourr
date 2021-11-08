@@ -16,7 +16,7 @@
 #' @param alpha opacity of points ranging from 0 to 1. 0 is fully transparent
 #' and 1 is fully opaque.
 #' @param center If TRUE, center the projected data to (0, 0, 0).
-#' @param axes:
+#' @param axes Can be one of:
 #'  - `TRUE` draw axes and use column names for axis labels
 #'  - `FALSE` do not draw axes or labels
 #'  - `NULL` draw axes with no labels
