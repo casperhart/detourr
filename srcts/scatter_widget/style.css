@@ -68,6 +68,12 @@ input.colourSelector {
 }
 
 div.axisLabel {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
   position: absolute;
   font-family: Helvetica, Sans-serif;
 }
@@ -84,4 +90,29 @@ div.tooltip {
 
 div.tooltip.visible {
   visibility: visible;
+}
+
+div.scatterWidgetTimeline {
+  height: 10px;
+  left: 20px;
+  right: 20px;
+  background-color: rgba(0,0,0,0.7);
+  position: absolute;
+  border-radius: 5px;
+}
+
+div.scatterWidgetScrubber {
+  background-color: rgba(0,0,0,0.7);
+  border-radius: 50%;
+  
+  cursor: move;
+  position: absolute;
+  left: 0px;
+  bottom: -5px;
+  z-index: 1;
+  
+}
+
+div.scatterWidgetScrubber.active {
+    cursor: move;
 }
