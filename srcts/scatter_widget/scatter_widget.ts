@@ -9,6 +9,7 @@ import {
   ProjectionMatrix,
   ScatterInputData,
 } from "./types";
+import { Timeline } from "./timeline";
 import { centerColumns, getColMeans, multiply2, multiply3 } from "./utils";
 import { FRAGMENT_SHADER, VERTEX_SHADER_2D, VERTEX_SHADER_3D } from "./shaders";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
@@ -25,7 +26,7 @@ import {
 import "./style.css";
 
 export class ScatterWidget {
-  private container: HTMLElement;
+  private container: HTMLDivElement;
   private canvas: HTMLCanvasElement = document.createElement("canvas");
   private scene: THREE.Scene;
   private camera: Camera;
@@ -35,6 +36,7 @@ export class ScatterWidget {
   private projectionMatrices: Array<ProjectionMatrix>;
   private clock = new THREE.Clock();
   private time: number;
+  private currentFrame: number;
   private oldFrame: number;
   private points: THREE.Points;
   private axisSegments: THREE.LineSegments;
@@ -64,8 +66,9 @@ export class ScatterWidget {
   private edges: number[];
   private edgeSegments: THREE.LineSegments;
   private toolTip: HTMLDivElement;
+  private timeline: Timeline;
 
-  constructor(containerElement: HTMLElement, width: number, height: number) {
+  constructor(containerElement: HTMLDivElement, width: number, height: number) {
     this.width = width;
     this.height = height;
     this.addContainerElement(containerElement);
@@ -128,6 +131,8 @@ export class ScatterWidget {
       "disabled",
     );
 
+    this.addTimeline();
+
     this.clock = new THREE.Clock();
     this.time = 0;
     this.oldFrame = -1;
@@ -155,6 +160,11 @@ export class ScatterWidget {
     this.pickingTexture.setSize(
       newWidth * dpr,
       newHeight * dpr,
+    );
+    // scrubbing bar
+    this.timeline.resize(
+      newHeight,
+      this.currentFrame / this.projectionMatrices.length,
     );
 
     this.axisLabels.map((x) => x.setDpr(dpr));
@@ -188,6 +198,10 @@ export class ScatterWidget {
     this.animate();
   }
 
+  public getContainerElement(): HTMLDivElement {
+    return this.container;
+  }
+
   private addAxisSegments() {
     let axisLinesGeometry = new THREE.BufferGeometry();
     let axisLinesMaterial = new THREE.LineBasicMaterial({
@@ -219,7 +233,7 @@ export class ScatterWidget {
     this.scene.add(this.edgeSegments);
   }
 
-  private addContainerElement(containerElement: HTMLElement) {
+  private addContainerElement(containerElement: HTMLDivElement) {
     containerElement.className = "scatterWidgetContainer";
     this.container = containerElement;
   }
@@ -299,6 +313,15 @@ export class ScatterWidget {
     toolTip.className = "tooltip";
     this.container.appendChild(toolTip);
     this.toolTip = toolTip;
+  }
+
+  private addTimeline() {
+    this.timeline = new Timeline(this);
+    this.container.appendChild(this.timeline.getElement());
+    this.timeline.resize(
+      this.height,
+      this.currentFrame / this.projectionMatrices.length,
+    );
   }
 
   private getShaderOpts(pointSize: number, dim: Dim) {
@@ -423,7 +446,12 @@ export class ScatterWidget {
       pauseIcon,
       () => this.setIsPaused(!this.getIsPaused()),
     );
-    this.addButton("reset", "Restart tour", resetIcon, () => this.resetClock());
+    this.addButton(
+      "reset",
+      "Reset camera position",
+      resetIcon,
+      () => this.orbitControls.reset(),
+    );
     this.addButton(
       "pan",
       "Switch to pan controls",
@@ -584,6 +612,7 @@ export class ScatterWidget {
     if (this.time >= this.config.duration) this.time = 0;
 
     let currentFrame = Math.floor(this.time * this.config.fps);
+    this.currentFrame = currentFrame;
 
     if (currentFrame != this.oldFrame) {
       this.currentFrameBuffer = this.nextFrameBuffer;
@@ -610,6 +639,9 @@ export class ScatterWidget {
       }
 
       this.oldFrame = currentFrame;
+      this.timeline.updatePosition(
+        currentFrame / this.projectionMatrices.length,
+      );
     }
     if (this.dim == 2) {
       (this.points.material as THREE.ShaderMaterial).uniforms.zoom.value =
@@ -645,7 +677,7 @@ export class ScatterWidget {
     return this.isPaused;
   }
 
-  private setIsPaused(isPaused: boolean) {
+  public setIsPaused(isPaused: boolean) {
     this.isPaused = isPaused;
     let playPauseButton = this.container.querySelector(".playPauseButton");
 
@@ -655,6 +687,10 @@ export class ScatterWidget {
     } else {
       playPauseButton.innerHTML = playIcon;
     }
+  }
+
+  public setTime(newTimePercent: number) {
+    this.time = this.config.duration * newTimePercent;
   }
 
   private setControlType(controlType: ControlType) {
