@@ -1,10 +1,12 @@
 import { ScatterWidget } from "./scatter_widget";
+import { pauseIcon, playIcon } from "./icons";
 
 export class Timeline {
   private parentDiv: HTMLElement;
   private scatterWidget: ScatterWidget;
   private timeline: HTMLElement;
   private scrubber: HTMLElement;
+  private playPauseButton: HTMLElement;
   private timelineWidth: number;
   private scrubberWidth: number = 20;
 
@@ -63,6 +65,16 @@ export class Timeline {
       this.mouseDown = false;
     };
 
+    this.playPauseButton = this.addButton(
+      "playPause",
+      "Play / Pause",
+      pauseIcon,
+      () =>
+        this.scatterWidget.setIsPaused(
+          !this.scatterWidget.getIsPaused(),
+        ),
+    );
+
     timeline.appendChild(scrubber);
     this.timeline = timeline;
     this.scrubber = scrubber;
@@ -73,12 +85,37 @@ export class Timeline {
       this.scrubber.style.left = Math.floor(this.timelineWidth * newPos) + "px";
     }
   }
+
+  public updatePlayPauseIcon(isPaused: boolean) {
+    if (isPaused) {
+      this.playPauseButton.innerHTML = playIcon;
+    } else {
+      this.playPauseButton.innerHTML = pauseIcon;
+    }
+  }
+
+  private addButton(
+    name: string,
+    hoverText: string,
+    icon: string,
+    buttonCallback: Function,
+  ) {
+    let button = document.createElement("button");
+    button.innerHTML = icon;
+    button.title = hoverText;
+    button.className = `${name}Button`;
+    button.onclick = () => buttonCallback();
+    this.parentDiv.appendChild(button);
+    return button;
+  }
+
   public getElement() {
     return this.timeline;
   }
 
   public resize(newHeight: number, newPos: number) {
     this.timeline.style.top = newHeight - 30 + "px";
+    this.playPauseButton.style.top = newHeight - 40 + "px";
     this.timelineWidth = this.timeline.offsetWidth - this.scrubberWidth;
     this.updatePosition(newPos);
   }

@@ -13,27 +13,23 @@ button:hover {
   color: rgb(56, 56, 56);
 }
 
-button.playPauseButton {
-  top: 10px;
-}
-
 button.resetButton {
-  top: 45px;
+  top: 15px;
   border: 5px;
 }
 
 button.panButton {
-  top: 80px;
+  top: 50px;
   border: 5px;
 }
 
 button.orbitButton {
-  top: 115px;
+  top: 85px;
   border: 5px;
 }
 
 button.selectButton {
-  top: 150px;
+  top: 120px;
   border: 5px;
 }
 
@@ -47,8 +43,8 @@ button.selected {
 
 input.colourSelector {
   position: absolute;
-  top: 185px;
-  left: 10px;
+  top: 155px;
+  left: 13px;
   width: 22px;
   height: 22px;
 }
@@ -94,7 +90,7 @@ div.tooltip.visible {
 
 div.scatterWidgetTimeline {
   height: 10px;
-  left: 20px;
+  left: 50px;
   right: 20px;
   background-color: rgba(0,0,0,0.7);
   position: absolute;

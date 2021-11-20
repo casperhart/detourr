@@ -441,12 +441,6 @@ export class ScatterWidget {
 
   private addControls() {
     this.addButton(
-      "playPause",
-      "Play / Pause",
-      pauseIcon,
-      () => this.setIsPaused(!this.getIsPaused()),
-    );
-    this.addButton(
       "reset",
       "Reset camera position",
       resetIcon,
@@ -673,20 +667,18 @@ export class ScatterWidget {
     requestAnimationFrame(() => this.animate());
   }
 
-  private getIsPaused(): boolean {
+  public getIsPaused(): boolean {
     return this.isPaused;
   }
 
   public setIsPaused(isPaused: boolean) {
     this.isPaused = isPaused;
-    let playPauseButton = this.container.querySelector(".playPauseButton");
 
     if (!isPaused) {
       this.animate();
-      playPauseButton.innerHTML = pauseIcon;
     } else {
-      playPauseButton.innerHTML = playIcon;
     }
+    this.timeline.updatePlayPauseIcon(isPaused);
   }
 
   public setTime(newTimePercent: number) {
