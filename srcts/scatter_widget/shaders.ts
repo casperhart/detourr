@@ -28,10 +28,10 @@ void main(){
 
 export const VERTEX_SHADER_3D = `
 uniform float size;
-uniform float alpha;
 uniform float antialias;
 
 attribute vec3 color;
+attribute float alpha;
 
 // passed to fragment shader
 varying vec3 vColor;
@@ -52,9 +52,9 @@ void main(){
 export const VERTEX_SHADER_2D = `
 uniform float size;
 uniform float zoom;
-uniform float alpha;
 uniform float antialias;
 
+attribute float alpha;
 attribute vec3 color;
 
 // passed to fragment shader
