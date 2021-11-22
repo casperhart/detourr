@@ -46,6 +46,7 @@ export class ScatterWidget {
   private colMeans: Matrix;
   private mapping: Mapping;
   private pointColours: THREE.BufferAttribute;
+  private pointAlphas: THREE.BufferAttribute;
   private pickingColours: THREE.BufferAttribute;
   private currentFrameBuffer: THREE.BufferAttribute;
   private nextFrameBuffer: THREE.BufferAttribute;
@@ -67,6 +68,8 @@ export class ScatterWidget {
   private edgeSegments: THREE.LineSegments;
   private toolTip: HTMLDivElement;
   private timeline: Timeline;
+  private crosstalkIndex?: string[];
+  private crosstalkGroup?: string;
 
   constructor(containerElement: HTMLDivElement, width: number, height: number) {
     this.width = width;
@@ -105,6 +108,11 @@ export class ScatterWidget {
 
     this.points = new THREE.Points(pointsGeometry, pointsMaterial);
     this.points.geometry.setAttribute("color", this.pointColours);
+    this.pointAlphas = this.getPointAlphas();
+    this.points.geometry.setAttribute(
+      "alpha",
+      this.pointAlphas,
+    );
     this.scene.add(this.points);
 
     if (this.hasAxes) {
@@ -173,6 +181,9 @@ export class ScatterWidget {
   public renderValue(inputData: ScatterInputData) {
     this.config = inputData.config;
     this.dataset = inputData.dataset;
+
+    this.crosstalkIndex = inputData.crosstalk.crosstalkIndex;
+    this.crosstalkGroup = inputData.crosstalk.crosstalkGroup;
 
     this.projectionMatrices = inputData.projectionMatrices;
     this.dim = inputData.projectionMatrices[0][0].length;
@@ -331,7 +342,6 @@ export class ScatterWidget {
         uniforms: {
           size: { value: Math.max(pointSize, this.minPointSize) },
           zoom: { value: this.camera.zoom },
-          alpha: { value: this.config.alpha },
           antialias: { value: 1 },
         },
         vertexShader: VERTEX_SHADER_2D,
@@ -340,7 +350,6 @@ export class ScatterWidget {
       shaderOpts = {
         uniforms: {
           size: { value: Math.max(pointSize, this.minPointSize) },
-          alpha: { value: this.config.alpha },
           antialias: { value: 1 },
         },
         vertexShader: VERTEX_SHADER_3D,
@@ -423,6 +432,13 @@ export class ScatterWidget {
       }
     }
     return new THREE.BufferAttribute(bufferArray, 3);
+  }
+
+  private getPointAlphas(): THREE.BufferAttribute {
+    return new THREE.BufferAttribute(
+      new Float32Array(this.dataset.length).fill(this.config.alpha),
+      1,
+    );
   }
 
   private getPickingColours(): THREE.BufferAttribute {
@@ -551,7 +567,7 @@ export class ScatterWidget {
         (pixelBuffer[4 * i + 1] << 8) |
         (pixelBuffer[4 * i + 2]);
       if (id != 0 && id != 0xffffff) {
-        selectedPointIndices.add(id);
+        selectedPointIndices.add(id - 1);
       }
     }
 
@@ -758,7 +774,8 @@ export class ScatterWidget {
       0,
     );
     this.setPointIndicesFromBoxSelection(this.selectionBox);
-    this.setSelectedPointColour();
+    //this.setSelectedPointColour();
+    this.highlightSelectedPoints();
   };
 
   private setSelectedPointColour() {
@@ -768,9 +785,28 @@ export class ScatterWidget {
     let colour = new THREE.Color(selector.value);
 
     for (const ind of this.selectedPointIndices) {
-      this.pointColours.set([colour.r, colour.g, colour.b], (ind - 1) * 3);
-      this.pointColours.needsUpdate = true;
+      this.pointColours.set([colour.r, colour.g, colour.b], ind * 3);
     }
+    this.pointColours.needsUpdate = true;
+  }
+
+  private highlightSelectedPoints() {
+    // reset to default
+    if (this.selectedPointIndices.length == 0) {
+      this.pointAlphas.set(
+        new Float32Array(this.dataset.length).fill(this.config.alpha),
+        0,
+      );
+    } else {
+      for (let i = 0; i < this.dataset.length; i++) {
+        if (!this.selectedPointIndices.includes(i)) {
+          this.pointAlphas.set([this.config.alpha / 4], i);
+        } else {
+          this.pointAlphas.set([this.config.alpha], i);
+        }
+      }
+    }
+    this.pointAlphas.needsUpdate = true;
   }
 
   private setSelectionMode(enable: boolean) {
