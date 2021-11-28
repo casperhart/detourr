@@ -15,14 +15,7 @@ import { FRAGMENT_SHADER, VERTEX_SHADER_2D, VERTEX_SHADER_3D } from "./shaders";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { SelectionBox } from "three/examples/jsm/interactive/SelectionBox.js";
 import { SelectionHelper } from "three/examples/jsm/interactive/SelectionHelper.js";
-import {
-  orbitIcon,
-  panIcon,
-  pauseIcon,
-  playIcon,
-  resetIcon,
-  selectIcon,
-} from "./icons";
+import { brushIcon, orbitIcon, panIcon, resetIcon, selectIcon } from "./icons";
 import "./style.css";
 
 declare global {
@@ -219,7 +212,6 @@ export class ScatterWidget {
 
     this.addCamera(this.dim);
     this.mapping = inputData.mapping;
-    console.log(inputData.crosstalk);
 
     this.constructPlot();
     this.animate();
@@ -495,6 +487,12 @@ export class ScatterWidget {
       "Switch to selection controls",
       selectIcon,
       () => this.setControlType("SELECT"),
+    );
+    this.addButton(
+      "brush",
+      "Colour selected points",
+      brushIcon,
+      () => this.setSelectedPointColour(),
     );
     this.addColourSelector();
 
