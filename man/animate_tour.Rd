@@ -11,7 +11,9 @@ animate_tour(
   display = d3tourr::display_scatter(),
   render_opts = list(start = NULL, aps = 1, fps = 30, max_bases = 2),
   rescale = TRUE,
-  sphere = FALSE
+  sphere = FALSE,
+  width = NULL,
+  height = NULL
 )
 }
 \arguments{
@@ -41,6 +43,10 @@ remain independent of the R runtime.
 \item{rescale}{if true, rescale all variables to range [0,1]?}
 
 \item{sphere}{if true, sphere all variables}
+
+\item{width}{passed to htmlwidgets::htmlwidget}
+
+\item{height}{passed to htmlwidgets::htmlwidget}
 }
 \description{
 This is the function that powers all of the tour animations.  If you want

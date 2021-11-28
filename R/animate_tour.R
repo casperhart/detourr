@@ -20,7 +20,8 @@
 #' the tourr package, d3tourr can only be used non-interactively so max_frames
 #' has to be a finite number. This is so that the resulting animations can
 #' remain independent of the R runtime.
-#'
+#' @param width passed to htmlwidgets::htmlwidget
+#' @param height passed to htmlwidgets::htmlwidget
 #' @export
 #' @examples
 #' animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
@@ -35,7 +36,9 @@ animate_tour <- function(data,
                            max_bases = 2
                          ),
                          rescale = TRUE,
-                         sphere = FALSE) {
+                         sphere = FALSE,
+                         width = NULL,
+                         height = NULL) {
   col_spec <- rlang::enquo(cols)
 
   if (crosstalk::is.SharedData(data)) {
@@ -112,6 +115,8 @@ animate_tour <- function(data,
       knitr.defaultWidth = 800,
       knitr.defaultHeight = 500
     ),
+    width = width,
+    height = height,
     package = "d3tourr",
     dependencies = crosstalk::crosstalkLibs(),
   )
