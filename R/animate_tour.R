@@ -36,8 +36,18 @@ animate_tour <- function(data,
                          ),
                          rescale = TRUE,
                          sphere = FALSE) {
-  # todo: subtract aesthetic columns from col_spec if col_spec is not specified
   col_spec <- rlang::enquo(cols)
+
+  if (crosstalk::is.SharedData(data)) {
+    crosstalk_key <- data$key()
+    crosstalk_group <- data$groupName()
+    data <- data$origData()
+  }
+  else {
+    crosstalk_key <- NULL
+    crosstalk_group <- NULL
+  }
+
   tour_data <- get_tour_data_matrix(data, col_spec)
 
   if (!is.numeric(tour_data)) {
@@ -82,10 +92,14 @@ animate_tour <- function(data,
   plot_config[["duration"]] <- n_frames / render_opts$fps
 
   plot_data <- list(
-    "config" = plot_config,
-    "dataset" = tour_data,
-    "mapping" = mapping,
-    "projectionMatrices" = projection_matrices
+    config = plot_config,
+    crosstalk = list(
+      crosstalkIndex = crosstalk_key,
+      crosstalkGroup = crosstalk_group
+    ),
+    mapping = mapping,
+    dataset = tour_data,
+    projectionMatrices = projection_matrices
   )
 
   htmlwidgets::createWidget(

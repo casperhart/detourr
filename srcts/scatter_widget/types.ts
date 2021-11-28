@@ -3,6 +3,7 @@ export interface ScatterInputData {
   dataset: Matrix;
   projectionMatrices: Array<ProjectionMatrix>;
   mapping: Mapping;
+  crosstalk: any;
 }
 
 export interface Config {

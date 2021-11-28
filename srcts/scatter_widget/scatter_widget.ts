@@ -25,6 +25,10 @@ import {
 } from "./icons";
 import "./style.css";
 
+declare global {
+  var crosstalk: any;
+}
+
 export class ScatterWidget {
   private container: HTMLDivElement;
   private canvas: HTMLCanvasElement = document.createElement("canvas");
@@ -70,6 +74,7 @@ export class ScatterWidget {
   private timeline: Timeline;
   private crosstalkIndex?: string[];
   private crosstalkGroup?: string;
+  private crosstalkSelectionHandle?: any;
 
   constructor(containerElement: HTMLDivElement, width: number, height: number) {
     this.width = width;
@@ -185,6 +190,16 @@ export class ScatterWidget {
     this.crosstalkIndex = inputData.crosstalk.crosstalkIndex;
     this.crosstalkGroup = inputData.crosstalk.crosstalkGroup;
 
+    if (this.crosstalkIndex) {
+      this.crosstalkSelectionHandle = new crosstalk.SelectionHandle();
+
+      this.crosstalkSelectionHandle.setGroup(this.crosstalkGroup);
+      this.crosstalkSelectionHandle.on(
+        "change",
+        (e: any) => this.setPointIndicesFromCrosstalkEvent(e),
+      );
+    }
+
     this.projectionMatrices = inputData.projectionMatrices;
     this.dim = inputData.projectionMatrices[0][0].length;
 
@@ -204,6 +219,7 @@ export class ScatterWidget {
 
     this.addCamera(this.dim);
     this.mapping = inputData.mapping;
+    console.log(inputData.crosstalk);
 
     this.constructPlot();
     this.animate();
@@ -572,6 +588,22 @@ export class ScatterWidget {
     }
 
     this.selectedPointIndices = Array.from(selectedPointIndices);
+    if (this.crosstalkIndex) {
+      this.crosstalkSelectionHandle.set(
+        this.selectedPointIndices.map((i) => this.crosstalkIndex[i]),
+      );
+    }
+  }
+
+  private setPointIndicesFromCrosstalkEvent(e: any) {
+    if (e.sender == this.crosstalkSelectionHandle) {
+      return;
+    }
+
+    this.selectedPointIndices = e.value.map((v: string) =>
+      this.crosstalkIndex.indexOf(v)
+    );
+    this.highlightSelectedPoints();
   }
 
   private setTooltipFromHover(event: MouseEvent) {
