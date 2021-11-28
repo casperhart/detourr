@@ -20,7 +20,8 @@ Imports:
     purrr,
     viridisLite,
     grDevices,
-    jsonlite
+    jsonlite,
+    crosstalk
 RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 Suggests: 

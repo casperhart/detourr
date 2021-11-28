@@ -10,7 +10,8 @@
         "allowJs": false,
         "lib": [
             "dom",
-            "es6"
+            "es6",
+            "es2017"
         ]
     },
     "include": [
