@@ -7,8 +7,8 @@ test_that("axes work", {
     display = display_scatter(),
     render_opts = list(max_bases = 1), tour_path = tourr::grand_tour(3)
   )
-  expect_equal(t$plot_data$config$axisLabels, axis_labels)
-  expect_equal(t$plot_data$config$axes, TRUE)
+  expect_equal(t$x$config$axisLabels, axis_labels)
+  expect_equal(t$x$config$axes, TRUE)
 
   # named vector
   axis_labels[axis_labels == "head"] <- "h"
@@ -17,8 +17,8 @@ test_that("axes work", {
     display = display_scatter(axes = c("h" = "head")),
     render_opts = list(max_bases = 1), tour_path = tourr::grand_tour(3)
   )
-  expect_equal(t$plot_data$config$axisLabels, axis_labels)
-  expect_equal(t$plot_data$config$axes, TRUE)
+  expect_equal(t$x$config$axisLabels, axis_labels)
+  expect_equal(t$x$config$axes, TRUE)
 
   # explicit labels
   t <- animate_tour(
@@ -26,8 +26,8 @@ test_that("axes work", {
     display = display_scatter(axes = 1:6),
     render_opts = list(max_bases = 1), tour_path = tourr::grand_tour(3)
   )
-  expect_equal(t$plot_data$config$axisLabels, as.character(1:6))
-  expect_equal(t$plot_data$config$axes, TRUE)
+  expect_equal(t$x$config$axisLabels, as.character(1:6))
+  expect_equal(t$x$config$axes, TRUE)
 
   # FALSE
   t <- animate_tour(
@@ -35,8 +35,8 @@ test_that("axes work", {
     display = display_scatter(axes = FALSE),
     render_opts = list(max_bases = 1), tour_path = tourr::grand_tour(3)
   )
-  expect_equal(t$plot_data$config$axisLabels, character(0))
-  expect_equal(t$plot_data$config$axes, FALSE)
+  expect_equal(t$x$config$axisLabels, character(0))
+  expect_equal(t$x$config$axes, FALSE)
 
   # NULL
   t <- animate_tour(
@@ -44,8 +44,8 @@ test_that("axes work", {
     display = display_scatter(axes = NULL),
     render_opts = list(max_bases = 1), tour_path = tourr::grand_tour(3)
   )
-  expect_equal(t$plot_data$config$axisLabels, character(0))
-  expect_equal(t$plot_data$config$axes, TRUE)
+  expect_equal(t$x$config$axisLabels, character(0))
+  expect_equal(t$x$config$axes, TRUE)
 })
 
 
@@ -58,8 +58,8 @@ test_that("colours work", {
     display = display_scatter(),
     render_opts = list(max_bases = 1)
   )
-  expect_equal(t$plot_data$mapping$colour, rep("#000000", n))
-  expect_equal(t$plot_data$mapping$label, character(0))
+  expect_equal(t$x$mapping$colour, rep("#000000", n))
+  expect_equal(t$x$mapping$label, character(0))
 
   # viridis, 3 colours
   pal <- viridisLite::viridis(3)[as.factor(tourr::flea$species)]
@@ -69,7 +69,7 @@ test_that("colours work", {
     display = display_scatter(tour_aes(colour = species)),
     render_opts = list(max_bases = 1)
   )
-  expect_equal(t$plot_data$mapping$colour, pal)
+  expect_equal(t$x$mapping$colour, pal)
 
   # AsIs column
   flea <- tourr::flea
@@ -79,7 +79,7 @@ test_that("colours work", {
     display = display_scatter(tour_aes(colour = I(pal_col))),
     render_opts = list(max_bases = 1)
   )
-  expect_equal(t$plot_data$mapping$colour, pal)
+  expect_equal(t$x$mapping$colour, pal)
 
   # AsIs literal value
   t <- animate_tour(
@@ -87,7 +87,7 @@ test_that("colours work", {
     display = display_scatter(tour_aes(colour = I(c("red", "green")))),
     render_opts = list(max_bases = 1)
   )
-  expect_equal(t$plot_data$mapping$colour, rep(c("red", "green"), length.out = n))
+  expect_equal(t$x$mapping$colour, rep(c("red", "green"), length.out = n))
 })
 
 
@@ -100,7 +100,7 @@ test_that("labels work", {
     display = display_scatter(tour_aes(label = species)),
     render_opts = list(max_bases = 1)
   )
-  expect_equal(t$plot_data$mapping$label, paste("species:", tourr::flea$species))
+  expect_equal(t$x$mapping$label, paste("species:", tourr::flea$species))
 
   # two column aes
   t <- animate_tour(
@@ -109,7 +109,7 @@ test_that("labels work", {
     render_opts = list(max_bases = 1)
   )
   expect_equal(
-    t$plot_data$mapping$label,
+    t$x$mapping$label,
     paste(paste("head:", tourr::flea$head),
       paste("species:", tourr::flea$species),
       sep = "<br>"
@@ -122,7 +122,7 @@ test_that("labels work", {
     display = display_scatter(tour_aes(label = I(species))),
     render_opts = list(max_bases = 1)
   )
-  expect_equal(t$plot_data$mapping$label, as.character(tourr::flea$species))
+  expect_equal(t$x$mapping$label, as.character(tourr::flea$species))
 
   # AsIs literal value
   t <- animate_tour(
@@ -130,5 +130,5 @@ test_that("labels work", {
     display = display_scatter(tour_aes(label = I("I am a label"))),
     render_opts = list(max_bases = 1)
   )
-  expect_equal(t$plot_data$mapping$label, rep("I am a label", n))
+  expect_equal(t$x$mapping$label, rep("I am a label", n))
 })

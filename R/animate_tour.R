@@ -88,20 +88,9 @@ animate_tour <- function(data,
     "projectionMatrices" = projection_matrices
   )
 
-  structure(
-    list(
-      plot_data = plot_data,
-      widget = widget
-    ),
-    class = "tour_animation"
-  )
-}
-
-#' @export
-print.tour_animation <- function(x, ...) {
-  print(htmlwidgets::createWidget(
-    x$widget,
-    x$plot_data,
+  htmlwidgets::createWidget(
+    widget,
+    plot_data,
     sizingPolicy = htmlwidgets::sizingPolicy(
       viewer.padding = 0,
       viewer.paneHeight = 500,
@@ -110,11 +99,6 @@ print.tour_animation <- function(x, ...) {
       knitr.defaultHeight = 500
     ),
     package = "d3tourr",
-  ))
-  invisible(x)
-}
-
-#' @export
-str.tour_animation <- function(object, ...) {
-  jsonlite::toJSON(object$plot_data, digits = 4, auto_unbox = TRUE)
+    dependencies = crosstalk::crosstalkLibs(),
+  )
 }
