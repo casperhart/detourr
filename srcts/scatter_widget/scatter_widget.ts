@@ -65,6 +65,7 @@ export class ScatterWidget {
   private edgeSegments: THREE.LineSegments;
   private toolTip: HTMLDivElement;
   private timeline: Timeline;
+  private colourSelector: HTMLInputElement;
   private crosstalkIndex?: string[];
   private crosstalkGroup?: string;
   private crosstalkSelectionHandle?: any;
@@ -75,7 +76,6 @@ export class ScatterWidget {
     this.addContainerElement(containerElement);
     this.addCanvas();
     this.addScene();
-
     this.addRenderer();
     this.addControls();
   }
@@ -84,6 +84,10 @@ export class ScatterWidget {
     this.colMeans = getColMeans(this.dataset);
 
     this.setDefaultPointColours();
+    this.selectedPointIndices = Array(this.dataset.length)
+      .fill(0)
+      .map((_, i) => i);
+
     this.pickingColours = this.getPickingColours();
 
     if (this.hasPointLabels) {
@@ -531,7 +535,12 @@ export class ScatterWidget {
       "title",
       "Select colour to apply using selection box",
     );
+    colourSelector.addEventListener(
+      "change",
+      () => this.setSelectedPointColour(),
+    );
     this.container.appendChild(colourSelector);
+    this.colourSelector = colourSelector;
   }
 
   private addAxisLabels() {
@@ -812,10 +821,7 @@ export class ScatterWidget {
   };
 
   private setSelectedPointColour() {
-    let selector: HTMLInputElement = this.container.querySelector(
-      ".colourSelector",
-    );
-    let colour = new THREE.Color(selector.value);
+    let colour = new THREE.Color(this.colourSelector.value);
 
     for (const ind of this.selectedPointIndices) {
       this.pointColours.set([colour.r, colour.g, colour.b], ind * 3);
