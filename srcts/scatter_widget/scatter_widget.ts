@@ -83,7 +83,7 @@ export class ScatterWidget {
   private constructPlot() {
     this.colMeans = getColMeans(this.dataset);
 
-    this.pointColours = this.coloursToBufferAttribute(this.mapping.colour);
+    this.setDefaultPointColours();
     this.pickingColours = this.getPickingColours();
 
     if (this.hasPointLabels) {
@@ -468,7 +468,10 @@ export class ScatterWidget {
       "reset",
       "Reset camera position",
       resetIcon,
-      () => this.orbitControls.reset(),
+      () => {
+        this.orbitControls.reset();
+        this.setDefaultPointColours();
+      },
     );
     this.addButton(
       "pan",
@@ -818,6 +821,10 @@ export class ScatterWidget {
       this.pointColours.set([colour.r, colour.g, colour.b], ind * 3);
     }
     this.pointColours.needsUpdate = true;
+  }
+
+  private setDefaultPointColours() {
+    this.pointColours = this.coloursToBufferAttribute(this.mapping.colour);
   }
 
   private highlightSelectedPoints() {
