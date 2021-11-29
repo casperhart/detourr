@@ -84,9 +84,7 @@ export class ScatterWidget {
     this.colMeans = getColMeans(this.dataset);
 
     this.setDefaultPointColours();
-    this.selectedPointIndices = Array(this.dataset.length)
-      .fill(0)
-      .map((_, i) => i);
+    this.setDefaultPointSelection();
 
     this.pickingColours = this.getPickingColours();
 
@@ -473,8 +471,12 @@ export class ScatterWidget {
       "Reset camera position",
       resetIcon,
       () => {
+        // reset everything, but keep current time / frame and
+        // selected colour
         this.orbitControls.reset();
         this.setDefaultPointColours();
+        this.setDefaultPointSelection();
+        this.setControlType("ORBIT");
       },
     );
     this.addButton(
@@ -839,6 +841,12 @@ export class ScatterWidget {
 
   private setDefaultPointColours() {
     this.pointColours = this.coloursToBufferAttribute(this.mapping.colour);
+  }
+
+  private setDefaultPointSelection() {
+    this.selectedPointIndices = Array(this.dataset.length)
+      .fill(0)
+      .map((_, i) => i);
   }
 
   private highlightSelectedPoints() {
