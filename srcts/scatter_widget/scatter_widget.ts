@@ -610,9 +610,17 @@ export class ScatterWidget {
       return;
     }
 
-    this.selectedPointIndices = e.value.map((v: string) =>
+    let newSelection = e.value.map((v: string) =>
       this.crosstalkIndex.indexOf(v)
     );
+
+    // persistent selection with plotly
+    let ctOpts = crosstalk.var("plotlyCrosstalkOpts").get() || {};
+    if (ctOpts.persistent === true) {
+      newSelection = this.selectedPointIndices.concat(newSelection);
+    }
+
+    this.selectedPointIndices = newSelection;
     this.highlightSelectedPoints();
   }
 
