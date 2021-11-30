@@ -41,14 +41,16 @@ animate_tour <- function(data,
                          height = NULL) {
   col_spec <- rlang::enquo(cols)
 
-  if (crosstalk::is.SharedData(data)) {
+  if (inherits(data, "SharedData")) {
     crosstalk_key <- data$key()
     crosstalk_group <- data$groupName()
     data <- data$origData()
+    crosstalk_dependencies <- crosstalk::crosstalkLibs()
   }
   else {
     crosstalk_key <- NULL
     crosstalk_group <- NULL
+    crosstalk_dependencies <- NULL
   }
 
   tour_data <- get_tour_data_matrix(data, col_spec)
@@ -118,6 +120,6 @@ animate_tour <- function(data,
     width = width,
     height = height,
     package = "d3tourr",
-    dependencies = crosstalk::crosstalkLibs(),
+    dependencies = crosstalk_dependencies
   )
 }
