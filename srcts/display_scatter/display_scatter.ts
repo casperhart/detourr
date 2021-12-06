@@ -22,7 +22,7 @@ declare global {
   var crosstalk: any;
 }
 
-export class ScatterWidget {
+export class DisplayScatter {
   private container: HTMLDivElement;
   private canvas: HTMLCanvasElement = document.createElement("canvas");
   private scene: THREE.Scene;
