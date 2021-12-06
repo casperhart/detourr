@@ -88,7 +88,8 @@ animate_tour <- function(data,
   n_frames <- length(projection_matrices)
 
   # todo: tidy this up
-  config <- display$init(data, col_spec)
+
+  config <- display$init(data, col_spec, dim(bases)[2])
   plot_config <- config[["plot"]]
   widget <- config[["widget"]]
   mapping <- config[["mapping"]]

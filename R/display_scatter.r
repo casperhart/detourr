@@ -40,7 +40,7 @@ display_scatter <- function(mapping = NULL,
 
   if (missing(palette) && !("colour" %in% names(mapping))) palette <- "black"
 
-  init <- function(data, col_spec) {
+  init <- function(data, col_spec, tour_dim) {
     default_mapping <- list(colour = character(0), label = character(0))
     mapping <- purrr::map(mapping, get_mapping_cols, data)
 
@@ -59,6 +59,11 @@ display_scatter <- function(mapping = NULL,
     edges <- validate_edges(edges)
     alpha <- validate_alpha(alpha)
 
+    widget <- dplyr::case_when(
+      tour_dim == 2 ~ "display_scatter_2d",
+      tour_dim == 3 ~ "display_scatter_3d"
+    )
+
     list(
       "mapping" = mapping,
       "plot" = list(
@@ -69,7 +74,7 @@ display_scatter <- function(mapping = NULL,
         "axes" = axes[["has_axes"]],
         "alpha" = alpha
       ),
-      "widget" = "display_scatter"
+      "widget" = widget
     )
   }
   list(

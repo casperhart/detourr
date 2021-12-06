@@ -1,9 +1,9 @@
-import { ScatterWidget } from "./scatter_widget";
+import { DisplayScatter } from "./display_scatter";
 import { pauseIcon, playIcon } from "./icons";
 
 export class Timeline {
   private parentDiv: HTMLElement;
-  private scatterWidget: ScatterWidget;
+  private scatterWidget: DisplayScatter;
   private timeline: HTMLElement;
   private scrubber: HTMLElement;
   private playPauseButton: HTMLElement;
@@ -15,7 +15,7 @@ export class Timeline {
   private candidatePosition: number;
   private lastMousePosition: number;
 
-  constructor(scatterWidget: ScatterWidget) {
+  constructor(scatterWidget: DisplayScatter) {
     this.scatterWidget = scatterWidget;
     this.parentDiv = scatterWidget.getContainerElement();
 
