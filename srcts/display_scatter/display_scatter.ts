@@ -487,7 +487,10 @@ export abstract class DisplayScatter {
     }
   }
 
-  private setPointIndicesFromBoxSelection(selection: SelectionBox) {
+  private setPointIndicesFromBoxSelection(
+    selection: SelectionBox,
+    shiftKey: boolean,
+  ) {
     const { pickingTexture, renderer, canvas } = this;
     const dpr = renderer.getPixelRatio();
 
@@ -510,18 +513,23 @@ export abstract class DisplayScatter {
       pixelBuffer,
     );
 
-    let selectedPointIndices = new Set<number>();
+    let selectedPointSet = new Set<number>();
     let id;
     for (let i = 0; i < width * height; i++) {
       id = (pixelBuffer[4 * i] << 16) |
         (pixelBuffer[4 * i + 1] << 8) |
         (pixelBuffer[4 * i + 2]);
       if (id != 0 && id != 0xffffff) {
-        selectedPointIndices.add(id - 1);
+        selectedPointSet.add(id - 1);
       }
     }
 
-    this.selectedPointIndices = Array.from(selectedPointIndices);
+    if (shiftKey) {
+      this.selectedPointIndices.map((v) => selectedPointSet.add(v));
+    }
+
+    this.selectedPointIndices = Array.from(selectedPointSet);
+
     if (this.crosstalkIndex) {
       this.crosstalkSelectionHandle.set(
         this.selectedPointIndices.map((i) => this.crosstalkIndex[i]),
@@ -749,7 +757,7 @@ export abstract class DisplayScatter {
       Math.floor(event.clientY),
       0,
     );
-    this.setPointIndicesFromBoxSelection(this.selectionBox);
+    this.setPointIndicesFromBoxSelection(this.selectionBox, event.shiftKey);
     //this.setSelectedPointColour();
     this.highlightSelectedPoints();
   };
