@@ -8,8 +8,11 @@ portability.
 
 # Installation
 
-Install this package by running
-`remotes::install_github("casperhart/d3tourr")` in R.
+Install this package by running the following in R:
+
+``` r
+remotes::install_github("casperhart/d3tourr")
+```
 
 # Examples
 
