@@ -11,7 +11,8 @@ display_scatter(
   alpha = 1,
   center = TRUE,
   axes = TRUE,
-  edges = NULL
+  edges = NULL,
+  background_colour = "white"
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ and 1 is fully opaque.}
 }}
 
 \item{edges}{A two column numeric matrix giving indices of ends of lines.}
+
+\item{background_colour}{background colour for the plot.'}
 }
 \description{
 Display method for a high performance 3D scatterplot.

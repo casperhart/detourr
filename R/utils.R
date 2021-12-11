@@ -65,12 +65,6 @@ get_mapping_cols <- function(aes, data) {
   }
 }
 
-col2hex <- function(col) {
-  grDevices::rgb(t(grDevices::col2rgb(col)),
-    maxColorValue = 255
-  )
-}
-
 vec_to_colour <- function(vec, pal) {
   if (inherits(vec, "AsIs")) {
     vec <- as.factor(vec[[1]])

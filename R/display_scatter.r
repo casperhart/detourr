@@ -24,6 +24,7 @@
 #'  - A named vector in the form `c("h" = "head")`, where `head` is renamed to
 #' `h`
 #' @param edges A two column numeric matrix giving indices of ends of lines.
+#' @param background_colour background colour for the plot.'
 #' @export
 #' @examples
 #' animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
@@ -33,7 +34,8 @@ display_scatter <- function(mapping = NULL,
                             alpha = 1,
                             center = TRUE,
                             axes = TRUE,
-                            edges = NULL) {
+                            edges = NULL,
+                            background_colour = "white") {
   if ("color" %in% names(mapping)) {
     names(mapping)[names(mapping) == "color"] <- "colour"
   }
@@ -72,7 +74,8 @@ display_scatter <- function(mapping = NULL,
         "axisLabels" = axes[["labels"]],
         "edges" = edges,
         "axes" = axes[["has_axes"]],
-        "alpha" = alpha
+        "alpha" = alpha,
+        "backgroundColour" = col2hex(background_colour)
       ),
       "widget" = widget
     )
