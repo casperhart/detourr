@@ -42,6 +42,7 @@ export abstract class DisplayScatter {
 
   private container: HTMLDivElement;
   private canvas: HTMLCanvasElement = document.createElement("canvas");
+  private backgroundColour: number;
   private scene: THREE.Scene;
   private config: Config;
   private dataset: Matrix;
@@ -211,6 +212,12 @@ export abstract class DisplayScatter {
     this.addCamera();
     this.mapping = inputData.mapping;
 
+    this.scene.background = new THREE.Color(inputData.config.backgroundColour);
+    this.backgroundColour = parseInt(
+      inputData.config.backgroundColour.substring(1),
+      16,
+    );
+
     this.constructPlot();
     this.animate();
   }
@@ -257,7 +264,6 @@ export abstract class DisplayScatter {
 
   private addScene() {
     let scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xfffffff);
     const light = new THREE.AmbientLight(0x404040); // soft white light
     scene.add(light);
     this.scene = scene;
@@ -519,7 +525,7 @@ export abstract class DisplayScatter {
       id = (pixelBuffer[4 * i] << 16) |
         (pixelBuffer[4 * i + 1] << 8) |
         (pixelBuffer[4 * i + 2]);
-      if (id != 0 && id != 0xffffff) {
+      if (id != 0 && id != this.backgroundColour) {
         selectedPointSet.add(id - 1);
       }
     }
@@ -580,7 +586,7 @@ export abstract class DisplayScatter {
     let id = (pixelBuffer[0] << 16) |
       (pixelBuffer[1] << 8) |
       (pixelBuffer[2]);
-    if (id != 0 && id != 0xffffff) {
+    if (id != 0 && id != this.backgroundColour) {
       let toolTipCoords = this.toolTip.getBoundingClientRect();
       this.toolTip.style.left = `${Math.floor(x / dpr) -
         toolTipCoords.width}px`;

@@ -12,3 +12,4 @@ dev/*
 node_modules/*
 srcts/*
 webpack/*
+scripts/*
