@@ -10,8 +10,7 @@ import {
   ScatterInputData,
 } from "./types";
 import { Timeline } from "./timeline";
-import { centerColumns, getColMeans, multiply2, multiply3 } from "./utils";
-import { FRAGMENT_SHADER, VERTEX_SHADER_2D, VERTEX_SHADER_3D } from "./shaders";
+import { centerColumns, getColMeans } from "./utils";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { SelectionBox } from "three/examples/jsm/interactive/SelectionBox.js";
 import { SelectionHelper } from "three/examples/jsm/interactive/SelectionHelper.js";
@@ -22,12 +21,28 @@ declare global {
   var crosstalk: any;
 }
 
-export class DisplayScatter {
+export abstract class DisplayScatter {
+  protected abstract camera: Camera;
+  protected abstract addCamera(): void;
+  protected abstract resizeCamera(aspect: number): void;
+  protected abstract multiply(a: Matrix, b: ProjectionMatrix): Matrix;
+  protected abstract getShaderOpts(
+    pointSize: number,
+  ): THREE.ShaderMaterialParameters;
+  protected abstract addOrbitControls(): void;
+  protected abstract projectionMatrixToAxisLines(mat: Matrix): Matrix;
+
+  protected width: number;
+  protected height: number;
+  protected minPointSize: number = 0.02;
+  protected renderer: THREE.WebGLRenderer;
+  protected orbitControls: OrbitControls;
+  protected adjustPointSizeFromZoom?(): void;
+  protected points: THREE.Points;
+
   private container: HTMLDivElement;
   private canvas: HTMLCanvasElement = document.createElement("canvas");
   private scene: THREE.Scene;
-  private camera: Camera;
-  private renderer: THREE.WebGLRenderer;
   private config: Config;
   private dataset: Matrix;
   private projectionMatrices: Array<ProjectionMatrix>;
@@ -35,10 +50,7 @@ export class DisplayScatter {
   private time: number;
   private currentFrame: number;
   private oldFrame: number;
-  private points: THREE.Points;
   private axisSegments: THREE.LineSegments;
-  private minPointSize: number = 0.02;
-  private orbitControls: OrbitControls;
   private isPaused: boolean;
   private colMeans: Matrix;
   private mapping: Mapping;
@@ -47,10 +59,7 @@ export class DisplayScatter {
   private pickingColours: THREE.BufferAttribute;
   private currentFrameBuffer: THREE.BufferAttribute;
   private nextFrameBuffer: THREE.BufferAttribute;
-  private width: number;
-  private height: number;
   private dim: Dim;
-  private multiply: Function;
   private controlType: ControlType;
   private pickingTexture: THREE.WebGLRenderTarget;
   private selectionBox: SelectionBox;
@@ -99,7 +108,7 @@ export class DisplayScatter {
     let pointsGeometry = new THREE.BufferGeometry();
     let pointSize = this.config.size / 10;
 
-    let shaderOpts = this.getShaderOpts(pointSize, this.dim);
+    let shaderOpts = this.getShaderOpts(pointSize);
     let pointsMaterial = new THREE.ShaderMaterial(shaderOpts);
 
     this.currentFrameBuffer = this.getPointsBuffer(0, this.config.center);
@@ -153,14 +162,7 @@ export class DisplayScatter {
     let dpr = this.renderer.getPixelRatio();
     this.canvas.width = newWidth;
     this.canvas.height = newHeight;
-    if (this.dim == 3) {
-      (this.camera as THREE.PerspectiveCamera).aspect = aspect;
-    } else {
-      (this.camera as THREE.OrthographicCamera).left = -1 * aspect;
-      (this.camera as THREE.OrthographicCamera).right = 1 * aspect;
-      (this.camera as THREE.OrthographicCamera).top = 1;
-      (this.camera as THREE.OrthographicCamera).bottom = -1;
-    }
+    this.resizeCamera(aspect);
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(newWidth, newHeight);
 
@@ -198,12 +200,6 @@ export class DisplayScatter {
     this.projectionMatrices = inputData.projectionMatrices;
     this.dim = inputData.projectionMatrices[0][0].length;
 
-    if (this.dim == 3) {
-      this.multiply = multiply3;
-    } else {
-      this.multiply = multiply2;
-    }
-
     if (inputData.config.edges[0]) {
       this.hasEdges = true;
       this.edges = [].concat(...inputData.config.edges);
@@ -212,7 +208,7 @@ export class DisplayScatter {
     this.hasPointLabels = inputData.mapping.label.length == 0 ? false : true;
     this.hasAxes = this.config.axes;
 
-    this.addCamera(this.dim);
+    this.addCamera();
     this.mapping = inputData.mapping;
 
     this.constructPlot();
@@ -277,29 +273,6 @@ export class DisplayScatter {
     this.canvas = canvas;
   }
 
-  private addCamera(dim: Dim) {
-    let camera: Camera;
-    let aspect = this.width / this.height;
-    if (dim == 3) {
-      camera = new THREE.PerspectiveCamera(45, aspect, 0.01, 1000);
-      camera.position.setZ(4);
-    } else {
-      camera = new THREE.OrthographicCamera(
-        -1 * aspect,
-        1 * aspect,
-        1,
-        -1,
-        -1000,
-        1000,
-      );
-      // orbit controls don't rotate along camera z axis at all, so as a hack, we disable rotation
-      // on the y axis and change the camera view
-      camera.position.setY(4);
-      camera.up.set(0, -1, 0);
-    }
-    this.camera = camera;
-  }
-
   private addRenderer() {
     // antialiasing here works for axis lines. For points, this is done in shaders.ts
     let renderer = new THREE.WebGLRenderer({
@@ -310,20 +283,6 @@ export class DisplayScatter {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(this.width, this.height);
     this.renderer = renderer;
-  }
-
-  private addOrbitControls() {
-    let orbitControls = new OrbitControls(
-      this.camera,
-      this.renderer.domElement,
-    );
-    if (this.dim == 2) {
-      // We can only disable rotation on the x and y axes, so to get around this, we need
-      // to disable rotation on y, and modify the camera view to be top-down
-      orbitControls.minPolarAngle = Math.PI;
-      orbitControls.maxPolarAngle = Math.PI;
-    }
-    this.orbitControls = orbitControls;
   }
 
   private addToolTip() {
@@ -345,38 +304,6 @@ export class DisplayScatter {
     );
   }
 
-  private getShaderOpts(pointSize: number, dim: Dim) {
-    let shaderOpts: THREE.ShaderMaterialParameters;
-    if (dim == 2) {
-      shaderOpts = {
-        uniforms: {
-          size: { value: Math.max(pointSize, this.minPointSize) },
-          zoom: { value: this.camera.zoom },
-          antialias: { value: 1 },
-        },
-        vertexShader: VERTEX_SHADER_2D,
-      };
-    } else {
-      shaderOpts = {
-        uniforms: {
-          size: { value: Math.max(pointSize, this.minPointSize) },
-          antialias: { value: 1 },
-        },
-        vertexShader: VERTEX_SHADER_3D,
-      };
-    }
-
-    shaderOpts.fragmentShader = FRAGMENT_SHADER;
-    // enable `fwidth` shader function in rstudio viewer for antialiasing
-    shaderOpts.extensions = { derivatives: true };
-    // enable opacity
-    shaderOpts.transparent = true;
-    // prevent edge artifacts with antialiasing
-    shaderOpts.depthTest = false;
-
-    return shaderOpts;
-  }
-
   private getPointsBuffer(i: number, center: boolean): THREE.BufferAttribute {
     let positionMatrix: Matrix = this.multiply(
       this.dataset,
@@ -396,14 +323,9 @@ export class DisplayScatter {
 
   private getAxisLinesBuffer(i: number): THREE.BufferAttribute {
     let projectionMatrix = this.projectionMatrices[i];
-    let linesBufferMatrix;
-    if (this.dim == 3) {
-      linesBufferMatrix = projectionMatrix.map((row) => [0, 0, 0].concat(row));
-    } else if (this.dim == 2) {
-      linesBufferMatrix = projectionMatrix.map(
-        (row) => [0, 0, 0, row[0], 0, row[1]],
-      );
-    }
+    let linesBufferMatrix = this.projectionMatrixToAxisLines(
+      projectionMatrix,
+    );
     return new THREE.BufferAttribute(
       new Float32Array([].concat(...linesBufferMatrix)),
       3,
@@ -664,6 +586,7 @@ export class DisplayScatter {
     }
   }
 
+  // TODO: break away chunks in to separate functions
   private animate() {
     let delta = this.clock.getDelta();
 
@@ -705,9 +628,10 @@ export class DisplayScatter {
         currentFrame / this.projectionMatrices.length,
       );
     }
-    if (this.dim == 2) {
-      (this.points.material as THREE.ShaderMaterial).uniforms.zoom.value =
-        this.camera.zoom;
+
+    // required for 2d plot as points aren't auto scaled with zoom
+    if (this.adjustPointSizeFromZoom) {
+      this.adjustPointSizeFromZoom();
     }
 
     // render the scene
