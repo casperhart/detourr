@@ -66,6 +66,7 @@ export abstract class DisplayScatter {
   private selectionBox: SelectionBox;
   private selectionHelper: SelectionHelper;
   private selectedPointIndices: number[];
+  private filteredPointIndices: number[];
   private hasAxes: boolean;
   private axisLabels: Array<AxisLabel>;
   private hasAxisLabels: boolean;
@@ -79,6 +80,7 @@ export abstract class DisplayScatter {
   private crosstalkIndex?: string[];
   private crosstalkGroup?: string;
   private crosstalkSelectionHandle?: any;
+  private crosstalkFilterHandle?: any;
 
   constructor(containerElement: HTMLDivElement, width: number, height: number) {
     this.width = width;
@@ -94,6 +96,7 @@ export abstract class DisplayScatter {
     this.colMeans = getColMeans(this.dataset);
 
     this.setDefaultPointColours();
+    this.setDefaultFilterSelection();
     this.setDefaultPointSelection();
 
     this.pickingColours = this.getPickingColours();
@@ -190,11 +193,17 @@ export abstract class DisplayScatter {
 
     if (this.crosstalkIndex) {
       this.crosstalkSelectionHandle = new crosstalk.SelectionHandle();
-
       this.crosstalkSelectionHandle.setGroup(this.crosstalkGroup);
       this.crosstalkSelectionHandle.on(
         "change",
-        (e: any) => this.setPointIndicesFromCrosstalkEvent(e),
+        (e: any) => this.setPointSelectionFromCrosstalkEvent(e),
+      );
+
+      this.crosstalkFilterHandle = new crosstalk.FilterHandle();
+      this.crosstalkFilterHandle.setGroup(this.crosstalkGroup);
+      this.crosstalkFilterHandle.on(
+        "change",
+        (e: any) => this.setPointFilterFromCrosstalkEvent(e),
       );
     }
 
@@ -493,7 +502,7 @@ export abstract class DisplayScatter {
     }
   }
 
-  private setPointIndicesFromBoxSelection(
+  private setPointSelectionFromBox(
     selection: SelectionBox,
     shiftKey: boolean,
   ) {
@@ -525,7 +534,10 @@ export abstract class DisplayScatter {
       id = (pixelBuffer[4 * i] << 16) |
         (pixelBuffer[4 * i + 1] << 8) |
         (pixelBuffer[4 * i + 2]);
-      if (id != 0 && id != this.backgroundColour) {
+      if (
+        id != 0 && id != this.backgroundColour &&
+        this.filteredPointIndices.includes(id - 1)
+      ) {
         selectedPointSet.add(id - 1);
       }
     }
@@ -543,7 +555,7 @@ export abstract class DisplayScatter {
     }
   }
 
-  private setPointIndicesFromCrosstalkEvent(e: any) {
+  private setPointSelectionFromCrosstalkEvent(e: any) {
     if (e.sender == this.crosstalkSelectionHandle) {
       return;
     }
@@ -560,6 +572,16 @@ export abstract class DisplayScatter {
 
     this.selectedPointIndices = newSelection;
     this.highlightSelectedPoints();
+  }
+
+  private setPointFilterFromCrosstalkEvent(e: any) {
+    if (!e.value || e.value.length == 0) this.setDefaultFilterSelection();
+    else {
+      this.filteredPointIndices = e.value.map((v: string) =>
+        this.crosstalkIndex.indexOf(v)
+      );
+    }
+    this.filterPoints();
   }
 
   private setTooltipFromHover(event: MouseEvent) {
@@ -586,7 +608,10 @@ export abstract class DisplayScatter {
     let id = (pixelBuffer[0] << 16) |
       (pixelBuffer[1] << 8) |
       (pixelBuffer[2]);
-    if (id != 0 && id != this.backgroundColour) {
+    if (
+      id != 0 && id != this.backgroundColour &&
+      this.filteredPointIndices.includes(id - 1)
+    ) {
       let toolTipCoords = this.toolTip.getBoundingClientRect();
       this.toolTip.style.left = `${Math.floor(x / dpr) -
         toolTipCoords.width}px`;
@@ -763,7 +788,7 @@ export abstract class DisplayScatter {
       Math.floor(event.clientY),
       0,
     );
-    this.setPointIndicesFromBoxSelection(this.selectionBox, event.shiftKey);
+    this.setPointSelectionFromBox(this.selectionBox, event.shiftKey);
     //this.setSelectedPointColour();
     this.highlightSelectedPoints();
   };
@@ -785,17 +810,25 @@ export abstract class DisplayScatter {
     this.selectedPointIndices = Array(this.dataset.length)
       .fill(0)
       .map((_, i) => i);
+    if (this.crosstalkSelectionHandle) {
+      this.crosstalkSelectionHandle.clear();
+    }
+  }
+
+  private setDefaultFilterSelection() {
+    this.filteredPointIndices = Array(this.dataset.length)
+      .fill(0)
+      .map((_, i) => i);
   }
 
   private highlightSelectedPoints() {
     // reset to default
     if (this.selectedPointIndices.length == 0) {
-      this.pointAlphas.set(
-        new Float32Array(this.dataset.length).fill(this.config.alpha),
-        0,
-      );
+      for (const i of this.filteredPointIndices) {
+        this.pointAlphas.set([this.config.alpha], i);
+      }
     } else {
-      for (let i = 0; i < this.dataset.length; i++) {
+      for (const i of this.filteredPointIndices) {
         if (!this.selectedPointIndices.includes(i)) {
           this.pointAlphas.set([this.config.alpha / 4], i);
         } else {
@@ -804,6 +837,15 @@ export abstract class DisplayScatter {
       }
     }
     this.pointAlphas.needsUpdate = true;
+  }
+
+  private filterPoints() {
+    for (let i = 0; i < this.dataset.length; i++) {
+      if (!this.filteredPointIndices.includes(i)) {
+        this.pointAlphas.set([0], i);
+      }
+    }
+    this.highlightSelectedPoints();
   }
 
   private setSelectionMode(enable: boolean) {
