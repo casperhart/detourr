@@ -1,6 +1,6 @@
 # generate sample data files for development
 
-library(d3tourr)
+library(detourr)
 
 set.seed(1)
 
