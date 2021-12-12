@@ -17,7 +17,7 @@
 #' - fps: target frames per second (defaults to 30). Higher fps can give
 #' smoother animations, but at the expense of memory usage.
 #' - max_bases: the maximum number of bases to generate. Defaults to 1 Unlike
-#' the tourr package, d3tourr can only be used non-interactively so max_frames
+#' the tourr package, detourr can only be used non-interactively so max_frames
 #' has to be a finite number. This is so that the resulting animations can
 #' remain independent of the R runtime.
 #' @param width passed to htmlwidgets::htmlwidget
@@ -28,7 +28,7 @@
 animate_tour <- function(data,
                          cols = where(is.numeric),
                          tour_path = tourr::grand_tour(d = 2),
-                         display = d3tourr::display_scatter(),
+                         display = display_scatter(),
                          render_opts = list(
                            start = NULL,
                            aps = 1,
@@ -120,7 +120,7 @@ animate_tour <- function(data,
     ),
     width = width,
     height = height,
-    package = "d3tourr",
+    package = "detourr",
     dependencies = crosstalk_dependencies
   )
 }

@@ -1,4 +1,4 @@
-Package: d3tourr
+Package: detourr
 Type: Package
 Title: Animations for {tourr} using htmlwidgets
 Version: 0.0.9

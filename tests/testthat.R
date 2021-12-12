@@ -1,4 +1,4 @@
 library(testthat)
-library(d3tourr)
+library(detourr)
 
-test_check("d3tourr")
+test_check("detourr")

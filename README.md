@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# d3tourr
+# detourr
 
 Animations for {tourr} using htmlwidgets for performance and
 portability.
@@ -11,29 +11,29 @@ portability.
 Install this package by running the following in R:
 
 ``` r
-remotes::install_github("casperhart/d3tourr")
+remotes::install_github("casperhart/detourr")
 ```
 
 # Examples
 
 ``` r
 # 2D scatter
-library(d3tourr)
+library(detourr)
 animate_tour(
-  tourr::olive, -area,
-  display = display_scatter(tour_aes(colour = region)),
-  render_opts = list(max_bases = 10)
+   tourr::olive, -area,
+   display = display_scatter(tour_aes(colour = region)),
+   render_opts = list(max_bases = 10)
 )
 ```
 
 ``` r
 # 3D scatter
 animate_tour(
-  tourr::flea,
-  -species,
-  tour_path = tourr::grand_tour(3),
-  display = display_scatter(tour_aes(colour = species)),
-  render_opts = list(max_bases = 10)
+   tourr::flea,
+   -species,
+   tour_path = tourr::grand_tour(3),
+   display = display_scatter(tour_aes(colour = species)),
+   render_opts = list(max_bases = 10)
 )
 ```
 
@@ -80,7 +80,7 @@ rather than in to memory, which can make debugging easier.
 ## Adding a new widget
 
 The following is a rough checklist for creating a new widget /
-visualisation for the {d3tourr} package. This uses `display_scatter_3d`
+visualisation for the {detourr} package. This uses `display_scatter_3d`
 as an example.
 
 1.  `srcts/display_scatter_3d`: The main logic for the
