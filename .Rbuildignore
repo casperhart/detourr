@@ -13,3 +13,4 @@ node_modules/*
 srcts/*
 webpack/*
 scripts/*
+demo/*

@@ -25,6 +25,7 @@
 #' `h`
 #' @param edges A two column numeric matrix giving indices of ends of lines.
 #' @param background_colour background colour for the plot.'
+#' @param ... used to support american spelling of colour.
 #' @export
 #' @examples
 #' animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
@@ -35,9 +36,15 @@ display_scatter <- function(mapping = NULL,
                             center = TRUE,
                             axes = TRUE,
                             edges = NULL,
-                            background_colour = "white") {
-  if ("color" %in% names(mapping)) {
-    names(mapping)[names(mapping) == "color"] <- "colour"
+                            background_colour = "white",
+                            ...) {
+  if (!rlang::is_null(mapping)) {
+    names(mapping) <- sub("color", "colour", names(mapping))
+  }
+
+  dots <- list(...)
+  if ("background_color" %in% names(dots)) {
+    background_colour <- dots[["background_color"]]
   }
 
   if (missing(palette) && !("colour" %in% names(mapping))) palette <- "black"
