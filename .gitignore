@@ -42,3 +42,5 @@ vignettes/*.pdf
 dev_build
 node_modules
 temp\.*
+
+demo/*.html

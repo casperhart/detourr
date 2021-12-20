@@ -1,0 +1,44 @@
+---
+title: "Detourr Crosstalk Example"
+output: html_document
+---
+
+The following example demonstrates the {crosstalk} selecting and filtering with
+{detourr}. Note that in this markdown document, the visuals are linked despite
+them being in separate chunks. Filtering applies to all visuals, and point 
+selection in one visual will be applied to the others.
+
+See https://rstudio.github.io/crosstalk/using.html for more details.
+
+```{r}
+library(detourr)
+library(crosstalk)
+library(d3scatter)
+library(DT)
+
+shared_flea <- SharedData$new(tourr::flea)
+
+a <- d3scatter(shared_flea,
+  x = ~tars1, y = ~head, color = ~species,
+  width = "100%"
+)
+b <- animate_tour(
+  shared_flea,
+  display = display_scatter(tour_aes(colour = species)),
+  render_opts =  list(max_bases = 10), tour_path = tourr::grand_tour(2),
+  width = "100%"
+)
+c <- datatable(shared_flea, width = "100%")
+
+bscols(
+  list(
+    filter_checkbox("species", "Species", shared_flea, ~species),
+    filter_slider("head", "Head", shared_flea, ~head, width = "100%")
+  ),
+  a
+)
+```
+
+```{r}
+bscols(b, c)
+```
