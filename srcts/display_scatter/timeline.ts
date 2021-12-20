@@ -2,13 +2,15 @@ import { DisplayScatter } from "./display_scatter";
 import { pauseIcon, playIcon } from "./icons";
 
 export class Timeline {
-  private parentDiv: HTMLElement;
+  private parentDiv: HTMLDivElement;
+  private container: HTMLDivElement;
   private scatterWidget: DisplayScatter;
   private timeline: HTMLElement;
   private scrubber: HTMLElement;
   private playPauseButton: HTMLElement;
   private timelineWidth: number;
-  private scrubberWidth: number = 20;
+  private scrubberWidth: number = 16;
+  private timelineThickness: number = 4;
 
   private mouseDown: boolean = false;
   private currentPosition: number;
@@ -19,15 +21,21 @@ export class Timeline {
     this.scatterWidget = scatterWidget;
     this.parentDiv = scatterWidget.getContainerElement();
 
+    let container = document.createElement("div");
+    container.className = "timelineContainer";
+
     let timeline = document.createElement("div");
-    timeline.className = "scatterWidgetTimeline";
+    timeline.className = "timeline";
+    timeline.style.height = this.timelineThickness + "px";
+    timeline.style.top = 15 - this.timelineThickness / 2 + "px";
 
     let scrubber = document.createElement("div");
     scrubber.style.left = "0px";
     scrubber.style.width = this.scrubberWidth + "px";
     scrubber.style.height = this.scrubberWidth + "px";
-    scrubber.className = "scatterWidgetScrubber";
-
+    scrubber.className = "scrubber";
+    scrubber.style.top = this.timelineThickness / 2 -
+      this.scrubberWidth / 2 + "px";
     scrubber.onmousedown = (e) => {
       this.mouseDown = true;
       this.lastMousePosition = e.clientX;
@@ -50,7 +58,6 @@ export class Timeline {
         this.scatterWidget.setTime(
           this.candidatePosition / (this.timelineWidth + 1),
         );
-        console.log(this.candidatePosition);
         this.lastMousePosition = e.clientX;
       }
     };
@@ -76,8 +83,12 @@ export class Timeline {
     );
 
     timeline.appendChild(scrubber);
+    container.appendChild(timeline);
+    container.appendChild(this.playPauseButton);
+
     this.timeline = timeline;
     this.scrubber = scrubber;
+    this.container = container;
   }
 
   public updatePosition(newPos: number) {
@@ -105,17 +116,16 @@ export class Timeline {
     button.title = hoverText;
     button.className = `${name}Button`;
     button.onclick = () => buttonCallback();
-    this.parentDiv.appendChild(button);
     return button;
   }
 
   public getElement() {
-    return this.timeline;
+    return this.container;
   }
 
   public resize(newHeight: number, newPos: number) {
-    this.timeline.style.top = newHeight - 30 + "px";
-    this.playPauseButton.style.top = newHeight - 40 + "px";
+    // newHeight-40 is the top of the play/pause button, which is 30px tall
+    this.container.style.top = newHeight - 40 + "px";
     this.timelineWidth = this.timeline.offsetWidth - this.scrubberWidth;
     this.updatePosition(newPos);
   }
