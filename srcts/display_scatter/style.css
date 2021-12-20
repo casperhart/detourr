@@ -56,10 +56,11 @@ input.colourSelector {
 
 .scatterWidgetContainer {
   position: relative;
+  overflow: hidden;
 }
 
 .scatterWidgetCanvas {
-  position: absolute;
+  position: relative;
 }
 
 .selectBox.enabled {
