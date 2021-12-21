@@ -1,10 +1,18 @@
 import { DisplayScatter } from "./display_scatter";
 import { pauseIcon, playIcon } from "./icons";
 
+interface TimelineableWidget {
+  getContainerElement(): HTMLDivElement;
+  getBaseIndices?(): number[];
+  getIsPaused(): boolean;
+  setIsPaused(isPaused: boolean): void;
+  setTime(time: number): void;
+}
+
 export class Timeline {
   private parentDiv: HTMLDivElement;
   private container: HTMLDivElement;
-  private scatterWidget: DisplayScatter;
+  private widget: TimelineableWidget;
   private timeline: HTMLElement;
   private scrubber: HTMLElement;
   private playPauseButton: HTMLElement;
@@ -17,78 +25,16 @@ export class Timeline {
   private candidatePosition: number;
   private lastMousePosition: number;
 
-  constructor(scatterWidget: DisplayScatter) {
-    this.scatterWidget = scatterWidget;
-    this.parentDiv = scatterWidget.getContainerElement();
+  constructor(widget: TimelineableWidget) {
+    this.widget = widget;
+    this.parentDiv = widget.getContainerElement();
 
-    let container = document.createElement("div");
-    container.className = "timelineContainer";
+    this.addContainer();
+    this.addTimeline();
+    this.addScrubber();
+    this.addPlayPauseButton();
 
-    let timeline = document.createElement("div");
-    timeline.className = "timeline";
-    timeline.style.height = this.timelineThickness + "px";
-    timeline.style.top = 15 - this.timelineThickness / 2 + "px";
-
-    let scrubber = document.createElement("div");
-    scrubber.style.left = "0px";
-    scrubber.style.width = this.scrubberWidth + "px";
-    scrubber.style.height = this.scrubberWidth + "px";
-    scrubber.className = "scrubber";
-    scrubber.style.top = this.timelineThickness / 2 -
-      this.scrubberWidth / 2 + "px";
-    scrubber.onmousedown = (e) => {
-      this.mouseDown = true;
-      this.lastMousePosition = e.clientX;
-      this.scatterWidget.setIsPaused(true);
-    };
-
-    this.parentDiv.onmousemove = (e) => {
-      e.preventDefault();
-      if (this.mouseDown) {
-        this.currentPosition = parseInt(this.scrubber.style.left);
-
-        this.candidatePosition = this.currentPosition +
-          (e.clientX - this.lastMousePosition);
-        this.candidatePosition = Math.min(
-          this.timelineWidth,
-          this.candidatePosition,
-        );
-        this.candidatePosition = Math.max(0, this.candidatePosition);
-        this.scrubber.style.left = this.candidatePosition + "px";
-        this.scatterWidget.setTime(
-          this.candidatePosition / (this.timelineWidth + 1),
-        );
-        this.lastMousePosition = e.clientX;
-      }
-    };
-
-    // document element so mouseup can be from anywhere
-    document.documentElement.onmouseup = () => {
-      this.mouseDown = false;
-    };
-
-    // prevent scrubber 'sticking' to mouse if the mouse leaves the page
-    document.documentElement.onmouseleave = () => {
-      this.mouseDown = false;
-    };
-
-    this.playPauseButton = this.addButton(
-      "playPause",
-      "Play / Pause",
-      pauseIcon,
-      () =>
-        this.scatterWidget.setIsPaused(
-          !this.scatterWidget.getIsPaused(),
-        ),
-    );
-
-    timeline.appendChild(scrubber);
-    container.appendChild(timeline);
-    container.appendChild(this.playPauseButton);
-
-    this.timeline = timeline;
-    this.scrubber = scrubber;
-    this.container = container;
+    this.addEventListerners();
   }
 
   public updatePosition(newPos: number) {
@@ -128,5 +74,83 @@ export class Timeline {
     this.container.style.top = newHeight - 40 + "px";
     this.timelineWidth = this.timeline.offsetWidth - this.scrubberWidth;
     this.updatePosition(newPos);
+  }
+
+  private addContainer() {
+    let container = document.createElement("div");
+    container.className = "timelineContainer";
+    this.container = container;
+  }
+
+  private addTimeline() {
+    let timeline = document.createElement("div");
+    timeline.className = "timeline";
+    timeline.style.height = this.timelineThickness + "px";
+    timeline.style.top = 15 - this.timelineThickness / 2 + "px";
+    this.container.appendChild(timeline);
+    this.timeline = timeline;
+  }
+
+  private addScrubber() {
+    let scrubber = document.createElement("div");
+    scrubber.style.left = "0px";
+    scrubber.style.width = this.scrubberWidth + "px";
+    scrubber.style.height = this.scrubberWidth + "px";
+    scrubber.className = "scrubber";
+    scrubber.style.top = this.timelineThickness / 2 -
+      this.scrubberWidth / 2 + "px";
+    scrubber.onmousedown = (e) => {
+      this.mouseDown = true;
+      this.lastMousePosition = e.clientX;
+      this.widget.setIsPaused(true);
+    };
+    this.timeline.appendChild(scrubber);
+    this.scrubber = scrubber;
+  }
+
+  private addEventListerners() {
+    this.parentDiv.onmousemove = (e) => {
+      e.preventDefault();
+      if (this.mouseDown) {
+        this.currentPosition = parseInt(this.scrubber.style.left);
+
+        this.candidatePosition = this.currentPosition +
+          (e.clientX - this.lastMousePosition);
+        this.candidatePosition = Math.min(
+          this.timelineWidth,
+          this.candidatePosition,
+        );
+        this.candidatePosition = Math.max(0, this.candidatePosition);
+        this.scrubber.style.left = this.candidatePosition + "px";
+        this.widget.setTime(
+          this.candidatePosition / (this.timelineWidth + 1),
+        );
+        this.lastMousePosition = e.clientX;
+      }
+    };
+
+    // document element so mouseup can be from anywhere
+    document.documentElement.onmouseup = () => {
+      this.mouseDown = false;
+    };
+
+    // prevent scrubber 'sticking' to mouse if the mouse leaves the page
+    document.documentElement.onmouseleave = () => {
+      this.mouseDown = false;
+    };
+  }
+
+  private addPlayPauseButton() {
+    this.playPauseButton = this.addButton(
+      "playPause",
+      "Play / Pause",
+      pauseIcon,
+      () =>
+        this.widget.setIsPaused(
+          !this.widget.getIsPaused(),
+        ),
+    );
+
+    this.container.appendChild(this.playPauseButton);
   }
 }
