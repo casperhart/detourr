@@ -93,6 +93,7 @@ animate_tour <- function(data,
     bases,
     render_opts$aps / render_opts$fps
   ))
+  basis_indices <- which(attr(projection_matrices, "new_basis"))
   projection_matrices <- purrr::array_branch(projection_matrices, 3)
   n_frames <- length(projection_matrices)
 
@@ -105,7 +106,7 @@ animate_tour <- function(data,
 
   plot_config[["fps"]] <- render_opts$fps
   plot_config[["duration"]] <- n_frames / render_opts$fps
-
+  plot_config[["basisIndices"]] <- basis_indices - 1
   plot_data <- list(
     config = plot_config,
     crosstalk = list(

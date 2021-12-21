@@ -17,6 +17,7 @@ export interface Config {
   alpha: number;
   backgroundColour: string;
   paused: boolean;
+  basisIndices: number[];
 }
 
 export interface Mapping {
