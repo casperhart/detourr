@@ -406,6 +406,7 @@ export abstract class DisplayScatter {
     return new THREE.BufferAttribute(bufferArray, 3);
   }
 
+  // todo: separate controls in to their own class
   private addControls() {
     this.addButton(
       "reset",
@@ -738,6 +739,14 @@ export abstract class DisplayScatter {
 
   public setTime(newTimePercent: number) {
     this.time = this.config.duration * newTimePercent;
+  }
+
+  public getBasisIndices(): number[] {
+    return this.config.basisIndices;
+  }
+
+  public getNumBases(): number {
+    return this.projectionMatrices.length;
   }
 
   private setControlType(controlType: ControlType) {

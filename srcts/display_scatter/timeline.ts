@@ -1,9 +1,9 @@
-import { DisplayScatter } from "./display_scatter";
 import { pauseIcon, playIcon } from "./icons";
 
 interface TimelineableWidget {
   getContainerElement(): HTMLDivElement;
-  getBaseIndices?(): number[];
+  getBasisIndices?(): number[];
+  getNumBases?(): number;
   getIsPaused(): boolean;
   setIsPaused(isPaused: boolean): void;
   setTime(time: number): void;
@@ -19,6 +19,11 @@ export class Timeline {
   private timelineWidth: number;
   private scrubberWidth: number = 16;
   private timelineThickness: number = 4;
+  private numBases: number;
+  private basisIndices: number[];
+  private hasBasisIndicators = true;
+  private basisIndicators: HTMLElement[] = [];
+  private basisIndicatorDiameter = 4;
 
   private mouseDown: boolean = false;
   private currentPosition: number;
@@ -33,7 +38,7 @@ export class Timeline {
     this.addTimeline();
     this.addScrubber();
     this.addPlayPauseButton();
-
+    this.addBasisIndicators();
     this.addEventListerners();
   }
 
@@ -73,6 +78,14 @@ export class Timeline {
     // newHeight-40 is the top of the play/pause button, which is 30px tall
     this.container.style.top = newHeight - 40 + "px";
     this.timelineWidth = this.timeline.offsetWidth - this.scrubberWidth;
+    if (this.hasBasisIndicators) {
+      for (let i = 0; i < this.basisIndices.length; i++) {
+        this.basisIndicators[i].style.left =
+          (this.basisIndices[i] / (this.numBases)) * (this.timelineWidth) +
+          this.scrubberWidth / 2 -
+          this.basisIndicatorDiameter / 2 + "px";
+      }
+    }
     this.updatePosition(newPos);
   }
 
@@ -89,6 +102,25 @@ export class Timeline {
     timeline.style.top = 15 - this.timelineThickness / 2 + "px";
     this.container.appendChild(timeline);
     this.timeline = timeline;
+  }
+
+  private addBasisIndicators() {
+    if (!this.widget.getBasisIndices || !this.widget.getNumBases) {
+      this.hasBasisIndicators = false;
+      return;
+    }
+
+    this.basisIndices = this.widget.getBasisIndices();
+    this.numBases = this.widget.getNumBases();
+
+    for (let i = 0; i < this.basisIndices.length; i++) {
+      let basisIndicator = document.createElement("div");
+      basisIndicator.className = "basisIndicator";
+      basisIndicator.style.width = this.basisIndicatorDiameter + "px";
+      basisIndicator.style.height = this.basisIndicatorDiameter + "px";
+      this.basisIndicators.push(basisIndicator);
+      this.timeline.appendChild(basisIndicator);
+    }
   }
 
   private addScrubber() {
