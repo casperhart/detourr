@@ -34,7 +34,7 @@ with tour path
 \item aps: target angular velocity (in radians per second)
 \item fps: target frames per second (defaults to 30). Higher fps can give
 smoother animations, but at the expense of memory usage.
-\item max_bases: the maximum number of bases to generate. Defaults to 1 Unlike
+\item max_bases: the maximum number of bases to generate. Minumum of 2. Unlike
 the tourr package, detourr can only be used non-interactively so max_frames
 has to be a finite number. This is so that the resulting animations can
 remain independent of the R runtime.

@@ -16,7 +16,7 @@
 #' - aps: target angular velocity (in radians per second)
 #' - fps: target frames per second (defaults to 30). Higher fps can give
 #' smoother animations, but at the expense of memory usage.
-#' - max_bases: the maximum number of bases to generate. Defaults to 1 Unlike
+#' - max_bases: the maximum number of bases to generate. Minumum of 2. Unlike
 #' the tourr package, detourr can only be used non-interactively so max_frames
 #' has to be a finite number. This is so that the resulting animations can
 #' remain independent of the R runtime.
@@ -93,7 +93,12 @@ animate_tour <- function(data,
     bases,
     render_opts$aps / render_opts$fps
   ))
-  basis_indices <- which(attr(projection_matrices, "new_basis"))
+
+  basis_indices <- numeric(0)
+  if (!rlang::is_null(attr(projection_matrices, "new_basis"))) {
+    basis_indices <- which(attr(projection_matrices, "new_basis")) - 1
+  }
+
   projection_matrices <- purrr::array_branch(projection_matrices, 3)
   n_frames <- length(projection_matrices)
 
@@ -106,7 +111,7 @@ animate_tour <- function(data,
 
   plot_config[["fps"]] <- render_opts$fps
   plot_config[["duration"]] <- n_frames / render_opts$fps
-  plot_config[["basisIndices"]] <- basis_indices - 1
+  plot_config[["basisIndices"]] <- basis_indices
   plot_data <- list(
     config = plot_config,
     crosstalk = list(
