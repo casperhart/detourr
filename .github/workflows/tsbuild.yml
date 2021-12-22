@@ -11,15 +11,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: [16.x] 
-      - run: npm install -g yarn    
-      - name: yarn install, build and test
-        run: | 
-          yarn install 
-          yarn run build
-          yarn run check
+    - uses: actions/checkout@v2
+    - name: Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: [16.x] 
+    - run: npm install -g yarn    
+    - name: yarn install, build and test
+      run: | 
+        yarn install 
+        yarn run build
+        yarn run check
 
