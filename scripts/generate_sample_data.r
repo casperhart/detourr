@@ -12,7 +12,7 @@ p <- animate_tour(
 
 writeLines(
   jsonlite::toJSON(p$x, auto_unbox = TRUE, null = "null"),
-  "dev/display_scatter_2d/static/sample_data.json"
+  "../dev/display_scatter_2d/static/sample_data.json"
 )
 
 set.seed(1)
@@ -25,5 +25,5 @@ p <- animate_tour(
 
 writeLines(
   jsonlite::toJSON(p$x, auto_unbox = TRUE, null = "null"),
-  "dev/display_scatter_3d/static/sample_data.json"
+  "../dev/display_scatter_3d/static/sample_data.json"
 )

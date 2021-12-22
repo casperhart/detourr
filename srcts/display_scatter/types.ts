@@ -16,6 +16,7 @@ export interface Config {
   edges: Matrix;
   alpha: number;
   backgroundColour: string;
+  paused: boolean;
 }
 
 export interface Mapping {
