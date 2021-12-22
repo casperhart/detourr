@@ -212,7 +212,7 @@ export abstract class DisplayScatter {
 
     if (inputData.config.edges[0]) {
       this.hasEdges = true;
-      this.edges = [].concat(...inputData.config.edges);
+      this.edges = inputData.config.edges.flat();
     }
 
     this.hasPointLabels = inputData.mapping.label.length == 0 ? false : true;
@@ -331,7 +331,7 @@ export abstract class DisplayScatter {
     }
 
     let flattenedPositionMatrix = new Float32Array(
-      [].concat(...positionMatrix),
+      positionMatrix.flat(),
     );
     return new THREE.BufferAttribute(flattenedPositionMatrix, 3);
   }
@@ -342,7 +342,7 @@ export abstract class DisplayScatter {
       projectionMatrix,
     );
     return new THREE.BufferAttribute(
-      new Float32Array([].concat(...linesBufferMatrix)),
+      new Float32Array(linesBufferMatrix.flat()),
       3,
     );
   }

@@ -55,6 +55,15 @@ animate_tour <- function(data,
 
   tour_data <- get_tour_data_matrix(data, col_spec)
 
+  # for large data sets, matrix multiplication is a bottleneck in the browser
+  # TODO: WASM library for matrix multiplication?
+  if (object.size(tour_data) > 1e6) {
+    rlang::warn(paste(
+      "It seems your data is quite large, and may lead",
+      "to performance issues in the browser."
+    ))
+  }
+
   if (!is.numeric(tour_data)) {
     rlang::abort(c("Tour data must be numeric",
       i = "Select numeric columns using the `cols` argument"
