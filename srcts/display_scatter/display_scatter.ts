@@ -53,6 +53,7 @@ export abstract class DisplayScatter {
   private oldFrame: number;
   private axisSegments: THREE.LineSegments;
   private isPaused: boolean;
+  private isSleeping: boolean;
   private colMeans: Matrix;
   private mapping: Mapping;
   private pointColours: THREE.BufferAttribute;
@@ -90,6 +91,7 @@ export abstract class DisplayScatter {
     this.addScene();
     this.addRenderer();
     this.addControls();
+    this.addSleepEventListeners();
   }
 
   private constructPlot() {
@@ -504,6 +506,20 @@ export abstract class DisplayScatter {
     }
   }
 
+  private addSleepEventListeners() {
+    this.container.addEventListener(
+      "mouseover",
+      () => this.wakeEventListener(),
+    );
+    this.container.addEventListener("scroll", () => this.wakeEventListener());
+    this.container.addEventListener("keydown", () => this.wakeEventListener());
+
+    this.container.addEventListener(
+      "mouseleave",
+      () => this.sleepEventListener(),
+    );
+  }
+
   private setPointSelectionFromBox(
     selection: SelectionBox,
     shiftKey: boolean,
@@ -633,6 +649,8 @@ export abstract class DisplayScatter {
 
     if (!this.getIsPaused()) {
       this.time += delta;
+    } else if (this.isSleeping) {
+      return;
     }
 
     if (this.time >= this.config.duration) this.time = 0;
@@ -712,6 +730,10 @@ export abstract class DisplayScatter {
     } else {
     }
     this.timeline.updatePlayPauseIcon(isPaused);
+  }
+
+  private setSleep(sleep: boolean) {
+    this.isSleeping = sleep;
   }
 
   public setTime(newTimePercent: number) {
@@ -794,6 +816,20 @@ export abstract class DisplayScatter {
     //this.setSelectedPointColour();
     this.highlightSelectedPoints();
   };
+
+  // pause animation loop if no interactions
+  private sleepEventListener() {
+    if (this.isPaused) {
+      this.setSleep(true);
+    }
+  }
+
+  private wakeEventListener() {
+    if (this.isSleeping) {
+      this.setSleep(false);
+      this.animate();
+    }
+  }
 
   private setSelectedPointColour() {
     let colour = new THREE.Color(this.colourSelector.value);
