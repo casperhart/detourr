@@ -229,6 +229,8 @@ export abstract class DisplayScatter {
 
     this.constructPlot();
     this.animate();
+
+    this.setIsPaused(this.config.paused);
   }
 
   public getContainerElement(): HTMLDivElement {

@@ -13,7 +13,8 @@ display_scatter(
   axes = TRUE,
   edges = NULL,
   background_colour = "white",
-  ...
+  ...,
+  paused = TRUE
 )
 }
 \arguments{
@@ -52,6 +53,8 @@ and 1 is fully opaque.}
 \item{background_colour}{background colour for the plot.'}
 
 \item{...}{used to support american spelling of colour.}
+
+\item{paused}{whether the widget should be initialised in the 'paused' state}
 }
 \description{
 Display method for a high performance 3D scatterplot.

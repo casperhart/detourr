@@ -26,6 +26,7 @@
 #' @param edges A two column numeric matrix giving indices of ends of lines.
 #' @param background_colour background colour for the plot.'
 #' @param ... used to support american spelling of colour.
+#' @param paused whether the widget should be initialised in the 'paused' state
 #' @export
 #' @examples
 #' animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
@@ -37,7 +38,8 @@ display_scatter <- function(mapping = NULL,
                             axes = TRUE,
                             edges = NULL,
                             background_colour = "white",
-                            ...) {
+                            ...,
+                            paused = TRUE) {
   if (!rlang::is_null(mapping)) {
     names(mapping) <- sub("color", "colour", names(mapping))
   }
@@ -82,7 +84,8 @@ display_scatter <- function(mapping = NULL,
         "edges" = edges,
         "axes" = axes[["has_axes"]],
         "alpha" = alpha,
-        "backgroundColour" = col2hex(background_colour)
+        "backgroundColour" = col2hex(background_colour),
+        "paused" = paused
       ),
       "widget" = widget
     )
