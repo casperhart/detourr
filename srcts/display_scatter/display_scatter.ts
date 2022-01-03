@@ -11,9 +11,8 @@ import {
 } from "./types";
 import { Timeline } from "./timeline";
 import { centerColumns, getColMeans } from "./utils";
+import { SelectionHelper } from "./selection_helper";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { SelectionBox } from "three/examples/jsm/interactive/SelectionBox.js";
-import { SelectionHelper } from "three/examples/jsm/interactive/SelectionHelper.js";
 import { brushIcon, orbitIcon, panIcon, resetIcon, selectIcon } from "./icons";
 import "./style.css";
 
@@ -64,7 +63,6 @@ export abstract class DisplayScatter {
   private dim: Dim;
   private controlType: ControlType;
   private pickingTexture: THREE.WebGLRenderTarget;
-  private selectionBox: SelectionBox;
   private selectionHelper: SelectionHelper;
   private selectedPointIndices: number[];
   private filteredPointIndices: number[];
@@ -146,12 +144,7 @@ export abstract class DisplayScatter {
       this.height * dpr,
     );
 
-    this.selectionBox = new SelectionBox(this.camera, this.scene);
-    this.selectionHelper = new SelectionHelper(
-      this.selectionBox,
-      this.renderer,
-      "disabled",
-    );
+    this.selectionHelper = new SelectionHelper(this);
 
     this.addTimeline();
 
@@ -516,20 +509,19 @@ export abstract class DisplayScatter {
     );
   }
 
-  private setPointSelectionFromBox(
-    selection: SelectionBox,
+  public setPointSelectionFromBox(
+    topLeft: THREE.Vector2,
+    bottomRight: THREE.Vector2,
     shiftKey: boolean,
   ) {
-    const { pickingTexture, renderer, canvas } = this;
+    const { pickingTexture, renderer } = this;
     const dpr = renderer.getPixelRatio();
 
-    let canvas_coords = canvas.getBoundingClientRect();
-    let x = (Math.min(selection.startPoint.x, selection.endPoint.x) -
-      canvas_coords.left) * dpr;
-    let y = (Math.max(selection.startPoint.y, selection.endPoint.y) -
-      canvas_coords.top) * dpr;
-    let width = Math.abs(selection.startPoint.x - selection.endPoint.x) * dpr;
-    let height = Math.abs(selection.startPoint.y - selection.endPoint.y) * dpr;
+    let x = topLeft.x * dpr;
+    let y = bottomRight.y * dpr;
+
+    let width = (bottomRight.x - topLeft.x) * dpr;
+    let height = (bottomRight.y - topLeft.y) * dpr;
 
     let pixelBuffer = new Uint8Array(4 * width * height);
 
@@ -567,6 +559,7 @@ export abstract class DisplayScatter {
         this.selectedPointIndices.map((i) => this.crosstalkIndex[i]),
       );
     }
+    this.highlightSelectedPoints();
   }
 
   private setPointSelectionFromCrosstalkEvent(e: any) {
@@ -797,35 +790,6 @@ export abstract class DisplayScatter {
     selectedButton.className = `${selectedButtonClassName} selected`;
   }
 
-  private selectionStartEventListener = (event: MouseEvent) => {
-    this.selectionBox.startPoint.set(
-      Math.floor(event.clientX),
-      Math.floor(event.clientY),
-      0,
-    );
-  };
-
-  private selectionMoveEventListener = (event: MouseEvent) => {
-    if (this.selectionHelper.isDown) {
-      this.selectionBox.endPoint.set(
-        Math.floor(event.clientX),
-        Math.floor(event.clientY),
-        0,
-      );
-    }
-  };
-
-  private selectionEndEventListener = (event: MouseEvent) => {
-    this.selectionBox.endPoint.set(
-      Math.floor(event.clientX),
-      Math.floor(event.clientY),
-      0,
-    );
-    this.setPointSelectionFromBox(this.selectionBox, event.shiftKey);
-    //this.setSelectedPointColour();
-    this.highlightSelectedPoints();
-  };
-
   // pause animation loop if no interactions
   private sleepEventListener() {
     if (this.isPaused) {
@@ -901,43 +865,12 @@ export abstract class DisplayScatter {
     if (enable) {
       this.orbitControls.enabled = false;
       selectButton.className = "selectButton selected";
-      this.selectionHelper.element.className = "selectBox enabled";
-
-      this.renderer.domElement.addEventListener(
-        "pointerdown",
-        this.selectionStartEventListener,
-      );
-      this.renderer.domElement.addEventListener(
-        "pointermove",
-        this.selectionMoveEventListener,
-      );
-      this.renderer.domElement.addEventListener(
-        "pointerup",
-        this.selectionEndEventListener,
-      );
+      this.selectionHelper.enable();
     } else {
       selectButton.className = "selectButton unselected";
       this.orbitControls.enabled = true;
-      this.renderer.domElement.removeEventListener(
-        "pointerdown",
-        this.selectionStartEventListener,
-      );
-      this.renderer.domElement.removeEventListener(
-        "pointermove",
-        this.selectionMoveEventListener,
-      );
-      this.renderer.domElement.removeEventListener(
-        "pointerup",
-        this.selectionEndEventListener,
-      );
-
-      // make selection box invisible
-      this.selectionHelper.element.className = "selectBox disabled";
+      this.selectionHelper.disable();
     }
-  }
-
-  private resetClock() {
-    this.time = 0;
   }
 }
 
