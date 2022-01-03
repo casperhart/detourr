@@ -78,6 +78,7 @@ div.axisLabel {
   user-select: none;
   position: absolute;
   font-family: Helvetica, Sans-serif;
+  pointer-events: none;
 }
 
 div.tooltip {
