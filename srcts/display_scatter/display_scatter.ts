@@ -40,8 +40,9 @@ export abstract class DisplayScatter {
   protected adjustPointSizeFromZoom?(): void;
   protected points: THREE.Points;
 
-  private container: HTMLDivElement;
-  private canvas: HTMLCanvasElement = document.createElement("canvas");
+  public container: HTMLDivElement;
+  public canvas: HTMLCanvasElement = document.createElement("canvas");
+
   private backgroundColour: number;
   private scene: THREE.Scene;
   private config: Config;
@@ -233,10 +234,6 @@ export abstract class DisplayScatter {
     this.animate();
 
     this.setIsPaused(this.config.paused);
-  }
-
-  public getContainerElement(): HTMLDivElement {
-    return this.container;
   }
 
   private addAxisSegments() {
@@ -745,7 +742,7 @@ export abstract class DisplayScatter {
     return this.config.basisIndices;
   }
 
-  public getNumBases(): number {
+  public getNumAnimationFrames(): number {
     return this.projectionMatrices.length;
   }
 

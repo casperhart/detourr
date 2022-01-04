@@ -1,9 +1,10 @@
 import { pauseIcon, playIcon } from "./icons";
 
 interface TimelineableWidget {
-  getContainerElement(): HTMLDivElement;
+  container: HTMLDivElement;
+  canvas: HTMLCanvasElement;
   getBasisIndices?(): number[];
-  getNumBases?(): number;
+  getNumAnimationFrames?(): number;
   getIsPaused(): boolean;
   setIsPaused(isPaused: boolean): void;
   setTime(time: number): void;
@@ -19,11 +20,12 @@ export class Timeline {
   private timelineWidth: number;
   private scrubberWidth: number = 16;
   private timelineThickness: number = 4;
-  private numBases: number;
+  private numAnimationFrames: number;
   private basisIndices: number[];
   private hasBasisIndicators = true;
-  private basisIndicators: HTMLElement[] = [];
+  private basisIndicators: HTMLDivElement[] = [];
   private basisIndicatorDiameter = 4;
+  private tooltip: HTMLDivElement;
 
   private mouseDown: boolean = false;
   private currentPosition: number;
@@ -32,7 +34,7 @@ export class Timeline {
 
   constructor(widget: TimelineableWidget) {
     this.widget = widget;
-    this.parentDiv = widget.getContainerElement();
+    this.parentDiv = widget.container;
 
     this.addContainer();
     this.addTimeline();
@@ -40,6 +42,7 @@ export class Timeline {
     this.addPlayPauseButton();
     this.addBasisIndicators();
     this.addEventListerners();
+    this.addTooltip();
   }
 
   public updatePosition(newPos: number) {
@@ -81,7 +84,8 @@ export class Timeline {
     if (this.hasBasisIndicators) {
       for (let i = 0; i < this.basisIndices.length; i++) {
         this.basisIndicators[i].style.left =
-          (this.basisIndices[i] / (this.numBases)) * (this.timelineWidth) +
+          (this.basisIndices[i] / (this.numAnimationFrames)) *
+            (this.timelineWidth) +
           this.scrubberWidth / 2 -
           this.basisIndicatorDiameter / 2 + "px";
       }
@@ -105,22 +109,61 @@ export class Timeline {
   }
 
   private addBasisIndicators() {
-    if (!this.widget.getBasisIndices || !this.widget.getNumBases) {
+    if (!this.widget.getBasisIndices || !this.widget.getNumAnimationFrames) {
       this.hasBasisIndicators = false;
       return;
     }
 
     this.basisIndices = this.widget.getBasisIndices();
-    this.numBases = this.widget.getNumBases();
+    this.numAnimationFrames = this.widget.getNumAnimationFrames();
 
     for (let i = 0; i < this.basisIndices.length; i++) {
       let basisIndicator = document.createElement("div");
       basisIndicator.className = "basisIndicator";
       basisIndicator.style.width = this.basisIndicatorDiameter + "px";
       basisIndicator.style.height = this.basisIndicatorDiameter + "px";
+      basisIndicator.addEventListener(
+        "mouseover",
+        (event: MouseEvent) => this.basisIndicatorHoverCallback(event, i),
+      );
+      basisIndicator.addEventListener(
+        "click",
+        (event: MouseEvent) => this.basisIndicatorClickCallback(event, i),
+      );
       this.basisIndicators.push(basisIndicator);
       this.timeline.appendChild(basisIndicator);
     }
+  }
+
+  private addTooltip() {
+    let tooltip = document.createElement("div");
+    let tooltipText = document.createElement("span");
+    tooltip.appendChild(tooltipText);
+    tooltipText.innerHTML = "hello";
+    tooltip.className = "tooltip";
+    tooltip.style.top = "-20px";
+    this.container.appendChild(tooltip);
+    this.tooltip = tooltip;
+  }
+
+  private basisIndicatorHoverCallback(event: MouseEvent, ind: number) {
+    let span = this.tooltip.querySelector("span");
+    span.innerHTML = `Basis ${ind + 1}`;
+    let canvasCoords = this.container.getBoundingClientRect();
+    let tooltipCoords = this.tooltip.getBoundingClientRect();
+
+    let x = event.clientX - canvasCoords.left;
+    let y = event.clientY - canvasCoords.top;
+    this.tooltip.className = "tooltip visible";
+    this.tooltip.style.left = `${Math.floor(x) -
+      tooltipCoords.width}px`;
+    setTimeout(() => this.tooltip.className = "tooltip", 3000);
+  }
+  private basisIndicatorClickCallback(event: MouseEvent, ind: number) {
+    this.scrubber.style.left =
+      (ind / this.numAnimationFrames) * this.timelineWidth +
+      "px";
+    this.widget.setTime(this.basisIndices[ind] / this.numAnimationFrames);
   }
 
   private addScrubber() {
@@ -140,24 +183,27 @@ export class Timeline {
     this.scrubber = scrubber;
   }
 
+  private setTimeFromMousePosition(e: MouseEvent) {
+    this.currentPosition = parseInt(this.scrubber.style.left);
+
+    this.candidatePosition = this.currentPosition +
+      (e.clientX - this.lastMousePosition);
+    this.candidatePosition = Math.min(
+      this.timelineWidth,
+      this.candidatePosition,
+    );
+    this.candidatePosition = Math.max(0, this.candidatePosition);
+    this.scrubber.style.left = this.candidatePosition + "px";
+    this.widget.setTime(
+      this.candidatePosition / (this.timelineWidth + 1),
+    );
+    this.lastMousePosition = e.clientX;
+  }
+
   private addEventListerners() {
     this.parentDiv.onmousemove = (e) => {
-      e.preventDefault();
       if (this.mouseDown) {
-        this.currentPosition = parseInt(this.scrubber.style.left);
-
-        this.candidatePosition = this.currentPosition +
-          (e.clientX - this.lastMousePosition);
-        this.candidatePosition = Math.min(
-          this.timelineWidth,
-          this.candidatePosition,
-        );
-        this.candidatePosition = Math.max(0, this.candidatePosition);
-        this.scrubber.style.left = this.candidatePosition + "px";
-        this.widget.setTime(
-          this.candidatePosition / (this.timelineWidth + 1),
-        );
-        this.lastMousePosition = e.clientX;
+        this.setTimeFromMousePosition(e);
       }
     };
 
