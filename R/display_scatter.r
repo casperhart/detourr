@@ -25,7 +25,8 @@
 #' - Colouring / brushing of highlighted points
 #'
 #' @param mapping mapping created via `tour_aes()`. Currently supports `colour`
-#' and (hover) `labels`.
+#' and `labels`.
+#' @param ... used to support the american spelling of "colour"
 #' @param palette Colour palette to use with the colour aesthetic. Can be:
 #'  - A character vector of R colours. This should match the number of levels
 #' of the colour aesthetic, or the number of bins to use for continuous colours.
@@ -46,12 +47,12 @@
 #' `h`
 #' @param edges A two column numeric matrix giving indices of ends of lines.
 #' @param background_colour background colour for the plot.'
-#' @param ... used to support american spelling of colour.
 #' @param paused whether the widget should be initialised in the 'paused' state
 #' @export
 #' @examples
-#' animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
+#' animate_tour(tourr::flea, tourr::grand_tour(3), display_scatter())
 display_scatter <- function(mapping = NULL,
+                            ...,
                             palette = viridisLite::viridis,
                             size = 1,
                             alpha = 1,
@@ -59,13 +60,12 @@ display_scatter <- function(mapping = NULL,
                             axes = TRUE,
                             edges = NULL,
                             background_colour = "white",
-                            ...,
                             paused = TRUE) {
   if (!rlang::is_null(mapping)) {
     names(mapping) <- sub("color", "colour", names(mapping))
   }
-
   dots <- list(...)
+
   if ("background_color" %in% names(dots)) {
     background_colour <- dots[["background_color"]]
   }

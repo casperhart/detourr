@@ -6,6 +6,7 @@
 \usage{
 display_scatter(
   mapping = NULL,
+  ...,
   palette = viridisLite::viridis,
   size = 1,
   alpha = 1,
@@ -13,13 +14,14 @@ display_scatter(
   axes = TRUE,
   edges = NULL,
   background_colour = "white",
-  ...,
   paused = TRUE
 )
 }
 \arguments{
 \item{mapping}{mapping created via \code{tour_aes()}. Currently supports \code{colour}
-and (hover) \code{labels}.}
+and \code{labels}.}
+
+\item{...}{used to support the american spelling of "colour"}
 
 \item{palette}{Colour palette to use with the colour aesthetic. Can be:
 \itemize{
@@ -52,8 +54,6 @@ and 1 is fully opaque.}
 
 \item{background_colour}{background colour for the plot.'}
 
-\item{...}{used to support american spelling of colour.}
-
 \item{paused}{whether the widget should be initialised in the 'paused' state}
 }
 \description{
@@ -84,5 +84,5 @@ shift key
 }
 }
 \examples{
-animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
+animate_tour(tourr::flea, tourr::grand_tour(3), display_scatter())
 }

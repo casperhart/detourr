@@ -21,6 +21,8 @@
     "build": "rm -rf inst/htmlwidgets/lib/scatter_widget && webpack --config ./webpack/package.config.ts && R CMD INSTALL $(git rev-parse --show-toplevel) && R -q -e 'devtools::document(); devtools::build_readme()'",
     "build-dev": "rm -rf dev_build && webpack --config ./webpack/dev.config.ts",
     "start-dev": "yarn webpack serve --config webpack/dev.config.ts --open",
-    "clean": "rm -rf dev_build inst/htmlwidgets/lib/scatter_widget"
+    "clean": "rm -rf dev_build inst/htmlwidgets/lib/scatter_widget",
+    "check": "R -q -e 'devtools::check()'",
+    "test": "R -q -e 'devtools::test()'"
   }
 }

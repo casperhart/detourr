@@ -7,7 +7,7 @@ set.seed(1)
 p <- animate_tour(
   tourr::flea,
   display = display_scatter(tour_aes(color = species, label = species)),
-  render_opts = list(max_bases = 10), tour_path = tourr::grand_tour(2)
+  tour_path = tourr::grand_tour(2)
 )
 
 writeLines(
@@ -20,7 +20,7 @@ set.seed(1)
 p <- animate_tour(
   tourr::flea,
   display = display_scatter(tour_aes(color = species, label = species)),
-  render_opts = list(max_bases = 10), tour_path = tourr::grand_tour(3)
+  tour_path = tourr::grand_tour(3)
 )
 
 writeLines(

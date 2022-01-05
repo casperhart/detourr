@@ -8,10 +8,10 @@ output:
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-   collapse = TRUE,
-   comment = "#>",
-   fig.path = "man/figures/README-",
-   out.width = "100%"
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
 )
 ```
 
@@ -31,22 +31,20 @@ remotes::install_github("casperhart/detourr")
 
 ```{r, eval=FALSE}
 # 2D scatter
+library(tourr)
 library(detourr)
 animate_tour(
-   tourr::olive, -area,
-   display = display_scatter(tour_aes(colour = region)),
-   render_opts = list(max_bases = 10)
+  olive,
+  display = display_scatter(tour_aes(colour = region)),
 )
 ```
 
 ```{r, eval=FALSE}
 # 3D scatter
 animate_tour(
-   tourr::flea,
-   -species,
-   tour_path = tourr::grand_tour(3),
-   display = display_scatter(tour_aes(colour = species)),
-   render_opts = list(max_bases = 10)
+  flea,
+  grand_tour(3),
+  display_scatter(tour_aes(colour = species))
 )
 ```
 
