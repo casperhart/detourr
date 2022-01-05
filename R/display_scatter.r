@@ -1,8 +1,29 @@
 
-#' 3D Scatterplot display for tours
+#' 2D and 3D Scatterplot display for tours
 #'
-#' Display method for a high performance 3D scatterplot.
-#' Performance is achieved through the use of Three.js / WebGL.
+#' Display method for a high performance 2D or 3D scatterplot.
+#' Performance is achieved through the use of Three.js / WebGL, and the 2D or
+#' 3D variant is selected automatically based on the tour generator provided.
+#'
+#' This display method produces an interactive scatterplot animation which
+#' supports both 2D and 3D tours. Linked selection and filtering is also
+#' supported using {crosstalk}. The set of interactive controls availabe are:
+#' - A timeline with a play / pause button and indicators at the position of
+#' each basis used. The basis indicators can be hovered with the mouse to show
+#' the index of the basis, or clicked to jump to that basis. The timeline
+#' also allows for clicking and dragging of the scrubber to move to any
+#' individual frame of the animation.
+#' - Orbit controls. For the 2D variant, this allows the projection to be
+#' rotated by clicking and dragging from left to right. For the 3D variant,
+#' full orbit controls are available by clicking and dragging. For both orbit
+#' and pan controls, the scroll wheel can be used to zoom.
+#' - Pan controls, which work similarly to orbit controls but move the camera
+#' laterally / vertically rather than rotating
+#' - Resetting of the orbit and pan controls
+#' - Selection and highlighting. Multiple selection is possible by using the
+#' shift key
+#' - Colouring / brushing of highlighted points
+#'
 #' @param mapping mapping created via `tour_aes()`. Currently supports `colour`
 #' and (hover) `labels`.
 #' @param palette Colour palette to use with the colour aesthetic. Can be:
@@ -98,8 +119,7 @@ display_scatter <- function(mapping = NULL,
 get_colour_mapping <- function(data, mapping, palette) {
   if ("colour" %in% names(mapping)) {
     colours <- vec_to_colour(mapping[["colour"]], palette)
-  }
-  else {
+  } else {
     colours <- vec_to_colour(data.frame(rep("", nrow(data))), palette)
   }
   colours
@@ -110,13 +130,11 @@ get_label_mapping <- function(data, mapping) {
     label <- mapping[["label"]]
     if (inherits(label, "AsIs")) {
       label <- as.character(label[[1]])
-    }
-    else {
+    } else {
       label <- purrr::map(names(label), ~ paste0(., ": ", label[[.]]))
       label <- do.call(paste, c(label, sep = "<br>"))
     }
-  }
-  else {
+  } else {
     label <- character(0)
   }
   label
@@ -125,25 +143,20 @@ get_label_mapping <- function(data, mapping) {
 validate_axes <- function(axes, default_labels, data_cols) {
   if (rlang::is_true(axes)) {
     axis_labels <- default_labels
-  }
-  else if (rlang::is_false(axes)) {
+  } else if (rlang::is_false(axes)) {
     axis_labels <- character(0)
-  }
-  else if (is.null(axes)) {
+  } else if (is.null(axes)) {
     axis_labels <- character(0)
     axes <- TRUE
-  }
-  else if (rlang::is_named(axes)) {
+  } else if (rlang::is_named(axes)) {
     renamed <- tidyselect::eval_rename(axes, data_cols)
     axis_labels <- default_labels
     axis_labels[renamed] <- names(renamed)
     axes <- TRUE
-  }
-  else if (rlang::has_length(axes, length(data_cols))) {
+  } else if (rlang::has_length(axes, length(data_cols))) {
     axis_labels <- as.character(axes)
     axes <- TRUE
-  }
-  else {
+  } else {
     rlang::abort(c(
       "invalid `axes` argument",
       i = "see `?display_scatter` for valid options",
@@ -162,20 +175,17 @@ validate_edges <- function(edges) {
         i = "expected 2 columns",
         x = sprintf("got %s columns", ncol(edges))
       ))
-    }
-    else if (!is.numeric(edges)) {
+    } else if (!is.numeric(edges)) {
       rlang::abort(c("invalid edges argument",
         i = "expected a numeric matrix",
         x = sprintf("got a %s matrix", typeof(edges))
       ))
-    }
-    else if (anyNA(edges)) {
+    } else if (anyNA(edges)) {
       rlang::abort(c("invalid edges argument", x = "NA values not allowed"))
     }
   } else if (is.null(edges)) {
     edges <- character(0)
-  }
-  else {
+  } else {
     rlang::abort(c("invalid edges argument",
       i = "expected a matrix",
       x = sprintf("got a `%s`", class(edges)[1])

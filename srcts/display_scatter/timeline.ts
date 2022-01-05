@@ -84,7 +84,7 @@ export class Timeline {
     if (this.hasBasisIndicators) {
       for (let i = 0; i < this.basisIndices.length; i++) {
         this.basisIndicators[i].style.left =
-          (this.basisIndices[i] / (this.numAnimationFrames)) *
+          (this.basisIndices[i] / (this.numAnimationFrames - 1)) *
             (this.timelineWidth) +
           this.scrubberWidth / 2 -
           this.basisIndicatorDiameter / 2 + "px";
@@ -160,10 +160,9 @@ export class Timeline {
     setTimeout(() => this.tooltip.className = "tooltip", 3000);
   }
   private basisIndicatorClickCallback(event: MouseEvent, ind: number) {
-    this.scrubber.style.left =
-      (ind / this.numAnimationFrames) * this.timelineWidth +
-      "px";
-    this.widget.setTime(this.basisIndices[ind] / this.numAnimationFrames);
+    this.widget.setTime(
+      this.basisIndices[ind] / this.numAnimationFrames,
+    );
   }
 
   private addScrubber() {
