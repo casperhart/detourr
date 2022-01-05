@@ -17,7 +17,6 @@ mapped to visual properties of the tour animation.
 \examples{
 animate_tour(
   tourr::flea,
-  -species,
   tourr::grand_tour(3),
   display_scatter(tour_aes(colour = species))
 )

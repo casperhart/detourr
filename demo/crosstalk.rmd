@@ -25,7 +25,8 @@ a <- d3scatter(shared_flea,
 b <- animate_tour(
   shared_flea,
   display = display_scatter(tour_aes(colour = species)),
-  render_opts =  list(max_bases = 10), tour_path = tourr::grand_tour(2),
+  max_bases = 10,
+  tour_path = tourr::grand_tour(2),
   width = "100%"
 )
 c <- datatable(shared_flea, width = "100%")

@@ -6,47 +6,32 @@
 \usage{
 animate_tour(
   data,
-  cols = where(is.numeric),
   tour_path = tourr::grand_tour(d = 2),
   display = display_scatter(),
-  render_opts = list(start = NULL, aps = 1, fps = 30, max_bases = 2),
+  cols = where(is.numeric),
+  ...,
   rescale = TRUE,
-  sphere = FALSE,
-  width = NULL,
-  height = NULL
+  sphere = FALSE
 )
 }
 \arguments{
 \item{data}{data frame containing columns to use for the tour.}
 
-\item{cols}{column selection for the tour. Specified columns must be numeric.
-Uses tidyselect syntax}
-
 \item{tour_path}{tour path generator, defaults to 2d grand tour}
 
 \item{display}{takes the display that is suppose to be used, defaults to
-the (3D) scatter display}
+the (2D) scatter display}
 
-\item{render_opts}{list of render options containing some or all of:
-\itemize{
-\item start:  projection to start at, if not specified, uses default associated
-with tour path
-\item aps: target angular velocity (in radians per second)
-\item fps: target frames per second (defaults to 30). Higher fps can give
-smoother animations, but at the expense of memory usage.
-\item max_bases: the maximum number of bases to generate. Minumum of 2. Unlike
-the tourr package, detourr can only be used non-interactively so max_frames
-has to be a finite number. This is so that the resulting animations can
-remain independent of the R runtime.
-}}
+\item{cols}{column selection for the tour. Specified columns must be numeric.
+Uses tidyselect syntax, and defaults to all numeric columns.}
+
+\item{...}{used to pass additional arguments \code{start}, \code{aps}, \code{fps},
+and \code{max_bases} through to {tourr}, as well as \code{width} and
+\code{height} to {HTMLWidgets}}
 
 \item{rescale}{if true, rescale all variables to range [0,1]?}
 
 \item{sphere}{if true, sphere all variables}
-
-\item{width}{passed to htmlwidgets::htmlwidget}
-
-\item{height}{passed to htmlwidgets::htmlwidget}
 }
 \description{
 This is the function that powers all of the tour animations.  If you want
@@ -55,5 +40,5 @@ start is by looking at the code for animation methods that have already
 implemented in the package.
 }
 \examples{
-animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
+animate_tour(tourr::flea, tourr::grand_tour(3), display_scatter())
 }

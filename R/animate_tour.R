@@ -6,48 +6,32 @@
 #' implemented in the package.
 #' @inheritParams tourr::animate
 #' @param data data frame containing columns to use for the tour.
-#' @param cols column selection for the tour. Specified columns must be numeric.
-#' Uses tidyselect syntax
 #' @param display takes the display that is suppose to be used, defaults to
-#'   the (3D) scatter display
-#' @param render_opts list of render options containing some or all of:
-#' - start:  projection to start at, if not specified, uses default associated
-#' with tour path
-#' - aps: target angular velocity (in radians per second)
-#' - fps: target frames per second (defaults to 30). Higher fps can give
-#' smoother animations, but at the expense of memory usage.
-#' - max_bases: the maximum number of bases to generate. Minumum of 2. Unlike
-#' the tourr package, detourr can only be used non-interactively so max_frames
-#' has to be a finite number. This is so that the resulting animations can
-#' remain independent of the R runtime.
-#' @param width passed to htmlwidgets::htmlwidget
-#' @param height passed to htmlwidgets::htmlwidget
+#'   the (2D) scatter display
+#' @param cols column selection for the tour. Specified columns must be numeric.
+#' Uses tidyselect syntax, and defaults to all numeric columns.
+#' @param ... used to pass additional arguments `start`, `aps`, `fps`,
+#' and `max_bases` through to {tourr}, as well as `width` and
+#' `height` to {HTMLWidgets}
 #' @export
 #' @examples
-#' animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())
+#' animate_tour(tourr::flea, tourr::grand_tour(3), display_scatter())
 animate_tour <- function(data,
-                         cols = where(is.numeric),
                          tour_path = tourr::grand_tour(d = 2),
                          display = display_scatter(),
-                         render_opts = list(
-                           start = NULL,
-                           aps = 1,
-                           fps = 30,
-                           max_bases = 2
-                         ),
+                         cols = where(is.numeric),
+                         ...,
                          rescale = TRUE,
-                         sphere = FALSE,
-                         width = NULL,
-                         height = NULL) {
+                         sphere = FALSE) {
   col_spec <- rlang::enquo(cols)
+  dots <- list(...)
 
   if (inherits(data, "SharedData")) {
     crosstalk_key <- data$key()
     crosstalk_group <- data$groupName()
     data <- data$origData()
     crosstalk_dependencies <- crosstalk::crosstalkLibs()
-  }
-  else {
+  } else {
     crosstalk_key <- NULL
     crosstalk_group <- NULL
     crosstalk_dependencies <- NULL
@@ -71,8 +55,13 @@ animate_tour <- function(data,
   }
 
   # merge default render_opts with specified
-  render_opts_defaults <- eval(formals()$render_opts)
-  render_opts <- merge_defaults_list(render_opts, render_opts_defaults)
+  render_opts_defaults <- list(
+    start = NULL,
+    aps = 1,
+    fps = 30,
+    max_bases = 10
+  )
+  render_opts <- merge_defaults_list(dots, render_opts_defaults)
 
   if (rescale) tour_data <- tourr::rescale(tour_data)
   if (sphere) tour_data <- tourr::sphere_data(tour_data)
@@ -133,9 +122,9 @@ animate_tour <- function(data,
       knitr.defaultWidth = 800,
       knitr.defaultHeight = 500
     ),
-    width = width,
-    height = height,
     package = "detourr",
-    dependencies = crosstalk_dependencies
+    dependencies = crosstalk_dependencies,
+    width = dots$width,
+    height = dots$height
   )
 }

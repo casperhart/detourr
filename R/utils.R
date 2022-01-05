@@ -44,7 +44,6 @@ get_tour_data_matrix <- function(data, col_spec) {
 #' @examples
 #' animate_tour(
 #'   tourr::flea,
-#'   -species,
 #'   tourr::grand_tour(3),
 #'   display_scatter(tour_aes(colour = species))
 #' )
@@ -71,9 +70,7 @@ vec_to_colour <- function(vec, pal) {
     pal <- col2hex(levels(vec))
     names(pal) <- levels(vec)
     vec <- as.character(vec)
-  }
-
-  else {
+  } else {
     vec <- vec[[1]]
     if (is.numeric(vec)) {
       if (is.function(pal)) {
@@ -83,9 +80,7 @@ vec_to_colour <- function(vec, pal) {
         n <- length(pal)
       }
       vec <- cut(vec, n)
-    }
-
-    else {
+    } else {
       if (is.character(vec) || is.logical(vec)) {
         vec <- as.factor(vec)
       } else if (!is.factor(vec)) {

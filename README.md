@@ -18,22 +18,20 @@ remotes::install_github("casperhart/detourr")
 
 ``` r
 # 2D scatter
+library(tourr)
 library(detourr)
 animate_tour(
-   tourr::olive, -area,
-   display = display_scatter(tour_aes(colour = region)),
-   render_opts = list(max_bases = 10)
+  olive,
+  display = display_scatter(tour_aes(colour = region)),
 )
 ```
 
 ``` r
 # 3D scatter
 animate_tour(
-   tourr::flea,
-   -species,
-   tour_path = tourr::grand_tour(3),
-   display = display_scatter(tour_aes(colour = species)),
-   render_opts = list(max_bases = 10)
+  flea,
+  grand_tour(3),
+  display_scatter(tour_aes(colour = species))
 )
 ```
 
