@@ -61,7 +61,6 @@ export abstract class DisplayScatter {
   private pointAlphas: THREE.BufferAttribute;
   private pickingColours: THREE.BufferAttribute;
   private currentFrameBuffer: THREE.BufferAttribute;
-  private nextFrameBuffer: THREE.BufferAttribute;
   private dim: Dim;
   private controlType: ControlType;
   private pickingTexture: THREE.WebGLRenderTarget;
@@ -119,7 +118,6 @@ export abstract class DisplayScatter {
     let pointsMaterial = new THREE.ShaderMaterial(shaderOpts);
 
     this.currentFrameBuffer = this.getPointsBuffer(0, this.config.center);
-    this.nextFrameBuffer = this.getPointsBuffer(1, this.config.center);
     pointsGeometry.setAttribute("position", this.currentFrameBuffer);
 
     this.points = new THREE.Points(pointsGeometry, pointsMaterial);
@@ -657,16 +655,13 @@ export abstract class DisplayScatter {
     this.currentFrame = currentFrame;
 
     if (currentFrame != this.oldFrame) {
-      this.currentFrameBuffer = this.nextFrameBuffer;
+      this.currentFrameBuffer = this.getPointsBuffer(
+        currentFrame % this.projectionMatrices.length,
+        this.config.center,
+      );
 
       this.points.geometry.setAttribute("position", this.currentFrameBuffer);
       this.points.geometry.attributes.position.needsUpdate = true;
-
-      // precalculate point positions for the next frame
-      this.nextFrameBuffer = this.getPointsBuffer(
-        (currentFrame + 1) % this.projectionMatrices.length,
-        this.config.center,
-      );
 
       if (this.hasAxes) {
         this.axisSegments.geometry.setAttribute(
