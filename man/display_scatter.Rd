@@ -2,7 +2,7 @@
 % Please edit documentation in R/display_scatter.r
 \name{display_scatter}
 \alias{display_scatter}
-\title{3D Scatterplot display for tours}
+\title{2D and 3D Scatterplot display for tours}
 \usage{
 display_scatter(
   mapping = NULL,
@@ -57,8 +57,31 @@ and 1 is fully opaque.}
 \item{paused}{whether the widget should be initialised in the 'paused' state}
 }
 \description{
-Display method for a high performance 3D scatterplot.
-Performance is achieved through the use of Three.js / WebGL.
+Display method for a high performance 2D or 3D scatterplot.
+Performance is achieved through the use of Three.js / WebGL, and the 2D or
+3D variant is selected automatically based on the tour generator provided.
+}
+\details{
+This display method produces an interactive scatterplot animation which
+supports both 2D and 3D tours. Linked selection and filtering is also
+supported using {crosstalk}. The set of interactive controls availabe are:
+\itemize{
+\item A timeline with a play / pause button and indicators at the position of
+each basis used. The basis indicators can be hovered with the mouse to show
+the index of the basis, or clicked to jump to that basis. The timeline
+also allows for clicking and dragging of the scrubber to move to any
+individual frame of the animation.
+\item Orbit controls. For the 2D variant, this allows the projection to be
+rotated by clicking and dragging from left to right. For the 3D variant,
+full orbit controls are available by clicking and dragging. For both orbit
+and pan controls, the scroll wheel can be used to zoom.
+\item Pan controls, which work similarly to orbit controls but move the camera
+laterally / vertically rather than rotating
+\item Resetting of the orbit and pan controls
+\item Selection and highlighting. Multiple selection is possible by using the
+shift key
+\item Colouring / brushing of highlighted points
+}
 }
 \examples{
 animate_tour(tourr::flea, -species, tourr::grand_tour(3), display_scatter())

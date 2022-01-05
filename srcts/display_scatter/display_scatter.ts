@@ -682,7 +682,7 @@ export abstract class DisplayScatter {
 
       this.oldFrame = currentFrame;
       this.timeline.updatePosition(
-        currentFrame / this.projectionMatrices.length,
+        currentFrame / (this.projectionMatrices.length - 1),
       );
     }
 
