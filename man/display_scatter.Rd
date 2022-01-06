@@ -8,12 +8,9 @@ display_scatter(
   mapping = NULL,
   ...,
   palette = viridisLite::viridis,
-  size = 1,
-  alpha = 1,
   center = TRUE,
   axes = TRUE,
   edges = NULL,
-  background_colour = "white",
   paused = TRUE
 )
 }
@@ -21,7 +18,12 @@ display_scatter(
 \item{mapping}{mapping created via \code{tour_aes()}. Currently supports \code{colour}
 and \code{labels}.}
 
-\item{...}{used to support the american spelling of "colour"}
+\item{...}{used to support aestetic parameters for the plot, including
+\itemize{
+\item size: point size, defaults to 1
+\item alpha: point opacity, defaults to 1
+\item background_colour: defaults to "white"
+}}
 
 \item{palette}{Colour palette to use with the colour aesthetic. Can be:
 \itemize{
@@ -29,14 +31,7 @@ and \code{labels}.}
 of the colour aesthetic, or the number of bins to use for continuous colours.
 \item A function which takes the number of colours to use as input and returns a
 character vector of colour names and / or hex values as output.
-Note that the alpha channel of \code{palette} is ignored. For opacity, please use
-the \code{alpha} argument.
 }}
-
-\item{size}{point size, defaults to 1}
-
-\item{alpha}{opacity of points ranging from 0 to 1. 0 is fully transparent
-and 1 is fully opaque.}
 
 \item{center}{If TRUE, center the projected data to (0, 0, 0).}
 
@@ -51,8 +46,6 @@ and 1 is fully opaque.}
 }}
 
 \item{edges}{A two column numeric matrix giving indices of ends of lines.}
-
-\item{background_colour}{background colour for the plot.'}
 
 \item{paused}{whether the widget should be initialised in the 'paused' state}
 }
