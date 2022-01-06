@@ -13,6 +13,7 @@
 #' @param ... used to pass additional arguments `start`, `aps`, `fps`,
 #' and `max_bases` through to {tourr}, as well as `width` and
 #' `height` to {HTMLWidgets}
+#' @importFrom utils object.size
 #' @export
 #' @examples
 #' animate_tour(tourr::flea, tourr::grand_tour(3), display_scatter())

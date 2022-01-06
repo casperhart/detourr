@@ -1,3 +1,7 @@
+# prevent devtools::check from complaining about this function from tidyselect
+# https://github.com/r-lib/tidyselect/issues/201
+utils::globalVariables("where")
+
 quiet <- function(x) {
   sink(tempfile())
   on.exit(sink())

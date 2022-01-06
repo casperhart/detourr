@@ -156,7 +156,7 @@ validate_axes <- function(axes, default_labels, data_cols) {
   } else {
     rlang::abort(c(
       "invalid `axes` argument",
-      i = "see `?display_scatter` for valid options",
+      i = "see `?display_scatter` for valid options"
     ))
   }
   list(
