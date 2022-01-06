@@ -25,6 +25,10 @@ animate_tour <- function(data,
                          sphere = FALSE) {
   col_spec <- rlang::enquo(cols)
   dots <- list(...)
+  check_dots(
+    dots,
+    c("width", "height", "start", "aps", "fps", "max_bases")
+  )
 
   if (inherits(data, "SharedData")) {
     crosstalk_key <- data$key()

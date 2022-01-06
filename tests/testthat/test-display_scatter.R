@@ -4,8 +4,9 @@ test_that("axes work", {
   axis_labels <- names(tourr::flea)[1:6]
   t <- animate_tour(
     tourr::flea,
-    display = display_scatter(max_bases = 2),
-    tour_path = tourr::grand_tour(3)
+    display = display_scatter(),
+    tour_path = tourr::grand_tour(3),
+    max_bases = 2
   )
   expect_equal(t$x$config$axisLabels, axis_labels)
   expect_equal(t$x$config$axes, TRUE)
@@ -15,9 +16,9 @@ test_that("axes work", {
   t <- animate_tour(
     tourr::flea,
     display = display_scatter(
-      max_bases = 2,
       axes = c("h" = "head")
     ),
+    max_bases = 2,
     tour_path = tourr::grand_tour(3)
   )
   expect_equal(t$x$config$axisLabels, axis_labels)
@@ -27,9 +28,9 @@ test_that("axes work", {
   t <- animate_tour(
     tourr::flea,
     display = display_scatter(
-      max_bases = 2,
       axes = 1:6
     ),
+    max_bases = 2,
     tour_path = tourr::grand_tour(3)
   )
   expect_equal(t$x$config$axisLabels, as.character(1:6))
@@ -39,9 +40,9 @@ test_that("axes work", {
   t <- animate_tour(
     tourr::flea,
     display = display_scatter(
-      max_bases = 2,
       axes = FALSE
     ),
+    max_bases = 2,
     tour_path = tourr::grand_tour(3)
   )
   expect_equal(t$x$config$axisLabels, character(0))
@@ -51,9 +52,9 @@ test_that("axes work", {
   t <- animate_tour(
     tourr::flea,
     display = display_scatter(
-      max_bases = 2,
       axes = NULL
     ),
+    max_bases = 2,
     tour_path = tourr::grand_tour(3)
   )
   expect_equal(t$x$config$axisLabels, character(0))
@@ -67,7 +68,8 @@ test_that("colours work", {
   # default, black
   t <- animate_tour(
     tourr::flea,
-    display = display_scatter(max_bases = 2)
+    display = display_scatter(),
+    max_bases = 2
   )
   expect_equal(t$x$mapping$colour, rep("#000000", n))
   expect_equal(t$x$mapping$label, character(0))
@@ -78,9 +80,9 @@ test_that("colours work", {
   t <- animate_tour(
     tourr::flea,
     display = display_scatter(
-      tour_aes(colour = species),
-      max_bases = 2
-    )
+      tour_aes(colour = species)
+    ),
+    max_bases = 2
   )
   expect_equal(t$x$mapping$colour, pal)
 
@@ -90,9 +92,9 @@ test_that("colours work", {
   t <- animate_tour(
     flea,
     display = display_scatter(
-      tour_aes(colour = I(pal_col)),
-      max_bases = 2
-    )
+      tour_aes(colour = I(pal_col))
+    ),
+    max_bases = 2
   )
   expect_equal(t$x$mapping$colour, pal)
 
@@ -100,11 +102,31 @@ test_that("colours work", {
   t <- animate_tour(
     flea,
     display = display_scatter(
-      tour_aes(colour = I(c("red", "green"))),
-      max_bases = 2
-    )
+      tour_aes(colour = I(c("red", "green")))
+    ),
+    max_bases = 2
   )
   expect_equal(t$x$mapping$colour, rep(c("red", "green"), length.out = n))
+
+  # background colour
+  t <- animate_tour(
+    flea,
+    display = display_scatter(
+      background_colour = "lightgray"
+    ),
+    max_bases = 2
+  )
+  expect_equal(t$x$config$backgroundColour, "#D3D3D3")
+
+  # background colour, american spelling
+  t <- animate_tour(
+    flea,
+    display = display_scatter(
+      background_color = "lightgray"
+    ),
+    max_bases = 2
+  )
+  expect_equal(t$x$config$backgroundColour, "#D3D3D3")
 })
 
 
@@ -115,9 +137,9 @@ test_that("labels work", {
   t <- animate_tour(
     tourr::flea,
     display = display_scatter(
-      tour_aes(label = species),
-      max_bases = 2
-    )
+      tour_aes(label = species)
+    ),
+    max_bases = 2
   )
   expect_equal(t$x$mapping$label, paste("species:", tourr::flea$species))
 
@@ -125,9 +147,9 @@ test_that("labels work", {
   t <- animate_tour(
     tourr::flea,
     display = display_scatter(
-      tour_aes(label = c(head, species)),
-      max_bases = 2
-    )
+      tour_aes(label = c(head, species))
+    ),
+    max_bases = 2
   )
   expect_equal(
     t$x$mapping$label,
@@ -141,9 +163,9 @@ test_that("labels work", {
   t <- animate_tour(
     tourr::flea,
     display = display_scatter(
-      tour_aes(label = I(species)),
-      max_bases = 2
-    )
+      tour_aes(label = I(species))
+    ),
+    max_bases = 2
   )
   expect_equal(t$x$mapping$label, as.character(tourr::flea$species))
 
@@ -151,9 +173,9 @@ test_that("labels work", {
   t <- animate_tour(
     tourr::flea,
     display = display_scatter(
-      tour_aes(label = I("I am a label")),
-      max_bases = 2
-    )
+      tour_aes(label = I("I am a label"))
+    ),
+    max_bases = 2
   )
   expect_equal(t$x$mapping$label, rep("I am a label", n))
 })

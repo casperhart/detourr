@@ -121,3 +121,21 @@ vec_to_colour <- function(vec, pal) {
     pal = pal
   )
 }
+
+check_dots <- function(dots, supported_arg_names) {
+  unknown_args <- !(names(dots) %in% supported_arg_names)
+  if (any(unknown_args)) {
+    rlang::warn(c("unused arguments found in `...`",
+      i = paste0(
+        "expected any of: `",
+        paste0(supported_arg_names, collapse = "`, `"),
+        "`"
+      ),
+      x = paste0(
+        "got: `",
+        paste0(names(dots)[unknown_args], collapse = "`, `"),
+        "`"
+      )
+    ))
+  }
+}

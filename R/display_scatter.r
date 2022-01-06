@@ -26,17 +26,15 @@
 #'
 #' @param mapping mapping created via `tour_aes()`. Currently supports `colour`
 #' and `labels`.
-#' @param ... used to support the american spelling of "colour"
+#' @param ... used to support aestetic parameters for the plot, including
+#' - size: point size, defaults to 1
+#' - alpha: point opacity, defaults to 1
+#' - background_colour: defaults to "white"
 #' @param palette Colour palette to use with the colour aesthetic. Can be:
 #'  - A character vector of R colours. This should match the number of levels
 #' of the colour aesthetic, or the number of bins to use for continuous colours.
 #'  - A function which takes the number of colours to use as input and returns a
 #' character vector of colour names and / or hex values as output.
-#' Note that the alpha channel of `palette` is ignored. For opacity, please use
-#' the `alpha` argument.
-#' @param size point size, defaults to 1
-#' @param alpha opacity of points ranging from 0 to 1. 0 is fully transparent
-#' and 1 is fully opaque.
 #' @param center If TRUE, center the projected data to (0, 0, 0).
 #' @param axes Can be one of:
 #'  - `TRUE` draw axes and use column names for axis labels
@@ -46,29 +44,28 @@
 #'  - A named vector in the form `c("h" = "head")`, where `head` is renamed to
 #' `h`
 #' @param edges A two column numeric matrix giving indices of ends of lines.
-#' @param background_colour background colour for the plot.'
 #' @param paused whether the widget should be initialised in the 'paused' state
+#' @importFrom rlang `%||%`
 #' @export
 #' @examples
 #' animate_tour(tourr::flea, tourr::grand_tour(3), display_scatter())
 display_scatter <- function(mapping = NULL,
                             ...,
                             palette = viridisLite::viridis,
-                            size = 1,
-                            alpha = 1,
                             center = TRUE,
                             axes = TRUE,
                             edges = NULL,
-                            background_colour = "white",
                             paused = TRUE) {
   if (!rlang::is_null(mapping)) {
     names(mapping) <- sub("color", "colour", names(mapping))
   }
-  dots <- list(...)
 
-  if ("background_color" %in% names(dots)) {
-    background_colour <- dots[["background_color"]]
-  }
+  dots <- list(...)
+  names(dots) <- sub("color", "colour", names(dots))
+  check_dots(dots, c("size", "alpha", "background_colour"))
+  size <- dots[["size"]] %||% 1
+  alpha <- dots[["alpha"]] %||% 1
+  background_colour <- dots[["background_colour"]] %||% "white"
 
   if (missing(palette) && !("colour" %in% names(mapping))) palette <- "black"
 
