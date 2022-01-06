@@ -586,6 +586,9 @@ export abstract class DisplayScatter {
 
     this.selectedPointIndices = newSelection;
     this.highlightSelectedPoints();
+    if (this.isSleeping) {
+      this.animate();
+    }
   }
 
   private setPointFilterFromCrosstalkEvent(e: any) {
@@ -596,6 +599,9 @@ export abstract class DisplayScatter {
       );
     }
     this.filterPoints();
+    if (this.isSleeping) {
+      this.animate();
+    }
   }
 
   private setTooltipFromHover(event: MouseEvent) {
@@ -645,8 +651,6 @@ export abstract class DisplayScatter {
 
     if (!this.getIsPaused()) {
       this.time += delta;
-    } else if (this.isSleeping) {
-      return;
     }
 
     if (this.time >= this.config.duration) this.time = 0;
@@ -706,6 +710,10 @@ export abstract class DisplayScatter {
       this.axisLabels.map((x, i) =>
         x.updatePosition(this.projectionMatrices[currentFrame][i], this.camera)
       );
+    }
+
+    if (this.isSleeping) {
+      return;
     }
 
     requestAnimationFrame(() => this.animate());
