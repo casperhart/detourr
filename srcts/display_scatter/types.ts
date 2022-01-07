@@ -33,8 +33,6 @@ export type ProjectionMatrix =
 
 export type Dim = 2 | 3;
 
-export type ControlType = "PAN" | "ORBIT" | "SELECT";
-
 export type Camera = THREE.PerspectiveCamera | THREE.OrthographicCamera;
 
 export interface BoxSelection {

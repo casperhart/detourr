@@ -32,7 +32,6 @@ export class SelectionHelper {
     this.widget.container.addEventListener(
       "pointerdown",
       (event: MouseEvent) => {
-        this.isDown = true;
         this.onSelectStart(event);
       },
     );
@@ -49,8 +48,10 @@ export class SelectionHelper {
     this.widget.container.addEventListener(
       "pointerup",
       (event: MouseEvent) => {
-        this.isDown = false;
-        this.onSelectOver(event);
+        if (this.isDown) {
+          this.isDown = false;
+          this.onSelectOver(event);
+        }
       },
     );
   }
@@ -64,7 +65,9 @@ export class SelectionHelper {
   }
 
   private onSelectStart(event: MouseEvent) {
-    if (this.enabled) {
+    // prevent selection from firing if we click a button, timeline, etc.
+    if (this.enabled && event.target === this.widget.canvas) {
+      this.isDown = true;
       this.widget.container.appendChild(this.element);
       let pos = this.widget.canvas.getBoundingClientRect();
 
