@@ -2,7 +2,6 @@ import * as THREE from "three";
 import {
   Camera,
   Config,
-  ControlType,
   Dim,
   Mapping,
   Matrix,
@@ -13,8 +12,8 @@ import { Timeline } from "./timeline";
 import { centerColumns, getColMeans } from "./utils";
 import { SelectionHelper } from "./selection_helper";
 import { AxisLabel } from "./axis_label";
+import { ScatterControls } from "./controls";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { brushIcon, orbitIcon, panIcon, resetIcon, selectIcon } from "./icons";
 import "./style.css";
 
 declare global {
@@ -62,7 +61,6 @@ export abstract class DisplayScatter {
   private pickingColours: THREE.BufferAttribute;
   private currentFrameBuffer: THREE.BufferAttribute;
   private dim: Dim;
-  private controlType: ControlType;
   private pickingTexture: THREE.WebGLRenderTarget;
   private selectionHelper: SelectionHelper;
   private selectedPointIndices: number[];
@@ -77,6 +75,7 @@ export abstract class DisplayScatter {
   private toolTip: HTMLDivElement;
   private timeline: Timeline;
   private colourSelector: HTMLInputElement;
+  private controls: ScatterControls;
   private crosstalkIndex?: string[];
   private crosstalkGroup?: string;
   private crosstalkSelectionHandle?: any;
@@ -89,7 +88,6 @@ export abstract class DisplayScatter {
     this.addCanvas();
     this.addScene();
     this.addRenderer();
-    this.addControls();
     this.addSleepEventListeners();
   }
 
@@ -136,7 +134,10 @@ export abstract class DisplayScatter {
     if (this.hasEdges) {
       this.addEdgeSegments(this.currentFrameBuffer);
     }
+
     this.addOrbitControls();
+    this.selectionHelper = new SelectionHelper(this);
+    this.controls = new ScatterControls(this);
 
     // resize picking renderer
     let dpr = this.renderer.getPixelRatio();
@@ -144,8 +145,6 @@ export abstract class DisplayScatter {
       this.width * dpr,
       this.height * dpr,
     );
-
-    this.selectionHelper = new SelectionHelper(this);
 
     this.addTimeline();
 
@@ -226,6 +225,48 @@ export abstract class DisplayScatter {
     this.animate();
 
     this.setIsPaused(this.config.paused);
+  }
+
+  public getContainerElement(): HTMLDivElement {
+    return this.container;
+  }
+
+  public resetButtonAction() {
+    // reset everything, but keep current time / frame and
+    // selected colour
+    this.orbitControls.reset();
+    this.setDefaultPointColours();
+    this.setDefaultPointSelection();
+    this.orbitButtonAction();
+  }
+
+  public orbitButtonAction() {
+    this.orbitControls.enabled = true;
+    this.selectionHelper.disable();
+    this.orbitControls.mouseButtons = {
+      LEFT: THREE.MOUSE.ROTATE,
+      MIDDLE: THREE.MOUSE.DOLLY,
+      RIGHT: THREE.MOUSE.PAN,
+    };
+  }
+
+  public panButtonAction() {
+    this.orbitControls.enabled = true;
+    this.selectionHelper.disable();
+    this.orbitControls.mouseButtons = {
+      LEFT: THREE.MOUSE.PAN,
+      MIDDLE: THREE.MOUSE.DOLLY,
+      RIGHT: THREE.MOUSE.ROTATE,
+    };
+  }
+
+  public selectButtonAction() {
+    this.orbitControls.enabled = false;
+    this.selectionHelper.enable();
+  }
+
+  public brushButtonAction() {
+    this.setSelectedPointColour();
   }
 
   private addAxisSegments() {
@@ -393,87 +434,6 @@ export abstract class DisplayScatter {
       j += 3;
     }
     return new THREE.BufferAttribute(bufferArray, 3);
-  }
-
-  // todo: separate controls in to their own class
-  private addControls() {
-    this.addButton(
-      "reset",
-      "Reset camera position",
-      resetIcon,
-      () => {
-        // reset everything, but keep current time / frame and
-        // selected colour
-        this.orbitControls.reset();
-        this.setDefaultPointColours();
-        this.setDefaultPointSelection();
-        this.setControlType("ORBIT");
-      },
-    );
-    this.addButton(
-      "pan",
-      "Switch to pan controls",
-      panIcon,
-      () => this.setControlType("PAN"),
-    );
-    this.addButton(
-      "orbit",
-      "Switch to orbit controls",
-      orbitIcon,
-      () => this.setControlType("ORBIT"),
-    );
-    this.addButton(
-      "select",
-      "Switch to selection controls",
-      selectIcon,
-      () => this.setControlType("SELECT"),
-    );
-    this.addButton(
-      "brush",
-      "Colour selected points",
-      brushIcon,
-      () => this.setSelectedPointColour(),
-    );
-    this.addColourSelector();
-
-    // set orbit as default
-    this.controlType = "ORBIT";
-    let currentButton: HTMLButtonElement = this.container.querySelector(
-      `.orbitButton`,
-    );
-    currentButton.className = "orbitButton selected";
-  }
-
-  private addButton(
-    name: string,
-    hoverText: string,
-    icon: string,
-    buttonCallback: Function,
-  ) {
-    let button = document.createElement("button");
-    button.innerHTML = icon;
-    button.title = hoverText;
-    button.className = `${name}Button`;
-    button.onclick = () => buttonCallback();
-    this.container.appendChild(button);
-  }
-
-  private addColourSelector() {
-    // add colour picker
-    let colourSelector = document.createElement("input");
-    colourSelector.setAttribute("type", "color");
-    colourSelector.className = "colourSelector";
-    colourSelector.setAttribute("value", "#619CFF");
-    colourSelector.setAttribute(
-      "title",
-      "Select colour to apply using selection box",
-    );
-    colourSelector.addEventListener(
-      "change",
-      () => this.setSelectedPointColour(),
-    );
-    this.container.appendChild(colourSelector);
-    this.colourSelector = colourSelector;
   }
 
   private addAxisLabels() {
@@ -743,54 +703,6 @@ export abstract class DisplayScatter {
     return this.projectionMatrices.length;
   }
 
-  private setControlType(controlType: ControlType) {
-    let currentButtonClassName =
-      `${this.controlType.toString().toLowerCase()}Button`;
-    let selectedButtonClassName =
-      `${controlType.toString().toLowerCase()}Button`;
-
-    let currentButton: HTMLButtonElement = this.container.querySelector(
-      `.${currentButtonClassName}`,
-    );
-    let selectedButton: HTMLButtonElement = this.container.querySelector(
-      `.${selectedButtonClassName}`,
-    );
-
-    switch (controlType) {
-      case "ORBIT": {
-        if (this.controlType == "SELECT") {
-          this.setSelectionMode(false);
-        }
-        this.orbitControls.mouseButtons = {
-          LEFT: THREE.MOUSE.ROTATE,
-          MIDDLE: THREE.MOUSE.DOLLY,
-          RIGHT: THREE.MOUSE.PAN,
-        };
-        break;
-      }
-      case "PAN": {
-        if (this.controlType == "SELECT") {
-          this.setSelectionMode(false);
-        }
-        this.orbitControls.mouseButtons = {
-          LEFT: THREE.MOUSE.PAN,
-          MIDDLE: THREE.MOUSE.DOLLY,
-          RIGHT: THREE.MOUSE.ROTATE,
-        };
-        break;
-      }
-      case "SELECT": {
-        this.setSelectionMode(true);
-      }
-      default: {
-        break;
-      }
-    }
-    this.controlType = controlType;
-    currentButton.className = `${currentButtonClassName} unselected`;
-    selectedButton.className = `${selectedButtonClassName} selected`;
-  }
-
   // pause animation loop if no interactions
   private sleepEventListener() {
     if (this.isPaused) {
@@ -806,7 +718,7 @@ export abstract class DisplayScatter {
   }
 
   private setSelectedPointColour() {
-    let colour = new THREE.Color(this.colourSelector.value);
+    let colour = this.controls.getSelectedColour();
 
     for (const ind of this.selectedPointIndices) {
       this.pointColours.set([colour.r, colour.g, colour.b], ind * 3);
@@ -858,19 +770,5 @@ export abstract class DisplayScatter {
       }
     }
     this.highlightSelectedPoints();
-  }
-
-  private setSelectionMode(enable: boolean) {
-    let selectButton = this.container.querySelector("button.selectButton");
-
-    if (enable) {
-      this.orbitControls.enabled = false;
-      selectButton.className = "selectButton selected";
-      this.selectionHelper.enable();
-    } else {
-      selectButton.className = "selectButton unselected";
-      this.orbitControls.enabled = true;
-      this.selectionHelper.disable();
-    }
   }
 }
