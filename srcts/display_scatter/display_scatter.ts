@@ -514,9 +514,21 @@ export abstract class DisplayScatter {
     this.selectedPointIndices = Array.from(selectedPointSet);
 
     if (this.crosstalkIndex) {
-      this.crosstalkSelectionHandle.set(
-        this.selectedPointIndices.map((i) => this.crosstalkIndex[i]),
-      );
+      if (this.selectedPointIndices.length == 0) {
+        this.setDefaultPointSelection();
+        // try block in case error thrown in linked visual e.g. plotly.
+        // In this case, set selection to all points
+        try {
+          this.crosstalkSelectionHandle.clear();
+        } catch (e) {
+          console.error(e);
+          this.crosstalkSelectionHandle.set(null);
+        }
+      } else {
+        this.crosstalkSelectionHandle.set(
+          this.selectedPointIndices.map((i) => this.crosstalkIndex[i]),
+        );
+      }
     }
     this.highlightSelectedPoints();
   }
@@ -732,9 +744,6 @@ export abstract class DisplayScatter {
     this.selectedPointIndices = Array(this.dataset.length)
       .fill(0)
       .map((_, i) => i);
-    if (this.crosstalkSelectionHandle) {
-      this.crosstalkSelectionHandle.clear();
-    }
   }
 
   private setDefaultFilterSelection() {
@@ -744,18 +753,11 @@ export abstract class DisplayScatter {
   }
 
   private highlightSelectedPoints() {
-    // reset to default
-    if (this.selectedPointIndices.length == 0) {
-      for (const i of this.filteredPointIndices) {
+    for (const i of this.filteredPointIndices) {
+      if (!this.selectedPointIndices.includes(i)) {
+        this.pointAlphas.set([this.config.alpha / 4], i);
+      } else {
         this.pointAlphas.set([this.config.alpha], i);
-      }
-    } else {
-      for (const i of this.filteredPointIndices) {
-        if (!this.selectedPointIndices.includes(i)) {
-          this.pointAlphas.set([this.config.alpha / 4], i);
-        } else {
-          this.pointAlphas.set([this.config.alpha], i);
-        }
       }
     }
     this.pointAlphas.needsUpdate = true;
