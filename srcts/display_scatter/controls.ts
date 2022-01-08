@@ -29,6 +29,8 @@ export class ScatterControls {
         resetIcon,
         () => {
           this.widget.resetButtonAction();
+          this.setSelectedButton(this.orbitButton);
+          this.widget.orbitButtonAction();
         },
       )
       : null;

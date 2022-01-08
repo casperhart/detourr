@@ -74,7 +74,6 @@ export abstract class DisplayScatter {
   private edgeSegments: THREE.LineSegments;
   private toolTip: HTMLDivElement;
   private timeline: Timeline;
-  private colourSelector: HTMLInputElement;
   private controls: ScatterControls;
   private crosstalkIndex?: string[];
   private crosstalkGroup?: string;
@@ -237,7 +236,6 @@ export abstract class DisplayScatter {
     this.orbitControls.reset();
     this.setDefaultPointColours();
     this.setDefaultPointSelection();
-    this.orbitButtonAction();
   }
 
   public orbitButtonAction() {
