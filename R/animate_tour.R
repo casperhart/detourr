@@ -133,3 +133,77 @@ animate_tour <- function(data,
     height = dots$height
   )
 }
+
+
+#' Shiny bindings for detourr
+#'
+#' Output and render functions for using detourr with shiny
+#'
+#' @inheritParams htmlwidgets::shinyRenderWidget
+#' @inheritParams htmlwidgets::shinyWidgetOutput
+#'
+#' @param output_id output variable to read from
+#' @param widget_name name of {detourr} widget being used.
+#' E.g. `display_scatter_2d`, `display_scatter_3d`
+#' @param expr an expression that generates a {detourr} widget, i.e. a call
+#' to `animate_tourr`
+#'
+#' @name detourr-shiny
+#'
+#' @export
+detourrOutput <- function(output_id,
+                          widget_name = NULL,
+                          width = "100%",
+                          height = "400px") {
+  if (rlang::is_null(widget_name)) {
+    rlang::abort(c("`widget_name` not supplied",
+      i = "expected widget name, e.g. `display_scatter_2d`"
+    ))
+  }
+  htmltools::attachDependencies(
+    shiny::tagList(
+      htmlwidgets::shinyWidgetOutput(output_id, widget_name,
+        width, height,
+        package = "detourr"
+      )
+    ),
+    crosstalk::crosstalkLibs()
+  )
+}
+
+#' @rdname detourr-shiny
+#' @export
+renderDetourr <- function(expr, env = NULL) {
+  expr <- rlang::enquo(expr)
+  env <- env %||% rlang::quo_get_env(expr)
+  expr <- rlang::quo_get_expr(expr)
+
+  # get call to animate_tour, so we can figure out which widget is being used
+  if (rlang::call_name(expr) == "animate_tour") {
+    fn <- expr
+  } else if (rlang::call_name(expr) == "{") {
+    # get call to animate tour from within {}
+    animate_calls <- which(purrr::map_lgl(
+      expr,
+      ~ is.call(.) && rlang::call_name(.) == "animate_tour"
+    ))
+    fn <- expr[[animate_calls]]
+  }
+
+  call_params <- as.list(fn[-1])
+  default_params <- formals("animate_tour")
+
+  # get tour path from call to animate_tour
+  tour_path <- call_params[["tour_path"]] %||% default_params[["tour_path"]]
+  tour_path <- match.call(rlang::call_fn(tour_path), call = tour_path)
+  dim <- as.list(tour_path)$d
+
+  # get display method from call to animate_tour
+  display <- call_params[["display"]] %||% default_params[["display"]]
+  display <- rlang::call_name(display)
+
+  widget <- infer_widget(display, dim)
+  widget_fun <- function(...) detourrOutput(..., widget = widget)
+
+  htmlwidgets::shinyRenderWidget(expr, widget_fun, quoted = TRUE, env = env)
+}

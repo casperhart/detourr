@@ -12,6 +12,7 @@ interface ScatterControlableWidget {
 
 export class ScatterControls {
   private widget: ScatterControlableWidget;
+  private container: HTMLDivElement;
   private resetButton?: HTMLButtonElement;
   private panButton?: HTMLButtonElement;
   private orbitButton?: HTMLButtonElement;
@@ -22,6 +23,9 @@ export class ScatterControls {
 
   constructor(widget: ScatterControlableWidget) {
     this.widget = widget;
+    this.container = document.createElement("div");
+    this.widget.container.appendChild(this.container);
+
     this.resetButton = this.widget.resetButtonAction
       ? this.createButton(
         "resetButton",
@@ -89,6 +93,10 @@ export class ScatterControls {
     return new Color(this.colourSelector.value);
   }
 
+  public clear() {
+    this.widget.container.removeChild(this.container);
+  }
+
   private createButton(
     className: string,
     hoverText: string,
@@ -100,7 +108,7 @@ export class ScatterControls {
     button.title = hoverText;
     button.className = className;
     button.onclick = () => buttonCallback();
-    this.widget.container.appendChild(button);
+    this.container.appendChild(button);
     return button;
   }
 
@@ -129,7 +137,7 @@ export class ScatterControls {
       "change",
       () => this.widget.brushButtonAction(),
     );
-    this.widget.container.appendChild(colourSelector);
+    this.container.appendChild(colourSelector);
     this.colourSelector = colourSelector;
   }
 }

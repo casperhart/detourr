@@ -93,6 +93,10 @@ export class Timeline {
     this.updatePosition(newPos);
   }
 
+  public clear() {
+    this.widget.container.removeChild(this.container);
+  }
+
   private addContainer() {
     let container = document.createElement("div");
     container.className = "timelineContainer";
