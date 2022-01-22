@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { Camera, Dim } from "./types";
 
 export class AxisLabel {
+  private container: HTMLDivElement;
   private div: HTMLDivElement;
   private canvas: HTMLCanvasElement;
   private text: string;
@@ -12,7 +13,7 @@ export class AxisLabel {
   constructor(
     text: string,
     pos: number[],
-    container: HTMLElement,
+    container: HTMLDivElement,
     canvas: HTMLCanvasElement,
     camera: Camera,
     dim: Dim,
@@ -27,6 +28,7 @@ export class AxisLabel {
     this.position = new THREE.Vector3();
     this.dim = dim;
     this.dpr = dpr;
+    this.container = container;
 
     container.appendChild(this.div);
     this.updatePosition(pos, camera);
@@ -46,6 +48,10 @@ export class AxisLabel {
 
   public setDpr(dpr: number) {
     this.dpr = dpr;
+  }
+
+  public clear() {
+    this.container.removeChild(this.div);
   }
 
   private get2DCoords(camera: Camera) {

@@ -88,10 +88,7 @@ display_scatter <- function(mapping = NULL,
     edges <- validate_edges(edges)
     alpha <- validate_alpha(alpha)
 
-    widget <- dplyr::case_when(
-      tour_dim == 2 ~ "display_scatter_2d",
-      tour_dim == 3 ~ "display_scatter_3d"
-    )
+    widget <- infer_widget("display_scatter", tour_dim)
 
     list(
       "mapping" = mapping,

@@ -143,3 +143,9 @@ check_dots <- function(dots, supported_arg_names) {
     ))
   }
 }
+
+
+infer_widget <- function(display_name, dim) {
+  # e.g. display_scatter_2d, display_scatter_3d
+  widget <- paste0(display_name, "_", dim, "d")
+}

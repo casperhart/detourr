@@ -154,6 +154,21 @@ export abstract class DisplayScatter {
     this.isPaused = false;
   }
 
+  public clearPlot() {
+    if (this.timeline) {
+      this.timeline.clear();
+    }
+    if (this.controls) {
+      this.controls.clear();
+    }
+    if (this.hasAxes) {
+      this.axisLabels.map((x) => x.clear());
+      this.axisLabels = [];
+    }
+    this.orbitButtonAction();
+    this.scene.remove.apply(this.scene, this.scene.children);
+  }
+
   public resize(newWidth: number, newHeight: number) {
     let aspect = newWidth / newHeight;
     let dpr = this.renderer.getPixelRatio();
@@ -178,6 +193,9 @@ export abstract class DisplayScatter {
   }
 
   public renderValue(inputData: ScatterInputData) {
+    if (this.config !== undefined) {
+      this.clearPlot();
+    }
     this.config = inputData.config;
     this.dataset = inputData.dataset;
 
