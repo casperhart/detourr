@@ -24,5 +24,6 @@
     "clean": "rm -rf dev_build inst/htmlwidgets/lib/scatter_widget",
     "check": "R -q -e 'devtools::check()'",
     "test": "R -q -e 'devtools::test()'"
-  }
+  },
+  "packageManager": "yarn@3.1.1"
 }
