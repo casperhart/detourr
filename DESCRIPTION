@@ -27,3 +27,4 @@ Suggests:
     crosstalk,
     shiny
 Config/testthat/edition: 3
+VignetteBuilder: knitr
