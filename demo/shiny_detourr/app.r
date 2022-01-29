@@ -16,10 +16,9 @@ ui <- fluidPage(
   fluidRow(
     column(4, d3scatterOutput("d3scatter", height = "400px")),
 
-    # specified widget here must match the call to animate_tour
-    column(8, detourrOutput("detourr",
-      widget_name = "display_scatter_3d", height = "800px"
-    ))
+    # output function used matches display method (display_scatter) and tour
+    # dimension (3d)
+    column(8, displayScatter3dOutput("detourr", height = "800px"))
   )
 )
 
@@ -40,7 +39,7 @@ server <- function(input, output, session) {
     )
   })
 
-  output$detourr <- renderDetourr({
+  output$detourr <- shinyRenderTour({
     set.seed(input$seed)
     animate_tour(shared_iris,
       tourr::grand_tour(3),
