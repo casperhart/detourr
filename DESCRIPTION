@@ -13,7 +13,6 @@ LazyData: true
 Imports: 
     tourr,
     tibble,
-    dplyr,
     htmlwidgets,
     tidyselect,
     rlang,
