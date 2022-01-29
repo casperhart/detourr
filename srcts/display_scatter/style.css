@@ -85,7 +85,7 @@ div.tooltip {
   position: absolute;
   top: 0px;
   left: 0px;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   padding: 5px;
   visibility: hidden;
   border-radius: 5px;
@@ -98,24 +98,24 @@ div.tooltip.visible {
 }
 
 div.timelineContainer {
-  position: absolute; 
+  position: absolute;
   left: 10px;
   right: 10px;
 }
 
 div.timeline {
   position: absolute;
-  left: 50px; 
+  left: 50px;
   right: 20px;
-  background-color: rgba(0,0,0,0.7);
+  background-color: rgba(0, 0, 0, 0.7);
   border-radius: 5px;
   z-index: 0;
 }
 
 div.scrubber {
   position: absolute;
-  background-color: rgba(0,0,0, 0.5);
-  border-radius: 50%; 
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
   cursor: move;
   left: 0px;
   z-index: 1;
@@ -123,11 +123,11 @@ div.scrubber {
 
 div.basisIndicator {
   position: absolute;
-  background-color: rgb(255,255,255);
+  background-color: rgb(255, 255, 255);
   border-radius: 50%;
   z-index: 0.5;
 }
 
 div.scrubber.active {
-    cursor: move;
+  cursor: move;
 }

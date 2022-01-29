@@ -6,7 +6,7 @@ interface SelectableWidget {
   setPointSelectionFromBox(
     topLeft: Vector2,
     bottomRight: Vector2,
-    shiftKey: boolean,
+    shiftKey: boolean
   ): void;
 }
 
@@ -33,7 +33,7 @@ export class SelectionHelper {
       "pointerdown",
       (event: MouseEvent) => {
         this.onSelectStart(event);
-      },
+      }
     );
 
     this.widget.container.addEventListener(
@@ -42,18 +42,15 @@ export class SelectionHelper {
         if (this.isDown) {
           this.onSelectMove(event);
         }
-      },
+      }
     );
 
-    this.widget.container.addEventListener(
-      "pointerup",
-      (event: MouseEvent) => {
-        if (this.isDown) {
-          this.isDown = false;
-          this.onSelectOver(event);
-        }
-      },
-    );
+    this.widget.container.addEventListener("pointerup", (event: MouseEvent) => {
+      if (this.isDown) {
+        this.isDown = false;
+        this.onSelectOver(event);
+      }
+    });
   }
 
   public disable() {
@@ -87,28 +84,27 @@ export class SelectionHelper {
 
       this.pointBottomRight.x = Math.max(
         this.startPoint.x,
-        event.clientX - pos.left,
+        event.clientX - pos.left
       );
       this.pointBottomRight.y = Math.max(
         this.startPoint.y,
-        event.clientY - pos.top,
+        event.clientY - pos.top
       );
       this.pointTopLeft.x = Math.min(
         this.startPoint.x,
-        event.clientX - pos.left,
+        event.clientX - pos.left
       );
       this.pointTopLeft.y = Math.min(
         this.startPoint.y,
-        event.clientY - pos.top,
+        event.clientY - pos.top
       );
 
       this.element.style.left = this.pointTopLeft.x + "px";
       this.element.style.top = this.pointTopLeft.y + "px";
       this.element.style.width =
-        (this.pointBottomRight.x - this.pointTopLeft.x) +
-        "px";
+        this.pointBottomRight.x - this.pointTopLeft.x + "px";
       this.element.style.height =
-        (this.pointBottomRight.y - this.pointTopLeft.y) + "px";
+        this.pointBottomRight.y - this.pointTopLeft.y + "px";
     }
   }
 
@@ -118,7 +114,7 @@ export class SelectionHelper {
       this.widget.setPointSelectionFromBox(
         this.pointTopLeft,
         this.pointBottomRight,
-        event.shiftKey,
+        event.shiftKey
       );
       this.element.parentElement.removeChild(this.element);
     }

@@ -17,7 +17,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import "./style.css";
 
 declare global {
-  var crosstalk: any;
+  const crosstalk: any;
 }
 
 export abstract class DisplayScatter {
@@ -26,14 +26,14 @@ export abstract class DisplayScatter {
   protected abstract resizeCamera(aspect: number): void;
   protected abstract multiply(a: Matrix, b: ProjectionMatrix): Matrix;
   protected abstract getShaderOpts(
-    pointSize: number,
+    pointSize: number
   ): THREE.ShaderMaterialParameters;
   protected abstract addOrbitControls(): void;
   protected abstract projectionMatrixToAxisLines(mat: Matrix): Matrix;
 
   protected width: number;
   protected height: number;
-  protected minPointSize: number = 0.02;
+  protected minPointSize = 0.02;
   protected renderer: THREE.WebGLRenderer;
   protected orbitControls: OrbitControls;
   protected adjustPointSizeFromZoom?(): void;
@@ -101,17 +101,16 @@ export abstract class DisplayScatter {
 
     if (this.hasPointLabels) {
       this.addToolTip();
-      this.canvas.addEventListener(
-        "mousemove",
-        (event: MouseEvent) => this.setTooltipFromHover(event),
+      this.canvas.addEventListener("mousemove", (event: MouseEvent) =>
+        this.setTooltipFromHover(event)
       );
     }
 
-    let pointsGeometry = new THREE.BufferGeometry();
-    let pointSize = this.config.size / 10;
+    const pointsGeometry = new THREE.BufferGeometry();
+    const pointSize = this.config.size / 10;
 
-    let shaderOpts = this.getShaderOpts(pointSize);
-    let pointsMaterial = new THREE.ShaderMaterial(shaderOpts);
+    const shaderOpts = this.getShaderOpts(pointSize);
+    const pointsMaterial = new THREE.ShaderMaterial(shaderOpts);
 
     this.currentFrameBuffer = this.getPointsBuffer(0, this.config.center);
     pointsGeometry.setAttribute("position", this.currentFrameBuffer);
@@ -119,10 +118,7 @@ export abstract class DisplayScatter {
     this.points = new THREE.Points(pointsGeometry, pointsMaterial);
     this.points.geometry.setAttribute("color", this.pointColours);
     this.pointAlphas = this.getPointAlphas();
-    this.points.geometry.setAttribute(
-      "alpha",
-      this.pointAlphas,
-    );
+    this.points.geometry.setAttribute("alpha", this.pointAlphas);
     this.scene.add(this.points);
 
     if (this.hasAxes) {
@@ -139,10 +135,10 @@ export abstract class DisplayScatter {
     this.controls = new ScatterControls(this);
 
     // resize picking renderer
-    let dpr = this.renderer.getPixelRatio();
+    const dpr = this.renderer.getPixelRatio();
     this.pickingTexture = new THREE.WebGLRenderTarget(
       this.width * dpr,
-      this.height * dpr,
+      this.height * dpr
     );
 
     this.addTimeline();
@@ -170,8 +166,8 @@ export abstract class DisplayScatter {
   }
 
   public resize(newWidth: number, newHeight: number) {
-    let aspect = newWidth / newHeight;
-    let dpr = this.renderer.getPixelRatio();
+    const aspect = newWidth / newHeight;
+    const dpr = this.renderer.getPixelRatio();
     this.canvas.width = newWidth;
     this.canvas.height = newHeight;
     this.resizeCamera(aspect);
@@ -179,14 +175,11 @@ export abstract class DisplayScatter {
     this.renderer.setSize(newWidth, newHeight);
 
     // resize picking renderer
-    this.pickingTexture.setSize(
-      newWidth * dpr,
-      newHeight * dpr,
-    );
+    this.pickingTexture.setSize(newWidth * dpr, newHeight * dpr);
     // scrubbing bar
     this.timeline.resize(
       newHeight,
-      this.currentFrame / this.projectionMatrices.length,
+      this.currentFrame / this.projectionMatrices.length
     );
 
     this.axisLabels.map((x) => x.setDpr(dpr));
@@ -205,16 +198,14 @@ export abstract class DisplayScatter {
     if (this.crosstalkIndex) {
       this.crosstalkSelectionHandle = new crosstalk.SelectionHandle();
       this.crosstalkSelectionHandle.setGroup(this.crosstalkGroup);
-      this.crosstalkSelectionHandle.on(
-        "change",
-        (e: any) => this.setPointSelectionFromCrosstalkEvent(e),
+      this.crosstalkSelectionHandle.on("change", (e: any) =>
+        this.setPointSelectionFromCrosstalkEvent(e)
       );
 
       this.crosstalkFilterHandle = new crosstalk.FilterHandle();
       this.crosstalkFilterHandle.setGroup(this.crosstalkGroup);
-      this.crosstalkFilterHandle.on(
-        "change",
-        (e: any) => this.setPointFilterFromCrosstalkEvent(e),
+      this.crosstalkFilterHandle.on("change", (e: any) =>
+        this.setPointFilterFromCrosstalkEvent(e)
       );
     }
 
@@ -235,7 +226,7 @@ export abstract class DisplayScatter {
     this.scene.background = new THREE.Color(inputData.config.backgroundColour);
     this.backgroundColour = parseInt(
       inputData.config.backgroundColour.substring(1),
-      16,
+      16
     );
 
     this.constructPlot();
@@ -286,30 +277,30 @@ export abstract class DisplayScatter {
   }
 
   private addAxisSegments() {
-    let axisLinesGeometry = new THREE.BufferGeometry();
-    let axisLinesMaterial = new THREE.LineBasicMaterial({
+    const axisLinesGeometry = new THREE.BufferGeometry();
+    const axisLinesMaterial = new THREE.LineBasicMaterial({
       color: 0x000000,
       linewidth: 1,
     });
 
-    let axisLinesBuffer = this.getAxisLinesBuffer(0);
+    const axisLinesBuffer = this.getAxisLinesBuffer(0);
     axisLinesGeometry.setAttribute("position", axisLinesBuffer);
 
     this.axisSegments = new THREE.LineSegments(
       axisLinesGeometry,
-      axisLinesMaterial,
+      axisLinesMaterial
     );
     this.scene.add(this.axisSegments);
   }
 
   private addEdgeSegments(pointsBuffer: THREE.BufferAttribute) {
-    let edgesGeometry = new THREE.BufferGeometry();
-    let edgesMaterial = new THREE.LineBasicMaterial({
+    const edgesGeometry = new THREE.BufferGeometry();
+    const edgesMaterial = new THREE.LineBasicMaterial({
       color: 0x000000,
       linewidth: 1,
     });
 
-    let edgesBuffer = this.getEdgesBuffer(pointsBuffer);
+    const edgesBuffer = this.getEdgesBuffer(pointsBuffer);
     edgesGeometry.setAttribute("position", edgesBuffer);
 
     this.edgeSegments = new THREE.LineSegments(edgesGeometry, edgesMaterial);
@@ -322,14 +313,14 @@ export abstract class DisplayScatter {
   }
 
   private addScene() {
-    let scene = new THREE.Scene();
+    const scene = new THREE.Scene();
     const light = new THREE.AmbientLight(0x404040); // soft white light
     scene.add(light);
     this.scene = scene;
   }
 
   private addCanvas() {
-    let canvas = document.createElement("canvas");
+    const canvas = document.createElement("canvas");
     canvas.width = this.width;
     canvas.height = this.height;
     canvas.id = `${this.container.id}-canvas`;
@@ -340,7 +331,7 @@ export abstract class DisplayScatter {
 
   private addRenderer() {
     // antialiasing here works for axis lines. For points, this is done in shaders.ts
-    let renderer = new THREE.WebGLRenderer({
+    const renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       antialias: true,
       powerPreference: "high-performance",
@@ -351,8 +342,8 @@ export abstract class DisplayScatter {
   }
 
   private addToolTip() {
-    let toolTip = document.createElement("div");
-    let toolTipText = document.createElement("span");
+    const toolTip = document.createElement("div");
+    const toolTipText = document.createElement("span");
     toolTip.appendChild(toolTipText);
     toolTipText.innerHTML = "hello";
     toolTip.className = "tooltip";
@@ -365,58 +356,58 @@ export abstract class DisplayScatter {
     this.container.appendChild(this.timeline.getElement());
     this.timeline.resize(
       this.height,
-      this.currentFrame / this.projectionMatrices.length,
+      this.currentFrame / this.projectionMatrices.length
     );
   }
 
   private getPointsBuffer(i: number, center: boolean): THREE.BufferAttribute {
     let positionMatrix: Matrix = this.multiply(
       this.dataset,
-      this.projectionMatrices[i],
+      this.projectionMatrices[i]
     );
 
     if (center) {
-      let colMeans = this.multiply(this.colMeans, this.projectionMatrices[i]);
+      const colMeans = this.multiply(this.colMeans, this.projectionMatrices[i]);
       positionMatrix = centerColumns(positionMatrix, colMeans);
     }
 
-    let flattenedPositionMatrix = new Float32Array(
-      positionMatrix.flat(),
-    );
+    const flattenedPositionMatrix = new Float32Array(positionMatrix.flat());
     return new THREE.BufferAttribute(flattenedPositionMatrix, 3);
   }
 
   private getAxisLinesBuffer(i: number): THREE.BufferAttribute {
-    let projectionMatrix = this.projectionMatrices[i];
-    let linesBufferMatrix = this.projectionMatrixToAxisLines(
-      projectionMatrix,
-    );
+    const projectionMatrix = this.projectionMatrices[i];
+    const linesBufferMatrix =
+      this.projectionMatrixToAxisLines(projectionMatrix);
     return new THREE.BufferAttribute(
       new Float32Array(linesBufferMatrix.flat()),
-      3,
+      3
     );
   }
 
   private getEdgesBuffer(frameBuffer: THREE.BufferAttribute) {
-    let bufferArray = new Float32Array(this.edges.length * 3);
-    let edgesBuffer = new THREE.BufferAttribute(bufferArray, 3);
+    const bufferArray = new Float32Array(this.edges.length * 3);
+    const edgesBuffer = new THREE.BufferAttribute(bufferArray, 3);
 
     // `edges` contains indices with format [from, to, from, to, ...]
     // `edgesBuffer` has format [fromX, fromY, fromZ, toX, toY, toZ, ...]
 
     for (let i = 0; i < this.edges.length; i++) {
-      edgesBuffer.set([
-        frameBuffer.getX(this.edges[i] - 1),
-        frameBuffer.getY(this.edges[i] - 1),
-        frameBuffer.getZ(this.edges[i] - 1),
-      ], i * 3);
+      edgesBuffer.set(
+        [
+          frameBuffer.getX(this.edges[i] - 1),
+          frameBuffer.getY(this.edges[i] - 1),
+          frameBuffer.getZ(this.edges[i] - 1),
+        ],
+        i * 3
+      );
     }
     return edgesBuffer;
   }
 
   private coloursToBufferAttribute(colours: string[]): THREE.BufferAttribute {
-    let colour = new THREE.Color();
-    let bufferArray = new Float32Array(this.dataset.length * 3);
+    const colour = new THREE.Color();
+    const bufferArray = new Float32Array(this.dataset.length * 3);
 
     if (colours.length > 0) {
       let j = 0;
@@ -434,13 +425,13 @@ export abstract class DisplayScatter {
   private getPointAlphas(): THREE.BufferAttribute {
     return new THREE.BufferAttribute(
       new Float32Array(this.dataset.length).fill(this.config.alpha),
-      1,
+      1
     );
   }
 
   private getPickingColours(): THREE.BufferAttribute {
     // picking colours are just sequential IDs converted to RGB values
-    let bufferArray = new Float32Array(this.dataset.length * 3);
+    const bufferArray = new Float32Array(this.dataset.length * 3);
     let j = 0;
     for (let i = 1; i <= this.dataset.length; i++) {
       // bit masking
@@ -453,7 +444,7 @@ export abstract class DisplayScatter {
   }
 
   private addAxisLabels() {
-    let dpr = this.renderer.getPixelRatio();
+    const dpr = this.renderer.getPixelRatio();
     if (this.config.axisLabels == []) {
       this.hasAxisLabels = false;
     } else {
@@ -466,41 +457,39 @@ export abstract class DisplayScatter {
           this.canvas,
           this.camera,
           this.dim,
-          dpr,
+          dpr
         );
       });
     }
   }
 
   private addSleepEventListeners() {
-    this.container.addEventListener(
-      "mouseover",
-      () => this.wakeEventListener(),
+    this.container.addEventListener("mouseover", () =>
+      this.wakeEventListener()
     );
     this.container.addEventListener("scroll", () => this.wakeEventListener());
     this.container.addEventListener("keydown", () => this.wakeEventListener());
 
-    this.container.addEventListener(
-      "mouseleave",
-      () => this.sleepEventListener(),
+    this.container.addEventListener("mouseleave", () =>
+      this.sleepEventListener()
     );
   }
 
   public setPointSelectionFromBox(
     topLeft: THREE.Vector2,
     bottomRight: THREE.Vector2,
-    shiftKey: boolean,
+    shiftKey: boolean
   ) {
     const { pickingTexture, renderer } = this;
     const dpr = renderer.getPixelRatio();
 
-    let x = topLeft.x * dpr;
-    let y = bottomRight.y * dpr;
+    const x = topLeft.x * dpr;
+    const y = bottomRight.y * dpr;
 
-    let width = (bottomRight.x - topLeft.x) * dpr;
-    let height = (bottomRight.y - topLeft.y) * dpr;
+    const width = (bottomRight.x - topLeft.x) * dpr;
+    const height = (bottomRight.y - topLeft.y) * dpr;
 
-    let pixelBuffer = new Uint8Array(4 * width * height);
+    const pixelBuffer = new Uint8Array(4 * width * height);
 
     renderer.readRenderTargetPixels(
       pickingTexture,
@@ -508,17 +497,19 @@ export abstract class DisplayScatter {
       pickingTexture.height - y,
       width,
       height,
-      pixelBuffer,
+      pixelBuffer
     );
 
-    let selectedPointSet = new Set<number>();
+    const selectedPointSet = new Set<number>();
     let id;
     for (let i = 0; i < width * height; i++) {
-      id = (pixelBuffer[4 * i] << 16) |
+      id =
+        (pixelBuffer[4 * i] << 16) |
         (pixelBuffer[4 * i + 1] << 8) |
-        (pixelBuffer[4 * i + 2]);
+        pixelBuffer[4 * i + 2];
       if (
-        id != 0 && id != this.backgroundColour &&
+        id != 0 &&
+        id != this.backgroundColour &&
         this.filteredPointIndices.includes(id - 1)
       ) {
         selectedPointSet.add(id - 1);
@@ -544,7 +535,7 @@ export abstract class DisplayScatter {
         }
       } else {
         this.crosstalkSelectionHandle.set(
-          this.selectedPointIndices.map((i) => this.crosstalkIndex[i]),
+          this.selectedPointIndices.map((i) => this.crosstalkIndex[i])
         );
       }
     }
@@ -561,7 +552,7 @@ export abstract class DisplayScatter {
     );
 
     // persistent selection with plotly
-    let ctOpts = crosstalk.var("plotlyCrosstalkOpts").get() || {};
+    const ctOpts = crosstalk.var("plotlyCrosstalkOpts").get() || {};
     if (ctOpts.persistent === true) {
       newSelection = this.selectedPointIndices.concat(newSelection);
     }
@@ -590,13 +581,13 @@ export abstract class DisplayScatter {
     const { pickingTexture, renderer, canvas } = this;
     const dpr = renderer.getPixelRatio();
 
-    let canvas_coords = canvas.getBoundingClientRect();
-    let x = (event.x - canvas_coords.left) * dpr;
-    let y = (event.y - canvas_coords.top) * dpr;
-    let width = 1;
-    let height = 1;
+    const canvas_coords = canvas.getBoundingClientRect();
+    const x = (event.x - canvas_coords.left) * dpr;
+    const y = (event.y - canvas_coords.top) * dpr;
+    const width = 1;
+    const height = 1;
 
-    let pixelBuffer = new Uint8Array(12);
+    const pixelBuffer = new Uint8Array(12);
 
     renderer.readRenderTargetPixels(
       pickingTexture,
@@ -604,23 +595,24 @@ export abstract class DisplayScatter {
       pickingTexture.height - y,
       width,
       height,
-      pixelBuffer,
+      pixelBuffer
     );
 
-    let id = (pixelBuffer[0] << 16) |
-      (pixelBuffer[1] << 8) |
-      (pixelBuffer[2]);
+    const id = (pixelBuffer[0] << 16) | (pixelBuffer[1] << 8) | pixelBuffer[2];
     if (
-      id != 0 && id != this.backgroundColour &&
+      id != 0 &&
+      id != this.backgroundColour &&
       this.filteredPointIndices.includes(id - 1)
     ) {
-      let toolTipCoords = this.toolTip.getBoundingClientRect();
-      this.toolTip.style.left = `${Math.floor(x / dpr) -
-        toolTipCoords.width}px`;
-      this.toolTip.style.top = `${Math.floor(y / dpr) -
-        toolTipCoords.height}px`;
+      const toolTipCoords = this.toolTip.getBoundingClientRect();
+      this.toolTip.style.left = `${
+        Math.floor(x / dpr) - toolTipCoords.width
+      }px`;
+      this.toolTip.style.top = `${
+        Math.floor(y / dpr) - toolTipCoords.height
+      }px`;
       this.toolTip.className = "tooltip visible";
-      let span = this.toolTip.querySelector("span");
+      const span = this.toolTip.querySelector("span");
       span.innerHTML = `${this.mapping.label[id - 1]}`;
     } else {
       this.toolTip.className = "tooltip";
@@ -629,7 +621,7 @@ export abstract class DisplayScatter {
 
   // TODO: break away chunks in to separate functions
   private animate() {
-    let delta = this.clock.getDelta();
+    const delta = this.clock.getDelta();
 
     if (!this.getIsPaused()) {
       this.time += delta;
@@ -637,13 +629,13 @@ export abstract class DisplayScatter {
 
     if (this.time >= this.config.duration) this.time = 0;
 
-    let currentFrame = Math.floor(this.time * this.config.fps);
+    const currentFrame = Math.floor(this.time * this.config.fps);
     this.currentFrame = currentFrame;
 
     if (currentFrame != this.oldFrame) {
       this.currentFrameBuffer = this.getPointsBuffer(
         currentFrame % this.projectionMatrices.length,
-        this.config.center,
+        this.config.center
       );
 
       this.points.geometry.setAttribute("position", this.currentFrameBuffer);
@@ -652,18 +644,18 @@ export abstract class DisplayScatter {
       if (this.hasAxes) {
         this.axisSegments.geometry.setAttribute(
           "position",
-          this.getAxisLinesBuffer(currentFrame),
+          this.getAxisLinesBuffer(currentFrame)
         );
         this.axisSegments.geometry.attributes.position.needsUpdate = true;
       }
       if (this.hasEdges) {
-        let edgesBuffer = this.getEdgesBuffer(this.currentFrameBuffer);
+        const edgesBuffer = this.getEdgesBuffer(this.currentFrameBuffer);
         this.edgeSegments.geometry.setAttribute("position", edgesBuffer);
       }
 
       this.oldFrame = currentFrame;
       this.timeline.updatePosition(
-        currentFrame / (this.projectionMatrices.length - 1),
+        currentFrame / (this.projectionMatrices.length - 1)
       );
     }
 
@@ -710,8 +702,8 @@ export abstract class DisplayScatter {
 
     if (!isPaused) {
       this.animate();
-    } else {
     }
+
     this.timeline.updatePlayPauseIcon(isPaused);
   }
 
@@ -746,7 +738,7 @@ export abstract class DisplayScatter {
   }
 
   private setSelectedPointColour() {
-    let colour = this.controls.getSelectedColour();
+    const colour = this.controls.getSelectedColour();
 
     for (const ind of this.selectedPointIndices) {
       this.pointColours.set([colour.r, colour.g, colour.b], ind * 3);

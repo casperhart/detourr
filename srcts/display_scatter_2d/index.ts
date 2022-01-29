@@ -20,7 +20,7 @@ export class DisplayScatter2d extends DisplayScatter {
       1,
       -1,
       -1000,
-      1000,
+      1000
     );
     // orbit controls don't rotate along camera z axis at all, so as a hack, we disable rotation
     // on the y axis and change the camera view
@@ -32,7 +32,7 @@ export class DisplayScatter2d extends DisplayScatter {
   protected addOrbitControls() {
     let orbitControls = new OrbitControls(
       this.camera,
-      this.renderer.domElement,
+      this.renderer.domElement
     );
     // We can only disable rotation on the x and y axes, so to get around this, we need
     // to disable rotation on y, and modify the camera view to be top-down
@@ -58,7 +58,7 @@ export class DisplayScatter2d extends DisplayScatter {
       result[r] = row;
       const ar = a[r];
       for (let c = 0; c < 2; c++) {
-        let sum = 0.;
+        let sum = 0;
         for (let i = 0; i < aCols; ++i) {
           sum += ar[i] * b[i][c];
         }
@@ -88,13 +88,11 @@ export class DisplayScatter2d extends DisplayScatter {
   }
 
   protected projectionMatrixToAxisLines(m: Matrix): Matrix {
-    return m.map(
-      (row) => [0, 0, 0, row[0], 0, row[1]],
-    );
+    return m.map((row) => [0, 0, 0, row[0], 0, row[1]]);
   }
 
   protected adjustPointSizeFromZoom() {
-    (this.points.material as THREE.ShaderMaterial)
-      .uniforms.zoom.value = this.camera.zoom;
+    (this.points.material as THREE.ShaderMaterial).uniforms.zoom.value =
+      this.camera.zoom;
   }
 }

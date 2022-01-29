@@ -63,7 +63,7 @@ export class Timeline {
     name: string,
     hoverText: string,
     icon: string,
-    buttonCallback: Function,
+    buttonCallback: Function
   ) {
     let button = document.createElement("button");
     button.innerHTML = icon;
@@ -85,9 +85,10 @@ export class Timeline {
       for (let i = 0; i < this.basisIndices.length; i++) {
         this.basisIndicators[i].style.left =
           (this.basisIndices[i] / (this.numAnimationFrames - 1)) *
-            (this.timelineWidth) +
+            this.timelineWidth +
           this.scrubberWidth / 2 -
-          this.basisIndicatorDiameter / 2 + "px";
+          this.basisIndicatorDiameter / 2 +
+          "px";
       }
     }
     this.updatePosition(newPos);
@@ -126,13 +127,11 @@ export class Timeline {
       basisIndicator.className = "basisIndicator";
       basisIndicator.style.width = this.basisIndicatorDiameter + "px";
       basisIndicator.style.height = this.basisIndicatorDiameter + "px";
-      basisIndicator.addEventListener(
-        "mouseover",
-        (event: MouseEvent) => this.basisIndicatorHoverCallback(event, i),
+      basisIndicator.addEventListener("mouseover", (event: MouseEvent) =>
+        this.basisIndicatorHoverCallback(event, i)
       );
-      basisIndicator.addEventListener(
-        "click",
-        (event: MouseEvent) => this.basisIndicatorClickCallback(event, i),
+      basisIndicator.addEventListener("click", (event: MouseEvent) =>
+        this.basisIndicatorClickCallback(event, i)
       );
       this.basisIndicators.push(basisIndicator);
       this.timeline.appendChild(basisIndicator);
@@ -159,14 +158,11 @@ export class Timeline {
     let x = event.clientX - canvasCoords.left;
     let y = event.clientY - canvasCoords.top;
     this.tooltip.className = "tooltip visible";
-    this.tooltip.style.left = `${Math.floor(x) -
-      tooltipCoords.width}px`;
-    setTimeout(() => this.tooltip.className = "tooltip", 3000);
+    this.tooltip.style.left = `${Math.floor(x) - tooltipCoords.width}px`;
+    setTimeout(() => (this.tooltip.className = "tooltip"), 3000);
   }
   private basisIndicatorClickCallback(event: MouseEvent, ind: number) {
-    this.widget.setTime(
-      this.basisIndices[ind] / this.numAnimationFrames,
-    );
+    this.widget.setTime(this.basisIndices[ind] / this.numAnimationFrames);
   }
 
   private addScrubber() {
@@ -175,8 +171,8 @@ export class Timeline {
     scrubber.style.width = this.scrubberWidth + "px";
     scrubber.style.height = this.scrubberWidth + "px";
     scrubber.className = "scrubber";
-    scrubber.style.top = this.timelineThickness / 2 -
-      this.scrubberWidth / 2 + "px";
+    scrubber.style.top =
+      this.timelineThickness / 2 - this.scrubberWidth / 2 + "px";
     scrubber.onmousedown = (e) => {
       this.mouseDown = true;
       this.lastMousePosition = e.clientX;
@@ -189,17 +185,15 @@ export class Timeline {
   private setTimeFromMousePosition(e: MouseEvent) {
     this.currentPosition = parseInt(this.scrubber.style.left);
 
-    this.candidatePosition = this.currentPosition +
-      (e.clientX - this.lastMousePosition);
+    this.candidatePosition =
+      this.currentPosition + (e.clientX - this.lastMousePosition);
     this.candidatePosition = Math.min(
       this.timelineWidth,
-      this.candidatePosition,
+      this.candidatePosition
     );
     this.candidatePosition = Math.max(0, this.candidatePosition);
     this.scrubber.style.left = this.candidatePosition + "px";
-    this.widget.setTime(
-      this.candidatePosition / (this.timelineWidth + 1),
-    );
+    this.widget.setTime(this.candidatePosition / (this.timelineWidth + 1));
     this.lastMousePosition = e.clientX;
   }
 
@@ -226,10 +220,7 @@ export class Timeline {
       "playPause",
       "Play / Pause",
       pauseIcon,
-      () =>
-        this.widget.setIsPaused(
-          !this.widget.getIsPaused(),
-        ),
+      () => this.widget.setIsPaused(!this.widget.getIsPaused())
     );
 
     this.container.appendChild(this.playPauseButton);
