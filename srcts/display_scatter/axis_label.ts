@@ -17,7 +17,7 @@ export class AxisLabel {
     canvas: HTMLCanvasElement,
     camera: Camera,
     dim: Dim,
-    dpr: number,
+    dpr: number
   ) {
     this.div = document.createElement("div");
     this.div.innerHTML = text;
@@ -56,8 +56,8 @@ export class AxisLabel {
 
   private get2DCoords(camera: Camera) {
     var vector = this.position.project(camera);
-    vector.x = (vector.x + 1) * this.canvas.width / (2 * this.dpr);
-    vector.y = -(vector.y - 1) * this.canvas.height / (2 * this.dpr);
+    vector.x = ((vector.x + 1) * this.canvas.width) / (2 * this.dpr);
+    vector.y = (-(vector.y - 1) * this.canvas.height) / (2 * this.dpr);
     return vector;
   }
 }

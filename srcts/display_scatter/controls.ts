@@ -28,51 +28,51 @@ export class ScatterControls {
 
     this.resetButton = this.widget.resetButtonAction
       ? this.createButton(
-        "resetButton",
-        "Reset camera position",
-        resetIcon,
-        () => {
-          this.widget.resetButtonAction();
-          this.setSelectedButton(this.orbitButton);
-          this.widget.orbitButtonAction();
-        },
-      )
+          "resetButton",
+          "Reset camera position",
+          resetIcon,
+          () => {
+            this.widget.resetButtonAction();
+            this.setSelectedButton(this.orbitButton);
+            this.widget.orbitButtonAction();
+          }
+        )
       : null;
 
     this.panButton = this.widget.panButtonAction
       ? this.createButton(
-        "panButton",
-        "Switch to pan controls",
-        panIcon,
-        () => {
-          this.setSelectedButton(this.panButton);
-          this.widget.panButtonAction();
-        },
-      )
+          "panButton",
+          "Switch to pan controls",
+          panIcon,
+          () => {
+            this.setSelectedButton(this.panButton);
+            this.widget.panButtonAction();
+          }
+        )
       : null;
 
     this.orbitButton = this.widget.orbitButtonAction
       ? this.createButton(
-        "orbitButton",
-        "Switch to orbit controls",
-        orbitIcon,
-        () => {
-          this.setSelectedButton(this.orbitButton);
-          this.widget.orbitButtonAction();
-        },
-      )
+          "orbitButton",
+          "Switch to orbit controls",
+          orbitIcon,
+          () => {
+            this.setSelectedButton(this.orbitButton);
+            this.widget.orbitButtonAction();
+          }
+        )
       : null;
 
     this.selectButton = this.widget.selectButtonAction
       ? this.createButton(
-        "selectButton",
-        "Switch to selection controls",
-        selectIcon,
-        () => {
-          this.setSelectedButton(this.selectButton);
-          this.widget.selectButtonAction();
-        },
-      )
+          "selectButton",
+          "Switch to selection controls",
+          selectIcon,
+          () => {
+            this.setSelectedButton(this.selectButton);
+            this.widget.selectButtonAction();
+          }
+        )
       : null;
 
     if (this.widget.brushButtonAction) {
@@ -80,7 +80,7 @@ export class ScatterControls {
         "brushButton",
         "Colour selected points",
         brushIcon,
-        () => this.widget.brushButtonAction(),
+        () => this.widget.brushButtonAction()
       );
       this.addColourSelector();
     }
@@ -101,7 +101,7 @@ export class ScatterControls {
     className: string,
     hoverText: string,
     icon: string,
-    buttonCallback: Function,
+    buttonCallback: Function
   ) {
     let button = document.createElement("button");
     button.innerHTML = icon;
@@ -117,7 +117,7 @@ export class ScatterControls {
     if (this.selectedButton) {
       this.selectedButton.className = this.selectedButton.className.slice(
         0,
-        -9,
+        -9
       );
     }
     this.selectedButton = button;
@@ -131,11 +131,10 @@ export class ScatterControls {
     colourSelector.setAttribute("value", "#619CFF");
     colourSelector.setAttribute(
       "title",
-      "Select colour to apply using selection box",
+      "Select colour to apply using selection box"
     );
-    colourSelector.addEventListener(
-      "change",
-      () => this.widget.brushButtonAction(),
+    colourSelector.addEventListener("change", () =>
+      this.widget.brushButtonAction()
     );
     this.container.appendChild(colourSelector);
     this.colourSelector = colourSelector;

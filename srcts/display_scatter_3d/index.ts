@@ -22,7 +22,7 @@ export class DisplayScatter3d extends DisplayScatter {
   protected addOrbitControls() {
     let orbitControls = new OrbitControls(
       this.camera,
-      this.renderer.domElement,
+      this.renderer.domElement
     );
     this.orbitControls = orbitControls;
   }
@@ -41,7 +41,7 @@ export class DisplayScatter3d extends DisplayScatter {
       result[r] = row;
       const ar = a[r];
       for (let c = 0; c < 3; ++c) {
-        let sum = 0.;
+        let sum = 0;
         for (let i = 0; i < aCols; ++i) {
           sum += ar[i] * b[i][c];
         }
