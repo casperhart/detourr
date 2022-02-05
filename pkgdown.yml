@@ -1,0 +1,10 @@
+pandoc: 2.14.2
+pkgdown: 2.0.2
+pkgdown_sha: ~
+articles:
+  adding_a_new_widget: adding_a_new_widget.html
+last_built: 2022-02-05T00:26Z
+urls:
+  reference: https://casperhart.github.io/detourr/reference
+  article: https://casperhart.github.io/detourr/articles
+
