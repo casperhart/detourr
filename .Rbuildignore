@@ -14,3 +14,7 @@ srcts/*
 webpack/*
 scripts/*
 demo/*
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$

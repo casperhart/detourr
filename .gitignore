@@ -52,3 +52,4 @@ demo/*.html
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+docs
