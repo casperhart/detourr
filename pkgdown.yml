@@ -3,7 +3,7 @@ pkgdown: 2.0.2
 pkgdown_sha: ~
 articles:
   adding_a_new_widget: adding_a_new_widget.html
-last_built: 2022-02-05T01:35Z
+last_built: 2022-02-05T02:52Z
 urls:
   reference: https://casperhart.github.io/detourr/reference
   article: https://casperhart.github.io/detourr/articles
