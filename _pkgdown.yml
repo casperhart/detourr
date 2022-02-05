@@ -1,0 +1,19 @@
+url: https://casperhart.github.io/detourr/
+
+template:
+  bootstrap: 5
+  bootswatch: cosmo
+
+navbar:
+  bg: dark
+  left:
+  - text: Reference
+    href: reference/index.html
+  - text: Vignettes
+    menu:
+    - text: Adding a new display method to detourr
+      href: articles/adding_a_new_widget.html
+  right:
+  - icon: fa-github fa-lg
+    href: https://github.com/casperhart/detourr
+

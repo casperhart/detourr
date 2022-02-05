@@ -28,3 +28,5 @@ Suggests:
     shiny
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+URL: https://casperhart.github.io/detourr/
+BugReports: https://github.com/casperhart/detourr/issues

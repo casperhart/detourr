@@ -1,5 +1,5 @@
 ---
-title: "Adding a New Display Method and Widget to {detourr}"
+title: "Adding a new display method and widget to {detourr}"
 output: 
   rmarkdown::html_vignette:
 vignette: >
@@ -15,34 +15,6 @@ knitr::opts_chunk$set(
   out.width = "100%",
   fig.path = "figure/"
 )
-```
-
-```{css, echo=FALSE}
-.codeblock-label {
-    position: relative;
-    top: 1em;
-    display: inline-block;
-    border-top-left-radius: .5rem;
-    border-top-right-radius: .5rem;
-    font-family: Consolas, Monaco, 'Courier New', monospace;
-    font-size: .75rem;
-    background-color: #e1e7ef;
-    background-color: rgb(224,232,240);
-    padding: .25rem .75rem;
-    border-top-width: 1px;
-    border-left-width: 1px;
-    border-right-width: 1px;
-    border-color: #ccd6e0;
-    border-color: rgb(204,214,224);
-    margin-bottom: 0;
-}
-img {
-border: none;
-}
-
-code span.va {
-  color: #007020
-}
 ```
 
 {detourr} is designed to be extensible, allowing for the addition of new widgets and display methods independently of existing ones. This vignette details how you can extend {detourr} with your own data visuals.
@@ -214,7 +186,7 @@ The `init` function is expected to return a list with the following elements:
 
 All the values returned by this function will be passed through to the `hello_world` widget's `renderValue` method, along with additional fields from the `animate_tour` function such as the dataset and projection matrices.
 
-## Trying it Out
+## Trying it out
 
 Now the hard part is done, we need to bundle everything together and install the package:
 
