@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   adding_a_new_widget: adding_a_new_widget.html
   detourr_development_setup: detourr_development_setup.html
-last_built: 2022-02-05T04:38Z
+last_built: 2022-02-05T04:41Z
 urls:
   reference: https://casperhart.github.io/detourr/reference
   article: https://casperhart.github.io/detourr/articles
