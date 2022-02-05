@@ -81,17 +81,17 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># 2D scatter</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ggobi/tourr" class="external-link">tourr</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">detourr</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://casperhart.github.io/detourr/">detourr</a></span><span class="op">)</span>
 <span class="fu"><a href="reference/animate_tour.html">animate_tour</a></span><span class="op">(</span>
-  <span class="va">olive</span>,
-  display <span class="op">=</span> <span class="fu"><a href="reference/display_scatter.html">display_scatter</a></span><span class="op">(</span><span class="fu"><a href="reference/tour_aes.html">tour_aes</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">region</span><span class="op">)</span><span class="op">)</span>,
+   <span class="va">olive</span>,
+   display <span class="op">=</span> <span class="fu"><a href="reference/display_scatter.html">display_scatter</a></span><span class="op">(</span><span class="fu"><a href="reference/tour_aes.html">tour_aes</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">region</span><span class="op">)</span><span class="op">)</span>,
 <span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># 3D scatter</span>
 <span class="fu"><a href="reference/animate_tour.html">animate_tour</a></span><span class="op">(</span>
-  <span class="va">flea</span>,
-  <span class="fu"><a href="https://rdrr.io/pkg/tourr/man/grand_tour.html" class="external-link">grand_tour</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span>,
-  <span class="fu"><a href="reference/display_scatter.html">display_scatter</a></span><span class="op">(</span><span class="fu"><a href="reference/tour_aes.html">tour_aes</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">species</span><span class="op">)</span><span class="op">)</span>
+   <span class="va">flea</span>,
+   <span class="fu"><a href="https://rdrr.io/pkg/tourr/man/grand_tour.html" class="external-link">grand_tour</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span>,
+   <span class="fu"><a href="reference/display_scatter.html">display_scatter</a></span><span class="op">(</span><span class="fu"><a href="reference/tour_aes.html">tour_aes</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">species</span><span class="op">)</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
 </div>
 <div class="section level1">
@@ -109,27 +109,6 @@
 <div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">yarn</span> run start-dev</span></code></pre></div>
 <p>This will start the webpack dev server, which will automatically recompile and reload the TypeScript code as changes are made. The sample data and HTML used by the dev server can be found in <code>./dev</code>, and are loaded in to memory based on the configuration in <code>webpack/dev.config.ts</code></p>
 <p>If you wish to make changes to the HTML files in <code>dev/</code>, or debug the <code>yarn run start-dev</code> command, you can instead run <code>yarn run build-dev</code>. This will load the files in <code>dev/</code> in to a folder called <code>dev_build/</code> rather than in to memory, which can make debugging easier.</p>
-</div>
-<div class="section level2">
-<h2 id="adding-a-new-widget">Adding a new widget<a class="anchor" aria-label="anchor" href="#adding-a-new-widget"></a>
-</h2>
-<p>The following is a rough checklist for creating a new widget / visualisation for the {detourr} package. This uses <code>display_scatter_3d</code> as an example.</p>
-<ol style="list-style-type: decimal">
-<li>
-<code>srcts/display_scatter_3d</code>: The main logic for the <code>display_scatter_3d</code> widget. Note that the main exported class from <code>index.ts</code> contains a <code>renderValue</code> and <code>resize</code> method (inherited from <code>DisplayScatter</code>). This exported class and methods are used by the HTMLWidgets Javascript binding.</li>
-<li>
-<code>inst/htmlwidgets/display_scatter_3d.js</code>: Javascript binding for HTMLWidgets.</li>
-<li>
-<code>inst/htmlwidgets/display_scatter_3d.yaml</code>: widget dependencies. Note that the dependencies are all stored under <code>inst/htmlwidgets/lib</code>, and should not be modified manually. These files are automatically bundled by webpack based on the code in <code>srcts/</code> and the configuration in <code>webpack/package.config.json</code>.</li>
-<li>
-<code>R/display_scatter.r</code>: R binding for the widget. Returns an <code>init</code> function used by <code>animate_tour.r</code> to define the widget to create. Note that <code>display_scatter.r</code> services both the <code>display_scatter_3d</code> and <code>display_scatter_2d</code> widgets. See the <a href="https://www.htmlwidgets.org/develop_intro.html" class="external-link">HTMLWidgets Documentation</a> for more information on the Javascript binding, R binding, and widget dependencies.</li>
-<li>
-<code>dev/display_scatter_3d</code>: sample data and HTML file used for development. The presence of these files allows the widget to be run standalone, without the need to build and run the R package every time a change is made. These files are loaded in to memory when the webpack dev server is started, based on the configuration in <code>webpack/dev.config.ts</code>.</li>
-<li>
-<code>webpack/dev.config.ts</code>: webpack development config. Each widget has an entry in this file under <code>entry</code>, pointing to the <code>index.ts</code> file for that widget, and a pattern under <code>CopyPlugin</code> so that it knows to find dev assets (<code>index.html</code> and <code>sample_data.json</code>) under <code>dev/display_scatter_3d</code>. This config file is used when running <code>yarn run start-dev</code> and <code>yarn run build-dev</code>.</li>
-<li>
-<code>webpack/package.config.ts</code>: webpack configuration used when building the package. Each widget has a value under <code>entry</code> in this file.</li>
-</ol>
 </div>
 </div>
 

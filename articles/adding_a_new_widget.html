@@ -88,192 +88,94 @@
 <div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">yarn</span> run build</span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="development-setup">Development setup<a class="anchor" aria-label="anchor" href="#development-setup"></a>
+<h2 id="creating-a-widget">Creating a widget<a class="anchor" aria-label="anchor" href="#creating-a-widget"></a>
 </h2>
-<p>When the command <code>yarn run build</code> is run, the first thing to happen is our TS code is transpiled to Javascript using the TS compiler, and is then bundled and output to <code>inst/htmlwidgets</code> by WebPack. This bundled JS code is then installed with the R package and run each time we make a call to <code>animate_tour</code>.</p>
-<p>One of the benefits of using Typescript and Webpack is that when we’re developing the TS code, we can run and debug it independently of R. Just think, if every time we made a change we had to build and install the R package to see if it works, then development would be a very slow process. To see this in action, simply run:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">yarn</span> run start-dev</span></code></pre></div>
-<p>This starts a Webpack development server on <code>localhost:9000</code>, and opens a UI in the browser with links to each of the widgets in the <code>detourr</code> package, shown below:</p>
-<p><img src="images/dev_server_menu.png" width="100%"></p>
-<p>Clicking on any of these links will show the development widget in action, for example, clicking on <code>display_scatter_3d</code> gives the below:</p>
-<p><img src="images/dev_server_display_scatter_3d.png" width="100%"></p>
-<p>In this section, we’ll create our own basic widget, and make it accessible via <code>yarn run start-dev</code>.</p>
-<div class="section level3">
-<h3 id="creating-a-new-widget-for-development">Creating a new widget for development<a class="anchor" aria-label="anchor" href="#creating-a-new-widget-for-development"></a>
-</h3>
 <p>To get started, we’ll first create a new file <code>srcts/hello_world/index.ts</code> with the following contents:</p>
-<p class="codeblock-label">
-srcts/hello_world/index.ts
-</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">class</span> HelloWorld {</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span> <span class="dt">containerElement</span><span class="op">:</span> <span class="bu">HTMLDivElement</span><span class="op">;</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span> <span class="dt">message</span><span class="op">:</span> <span class="bu">HTMLHeadElement</span><span class="op">;</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span>(<span class="dt">el</span><span class="op">:</span> <span class="bu">HTMLDivElement</span><span class="op">,</span> <span class="dt">width</span><span class="op">:</span> number<span class="op">,</span> <span class="dt">height</span><span class="op">:</span> number) {</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> h <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"h1"</span>)<span class="op">;</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> t <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createTextNode</span>(<span class="st">"Hello, world!"</span>)<span class="op">;</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    h<span class="op">.</span><span class="fu">appendChild</span>(t)<span class="op">;</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">message</span> <span class="op">=</span> h<span class="op">;</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">resize</span>(width<span class="op">,</span> height)<span class="op">;</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> <span class="fu">renderValue</span>(<span class="dt">inputData</span><span class="op">:</span> any) {</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="bu">document</span><span class="op">.</span><span class="at">body</span><span class="op">.</span><span class="fu">appendChild</span>(<span class="kw">this</span><span class="op">.</span><span class="at">message</span>)<span class="op">;</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(inputData)<span class="op">;</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> <span class="fu">resize</span>(<span class="dt">width</span><span class="op">:</span> number<span class="op">,</span> <span class="dt">height</span><span class="op">:</span> number) {</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">"Width: "</span><span class="op">,</span> width<span class="op">,</span> <span class="st">", Height: "</span><span class="op">,</span> height)<span class="op">;</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>Here, the <code>HelloWorld</code> widget is created as it’s own class with two public methods: <code>renderValue</code> and <code>resize</code>.</p>
-<p>Notice the <code>renderValue</code> method takes an argument <code>inputData</code>. For now, this is just a string which we will use as a placeholder, but soon this <code>inputData</code> object will contain all the data passed from R to our widget. This includes any configuration we need, our data set, and the sequence of projection matrices representing the tour path.</p>
-<p>Later, we will be creating some bindings for {htmlwidgets}, which will require a <code>renderValue</code> and <code>resize</code> function. Having these contained as methods in our <code>HelloWorld</code> class will make this much easier.</p>
-<p>Before we can run the above in the browser, we’ll need to create two more files:</p>
-<ul>
-<li>
-<code>dev/hello_world/sample_data.json</code>: a file containing sample data that our widget will use.</li>
-<li>
-<code>dev/hello_world/index.html</code> will contain logic to import the class we defined above, load the sample data, and render our widget.</li>
-</ul>
-<p class="codeblock-label">
-dev/hello_world/sample_data.json
-</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="st">"hello sample data"</span></span></code></pre></div>
-<script type="text/javascript">
-"hello sample data"
-</script><p class="codeblock-label">
-dev/hello_world/static/index.html
-</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;!</span>DOCTYPE html<span class="op">&gt;</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>html lang<span class="op">=</span><span class="st">"en"</span><span class="op">&gt;</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">&lt;</span>head<span class="op">&gt;</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;</span>title<span class="op">&gt;</span>Hello World<span class="op">&lt;/</span>title<span class="op">&gt;</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;</span>script src<span class="op">=</span><span class="st">"hello_world.bundle.js"</span><span class="op">&gt;&lt;/</span>script<span class="op">&gt;</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">&lt;/</span>head<span class="op">&gt;</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">&lt;</span>body<span class="op">&gt;</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;</span>div id<span class="op">=</span><span class="st">"plot"</span><span class="op">&gt;&lt;/</span>div<span class="op">&gt;</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;</span>script<span class="op">&gt;</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">fetch</span>(<span class="st">"./sample_data.json"</span>)<span class="op">.</span><span class="fu">then</span>(<span class="kw">function</span> (response) {</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">// run hello_world using sample data</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        response<span class="op">.</span><span class="fu">json</span>()<span class="op">.</span><span class="fu">then</span>(<span class="kw">function</span> (data) {</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>          <span class="kw">let</span> el <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">"plot"</span>)<span class="op">;</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>          <span class="kw">let</span> display <span class="op">=</span> <span class="kw">new</span> <span class="bu">window</span>[<span class="st">'hello_world/hello_world'</span>]<span class="op">.</span><span class="fu">HelloWorld</span>(el<span class="op">,</span> <span class="dv">300</span><span class="op">,</span> <span class="dv">300</span>)<span class="op">;</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>          display<span class="op">.</span><span class="fu">renderValue</span>(data)<span class="op">;</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>          <span class="bu">window</span><span class="op">.</span><span class="fu">addEventListener</span>(<span class="st">"resize"</span><span class="op">,</span> (<span class="bu">event</span>) <span class="kw">=&gt;</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>            display<span class="op">.</span><span class="fu">resize</span>(<span class="bu">window</span><span class="op">.</span><span class="at">innerWidth</span> <span class="op">,</span> <span class="bu">window</span><span class="op">.</span><span class="at">innerHeight</span>)</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>          )<span class="op">;</span></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        })<span class="op">;</span></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>      })<span class="op">;</span></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;/</span>script<span class="op">&gt;</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="op">&lt;/</span>body<span class="op">&gt;</span></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;/</span>html<span class="op">&gt;</span></span></code></pre></div>
-<p>With the above files in place, the next thing we need to do is tell Webpack that we want to bundle our <code>hello_world</code> example along with the existing widgets. This bundling is configured via <code>webpack/dev.config.ts</code>, and there are two changes we need to make to this file:</p>
-<ol style="list-style-type: decimal">
-<li>adding an item under <code>entry</code> to tell webpack where our TS code lives</li>
-</ol>
-<p class="codeblock-label">
-webpack/dev.config.ts
-</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>  entry: {</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    "display_scatter_2d/display_scatter_2d":</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>      "./srcts/display_scatter_2d/index.ts",</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    "display_scatter_3d/display_scatter_3d":</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>      "./srcts/display_scatter_3d/index.ts",</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="va">+   "hello_world/hello_world": "./srcts/hello_world/index.ts",</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  },</span></code></pre></div>
-<ol start="2" style="list-style-type: decimal">
-<li>adding a new pattern under <code>CopyPlugin</code> to tell webpack where to find our <code>index.html</code> and <code>sample_data.json</code> files</li>
-</ol>
-<p class="codeblock-label">
-webpack/dev.config.ts
-</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>  plugins: [</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>      new CopyPlugin({</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        patterns: [</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>          ...</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="va">+         { from: "dev/hello_world/static/", to: "hello_world" },</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        ],</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>      }),</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    ],</span></code></pre></div>
-<p>Lastly, we need to add a menu item so that we can navigate to our widget when the dev server is started. To do this, we modify <code>dev/index.ts</code> by adding a line to <code>dev/index.html</code> like so:</p>
-<p class="codeblock-label">
-dev/index.html
-</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;!DOCTYPE html&gt;</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;html&gt;</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;head&gt;</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>   &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8"&gt;</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>   &lt;title&gt;Directory Tree&lt;/title&gt;</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;/head&gt;</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;body&gt;</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  &lt;h1&gt;Development Widgets&lt;/h1&gt;&lt;p&gt;</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  &lt;a href="./display_scatter_2d/"&gt;display_scatter_2d&lt;/a&gt;&lt;br&gt;</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  &lt;a href="./display_scatter_3d/"&gt;display_scatter_3d&lt;/a&gt;&lt;br&gt;</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="va">+ &lt;a href="./hello_world/"&gt;hello_world&lt;/a&gt;&lt;br&gt;</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  &lt;br&gt;&lt;br&gt;</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;/body&gt;</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;/html&gt;</span></span></code></pre></div>
-<p>Now, when we start our dev server using <code>yarn run start-dev</code>, we see our new menu option:</p>
-<p><img src="images/dev_server_hello_world_menu.png" width="100%"></p>
-<p>And we can navigate to our widget!</p>
-<p><img src="images/dev_server_hello_world.png" width="100%"></p>
-<p>With the above all set up, we can get started developing our widget in Typescript. The development server will watch our TS code for changes, and update immediately when those changes are saved. If our code is invalid, the dev server will tell us exactly where the issue is so that we can fix it. We can modify the contents of our <code>sample_data.json</code> file with the data we expect to receive from R, and then modify the TS code to consume that data.</p>
-</div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">class</span> HelloWorld {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span> <span class="dt">containerElement</span><span class="op">:</span> <span class="bu">HTMLDivElement</span><span class="op">;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span> <span class="dt">message</span><span class="op">:</span> <span class="bu">HTMLHeadElement</span><span class="op">;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span>(<span class="dt">el</span><span class="op">:</span> <span class="bu">HTMLDivElement</span><span class="op">,</span> <span class="dt">width</span><span class="op">:</span> number<span class="op">,</span> <span class="dt">height</span><span class="op">:</span> number) {</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> h <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"h1"</span>)<span class="op">;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> t <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createTextNode</span>(<span class="st">"Hello, world!"</span>)<span class="op">;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    h<span class="op">.</span><span class="fu">appendChild</span>(t)<span class="op">;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">message</span> <span class="op">=</span> h<span class="op">;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">resize</span>(width<span class="op">,</span> height)<span class="op">;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> <span class="fu">renderValue</span>(<span class="dt">inputData</span><span class="op">:</span> any) {</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="bu">document</span><span class="op">.</span><span class="at">body</span><span class="op">.</span><span class="fu">appendChild</span>(<span class="kw">this</span><span class="op">.</span><span class="at">message</span>)<span class="op">;</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(inputData)<span class="op">;</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> <span class="fu">resize</span>(<span class="dt">width</span><span class="op">:</span> number<span class="op">,</span> <span class="dt">height</span><span class="op">:</span> number) {</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">"Width: "</span><span class="op">,</span> width<span class="op">,</span> <span class="st">", Height: "</span><span class="op">,</span> height)<span class="op">;</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Here, the <code>HelloWorld</code> widget is created as it’s own class with two public methods: <code>renderValue</code> and <code>resize</code>. The <code>renderValue</code> method takes an argument <code>inputData</code>, which will contain all the data passed from R to our widget including any configuration we need, our data set, and the sequence of projection matrices representing the tour path.</p>
+<p>At the moment, all we are doing is logging the data to the browser console. This will will allow us to explore it’s structure when it’s up and running.</p>
 </div>
 <div class="section level2">
-<h2 id="creating-r-and-javascript-bindings">Creating R and javascript bindings<a class="anchor" aria-label="anchor" href="#creating-r-and-javascript-bindings"></a>
+<h2 id="bundling-the-widget">Bundling the widget<a class="anchor" aria-label="anchor" href="#bundling-the-widget"></a>
 </h2>
-<p>Once we’ve got a widget up and running using the dev server, we will need to integrate it in to the R package with {HTMLWidgets}. The steps in this section are very similar to <a href="https://www.htmlwidgets.org/develop_intro.html" class="external-link">this resource</a>, but there are some additional steps required for us to bundle our widget dependencies.</p>
-<div class="section level3">
-<h3 id="bundling-our-widget">Bundling our widget<a class="anchor" aria-label="anchor" href="#bundling-our-widget"></a>
-</h3>
-<p>The steps to generate a bundle are quite similar to what we did earlier when we modified <code>webpack/dev.config.ts</code>. The only difference here is that we modify the file <code>webpack/package.config.ts</code> instead of the dev config:</p>
-<p class="codeblock-label">
-webpack/package.config.ts
-</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>const path = require("path");</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>const webpack = require("webpack");</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>module.exports = {</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  mode: "production",</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  entry: {</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    "display_scatter_2d": "./srcts/display_scatter_2d/index.ts",</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    "display_scatter_3d": "./srcts/display_scatter_3d/index.ts",</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="va">+   "hello_world": "./srcts/hello_world/index.ts",</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  },</span></code></pre></div>
-<p>This adds our <code>hello_world</code> widget to the list of widgets to be bundled, so when we build and install our package using <code>yarn run build</code>, a file <code>hello_world.bundle.js</code> is created in the <code>inst/htmlwidgets/lib</code> folder along with some other files:</p>
-<pre><code>❯ ls -l inst/htmlwidgets/lib
-.rw-r--r--  41k chart 30 Jan 13:44 display_scatter_2d.bundle.js
-.rw-r--r--  40k chart 30 Jan 13:44 display_scatter_3d.bundle.js
-.rw-r--r--  789 chart 30 Jan 13:44 hello_world.bundle.js
-.rw-r--r-- 1.2k chart 12 Dec  2021 runtime.bundle.js
-.rw-r--r-- 622k chart  7 Jan 14:05 three.bundle.js
-.rw-r--r--   92 chart 12 Dec  2021 three.bundle.js.LICENSE.txt</code></pre>
-<p>The files that are important for us are <code>runtime.bundle.js</code> and <code>hello_world.bundle.js</code>. The <code>hello_world</code> bundle consists of our code, while <code>runtime.bundle.js</code> contains code for the webpack runtime, which is required for our widget to work. Later on, if our widget uses third party libraries as dependencies, they will be bundled separately and added to this folder, as is the case for <code>three.bundle.js</code>.</p>
+<p>The HTMLWidgets package can’t deal with this Typescript code as-is, so we need to modify our <code>webpack</code> configuration so that it gets transpiled to javascript and bundled when the package is built.</p>
+<p>This only requires a small modification to the <code>webpack/package.config.ts</code> to include our TS code as an additional entrypoint:</p>
+<p><code>webpack/package.config.ts</code>:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>const path = require("path");</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>const webpack = require("webpack");</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>module.exports = {</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  mode: "production",</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  entry: {</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    "display_scatter_2d": "./srcts/display_scatter_2d/index.ts",</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    "display_scatter_3d": "./srcts/display_scatter_3d/index.ts",</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="va">+   "hello_world": "./srcts/hello_world/index.ts",</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  ...</span></code></pre></div>
+<p>Now, when we build and install our package using <code>yarn run build</code>, a file <code>hello_world.bundle.js</code> is created in the <code>inst/htmlwidgets/lib</code> folder alongside the existing bundles.</p>
 </div>
-<div class="section level3">
-<h3 id="dependencies">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies"></a>
-</h3>
-<p>So that {HTMLWidgets} knows where to find our bundled code, we need to specify it as a dependency by creating a new file <code>inst/htmlwidgets/hello_world.yaml</code>. For our <code>hello_world</code> example, we’ll create the file with the following contents:</p>
-<pre><code>dependencies:
-  - name: hello_world 
-    src: htmlwidgets/lib/
-    version: 0.0.9
-    script:
-      # these have to be in order of loading
-      - runtime.bundle.js # webpack runtime
-      - hello_world.bundle.js</code></pre>
-<p>More information on this file can be found in <a href="https://www.htmlwidgets.org/develop_intro.html" class="external-link">the htmlwidgets documentation</a></p>
+<div class="section level2">
+<h2 id="adding-the-configuration-and-javascript-bindings">Adding the configuration and javascript bindings<a class="anchor" aria-label="anchor" href="#adding-the-configuration-and-javascript-bindings"></a>
+</h2>
+<p>The steps in this section are very similar to the general example in the <a href="https://www.htmlwidgets.org/develop_intro.html" class="external-link">htmlwidgets documentation</a>, so we will gloss over many of the technical details here.</p>
+<p>In short, we require two files for our widget to work: <code>inst/htmlwidgets/hello_world.yaml</code> which contains the configuration, and <code>inst/htmlwidgets/hello_world.js</code> which contains the javascript bindings.</p>
+<p>First we’ll set up the configuration file <code>inst/htmlwidgets/hello_world.yaml</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dependencies</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> hello_world </span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">src</span><span class="kw">:</span><span class="at"> htmlwidgets/lib/</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="fl">0.0.9</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">script</span><span class="kw">:</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">      # these are specified in the order they should load</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> runtime.bundle.js</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> hello_world.bundle.js</span></span></code></pre></div>
+<p>Notice the inclusion of <code>runtime.bundle.js</code>. This contains the webpack runtime, and our code won’t run without it. Any external packages that your widget loads will be bundled separately as well, so we need to include them in this file <em>above the main bundle</em>.</p>
+<p>For the javascript binding, we need to create the file <code>inst/htmlwidgets/hello_world.js</code>. Because we implemented our widget as a typescript class with <code>renderValue</code> and <code>resize</code> methods, the contents of the javascript binding can remain quite simple even as the widget itself becomes more complex:</p>
+<p><code>inst/htmlwidgets/hello_world.js</code>:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>HTMLWidgets<span class="op">.</span><span class="fu">widget</span>({</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">name</span><span class="op">:</span> <span class="st">"hello_world"</span><span class="op">,</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">type</span><span class="op">:</span> <span class="st">"output"</span><span class="op">,</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">factory</span><span class="op">:</span> <span class="kw">function</span> (el<span class="op">,</span> width<span class="op">,</span> height) {</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> widget <span class="op">=</span> <span class="kw">new</span> hello_world<span class="op">.</span><span class="fu">HelloWorld</span>(el<span class="op">,</span> width<span class="op">,</span> height)<span class="op">;</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> {</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">renderValue</span><span class="op">:</span> <span class="kw">function</span> (x) {</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                widget<span class="op">.</span><span class="fu">renderValue</span>(x)<span class="op">;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>            }<span class="op">,</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>            <span class="dt">resize</span><span class="op">:</span> <span class="kw">function</span> (width<span class="op">,</span> height) {</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>                widget<span class="op">.</span><span class="fu">resize</span>(width<span class="op">,</span> height)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>            }<span class="op">,</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>            <span class="dt">s</span><span class="op">:</span> widget</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="r-binding-and-display-method">R binding and display method<a class="anchor" aria-label="anchor" href="#r-binding-and-display-method"></a>
-</h3>
-<p>When make a call to <code>animate_tour</code>, we specify the <code>data</code>, <code>tour_path</code>, and <code>display_method</code> arguments. Technically speaking, the R binding we need (as detailed in <a href="https://www.htmlwidgets.org/develop_intro.html" class="external-link">the htmlwidgets documentation</a>) is already implemented in the in the <code>animate_tour</code> function. To get our widget to show, however, we will need to implement a new display method which provides the necessary context to <code>animate_tour</code> for our widget to be called.</p>
-<p class="codeblock-label">
-R/display_hello_world.R
-</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="section level2">
+<h2 id="adding-the-display-method-in-r">Adding the display method in R<a class="anchor" aria-label="anchor" href="#adding-the-display-method-in-r"></a>
+</h2>
+<p>Here we diverge from the <a href="https://www.htmlwidgets.org/develop_intro.html" class="external-link">htmlwidgets documentation</a> a little bit. Rather than creating an R binding directly, we will instead create a new display method called <code>display_hello_world</code>, and let the <code>animate_tour</code> function handle the rest.</p>
+<p><code>R/display_hello_world.R</code>:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#' Display Hello World Example</span>
 <span class="co">#'</span>
 <span class="co">#' Note that these comments will be converted in to documentation by the</span>
@@ -286,13 +188,12 @@ R/display_hello_world.R
   <span class="va">init</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">col_spec</span>, <span class="va">tour_dim</span><span class="op">)</span> <span class="op">{</span>
     <span class="va">data_cols</span> <span class="op">&lt;-</span> <span class="fu">tidyselect</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/eval_select.html" class="external-link">eval_select</a></span><span class="op">(</span><span class="va">col_spec</span>, <span class="va">data</span><span class="op">)</span>
     <span class="va">labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">data_cols</span><span class="op">)</span>
-    <span class="va">widget</span> <span class="op">&lt;-</span> <span class="st">"hello_world"</span>
 
     <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
       <span class="st">"plot"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
         labels <span class="op">=</span> <span class="va">labels</span>
       <span class="op">)</span>,
-      <span class="st">"widget"</span> <span class="op">=</span> <span class="va">widget</span>,
+      <span class="st">"widget"</span> <span class="op">=</span> <span class="st">"hello_world"</span>,
       <span class="st">"mapping"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
     <span class="op">)</span>
   <span class="op">}</span>
@@ -319,76 +220,29 @@ R/display_hello_world.R
 <code>mapping</code>: aesthetic mappings for the plot, usually in the format <code>list("aesthetic_name": values)</code>
 </li>
 </ul>
-<p>All the values output from this function will be passed through to the <code>hello_world</code> widget’s <code>renderValue</code> method, along with additional fields from the <code>animate_tour</code> function such as the dataset and sequence of projection matrices.</p>
-</div>
-<div class="section level3">
-<h3 id="javascript-binding">Javascript binding<a class="anchor" aria-label="anchor" href="#javascript-binding"></a>
-</h3>
-<p>The last piece of the puzzle is the Javascript Binding, which will be a new file located at <code>inst/htmlwidgets/hello_world.js</code>. Because we implemented our widget as a TS class with <code>renderValue</code> and <code>resize</code> methods, the contents of the javascript binding can be quite short, even as the widget itself becomes more complex:</p>
-<p class="codeblock-label">
-inst/htmlwidgets/hello_world.js
-</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>HTMLWidgets<span class="op">.</span><span class="fu">widget</span>({</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">name</span><span class="op">:</span> <span class="st">"hello_world"</span><span class="op">,</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">type</span><span class="op">:</span> <span class="st">"output"</span><span class="op">,</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">factory</span><span class="op">:</span> <span class="kw">function</span> (el<span class="op">,</span> width<span class="op">,</span> height) {</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> widget <span class="op">=</span> <span class="kw">new</span> hello_world<span class="op">.</span><span class="fu">HelloWorld</span>(el<span class="op">,</span> width<span class="op">,</span> height)<span class="op">;</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> {</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">renderValue</span><span class="op">:</span> <span class="kw">function</span> (x) {</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>                widget<span class="op">.</span><span class="fu">renderValue</span>(x)<span class="op">;</span></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>            }<span class="op">,</span></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>            <span class="dt">resize</span><span class="op">:</span> <span class="kw">function</span> (width<span class="op">,</span> height) {</span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>                widget<span class="op">.</span><span class="fu">resize</span>(width<span class="op">,</span> height)</span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>            }<span class="op">,</span></span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>            <span class="dt">s</span><span class="op">:</span> widget</span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>        }</span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
-</div>
+<p>All the values returned by this function will be passed through to the <code>hello_world</code> widget’s <code>renderValue</code> method, along with additional fields from the <code>animate_tour</code> function such as the dataset and projection matrices.</p>
 </div>
 <div class="section level2">
 <h2 id="trying-it-out">Trying it out<a class="anchor" aria-label="anchor" href="#trying-it-out"></a>
 </h2>
 <p>Now the hard part is done, we need to bundle everything together and install the package:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">yarn</span> run build</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">yarn</span> run build</span></code></pre></div>
 <p>And then test out the widget in R:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">detourr</span><span class="op">)</span>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://casperhart.github.io/detourr/">detourr</a></span><span class="op">)</span>
 <span class="fu"><a href="../reference/animate_tour.html">animate_tour</a></span><span class="op">(</span><span class="fu">tourr</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/tourr/man/Flea-measurements.html" class="external-link">flea</a></span>, <span class="fu"><a href="https://rdrr.io/pkg/tourr/man/grand_tour.html" class="external-link">grand_tour</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>, <span class="fu">display_hello_world</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="images/package_hello_world.png" width="100%"></p>
+<p>Success!</p>
+<p>If we open up the browser console, we can see the full structure of the data set which is passed in to our widget. We can add additional configuation and aesthetic mappings as we need them by modifying the <code>display_hello_world</code> function:</p>
+<p><img src="images/browser_console.png" width="100%"></p>
 </div>
 <div class="section level2">
-<h2 id="some-useful-tips">Some useful tips<a class="anchor" aria-label="anchor" href="#some-useful-tips"></a>
+<h2 id="useful-tips">Useful tips<a class="anchor" aria-label="anchor" href="#useful-tips"></a>
 </h2>
-<p>Below are some useful tips to make things a little easier when developing widgets.</p>
 <div class="section level3">
-<h3 id="generating-sample_data-json">Generating <code>sample_data.json</code><a class="anchor" aria-label="anchor" href="#generating-sample_data-json"></a>
+<h3 id="extending-existing-widgets">Extending existing widgets<a class="anchor" aria-label="anchor" href="#extending-existing-widgets"></a>
 </h3>
-<p>Rather than creating and modifying <code>sample_data.json</code> by hand for your development widget, it’s best to add some code to <code>scripts/generate_sample_data.R</code> to generate this file for you. For example:</p>
-<p class="codeblock-label">
-scripts/generate_sample_data.R
-</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-
-<span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/animate_tour.html">animate_tour</a></span><span class="op">(</span>
-  <span class="fu">tourr</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/tourr/man/Flea-measurements.html" class="external-link">flea</a></span>,
-  display <span class="op">=</span> <span class="fu">display_hello_world</span><span class="op">(</span><span class="op">)</span>,
-  tour_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/tourr/man/grand_tour.html" class="external-link">grand_tour</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span>
-<span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span>
-  <span class="fu">jsonlite</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/jsonlite/man/fromJSON.html" class="external-link">toJSON</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">x</span>, auto_unbox <span class="op">=</span> <span class="cn">TRUE</span>, null <span class="op">=</span> <span class="st">"null"</span><span class="op">)</span>,
-  <span class="st">"../dev/hello_world/static/sample_data.json"</span>
-<span class="op">)</span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="using-the-browser-console">Using the browser console<a class="anchor" aria-label="anchor" href="#using-the-browser-console"></a>
-</h3>
-<p>If you’re not familiar with the development tools in Google Chrome and other browsers, it provides a good way to interact with the widget while it’s running. E.g. setting breakpoints and looking at what variables and objects are available in the TS code. In the <code>hello_world</code> example, we log the full data set that’s passed in from R to the console, which can help to give us some context when modifying the widget code:</p>
-<p><img src="images/browser_console.png" width="100%"></p>
+<p>A major benefit of having each widget defined as it’s own class is that existing widgets can be extended and modified, which removes the need to create them from scratch.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
