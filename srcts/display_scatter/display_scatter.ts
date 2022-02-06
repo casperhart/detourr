@@ -522,23 +522,25 @@ export abstract class DisplayScatter {
 
     this.selectedPointIndices = Array.from(selectedPointSet);
 
-    if (this.crosstalkIndex) {
-      if (this.selectedPointIndices.length == 0) {
-        this.setDefaultPointSelection();
-        // try block in case error thrown in linked visual e.g. plotly.
-        // In this case, set selection to all points
+    if (this.selectedPointIndices.length == 0) {
+      this.setDefaultPointSelection();
+
+      // try block in case error thrown in linked visual e.g. plotly.
+      // In this case, set selection to all points
+      if (this.crosstalkIndex) {
         try {
           this.crosstalkSelectionHandle.clear();
         } catch (e) {
           console.error(e);
           this.crosstalkSelectionHandle.set(null);
         }
-      } else {
-        this.crosstalkSelectionHandle.set(
-          this.selectedPointIndices.map((i) => this.crosstalkIndex[i])
-        );
       }
+    } else if (this.crosstalkIndex) {
+      this.crosstalkSelectionHandle.set(
+        this.selectedPointIndices.map((i) => this.crosstalkIndex[i])
+      );
     }
+
     this.highlightSelectedPoints();
   }
 
