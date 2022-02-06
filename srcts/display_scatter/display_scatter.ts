@@ -181,8 +181,9 @@ export abstract class DisplayScatter {
       newHeight,
       this.currentFrame / this.projectionMatrices.length
     );
-
-    this.axisLabels.map((x) => x.setDpr(dpr));
+    if (this.hasAxisLabels) {
+      this.axisLabels.map((x) => x.setDpr(dpr));
+    }
   }
 
   public renderValue(inputData: ScatterInputData) {
@@ -345,8 +346,7 @@ export abstract class DisplayScatter {
     const toolTip = document.createElement("div");
     const toolTipText = document.createElement("span");
     toolTip.appendChild(toolTipText);
-    toolTipText.innerHTML = "hello";
-    toolTip.className = "tooltip";
+    toolTip.className = "detourrTooltip";
     this.container.appendChild(toolTip);
     this.toolTip = toolTip;
   }
@@ -589,6 +589,9 @@ export abstract class DisplayScatter {
     const width = 1;
     const height = 1;
 
+    //console.log(`event x: ${event.x} y: ${event.y}`)
+    //console.log(`canvas x: ${x} y: ${y}`)
+
     const pixelBuffer = new Uint8Array(12);
 
     renderer.readRenderTargetPixels(
@@ -606,6 +609,7 @@ export abstract class DisplayScatter {
       id != this.backgroundColour &&
       this.filteredPointIndices.includes(id - 1)
     ) {
+      console.log(id)
       const toolTipCoords = this.toolTip.getBoundingClientRect();
       this.toolTip.style.left = `${
         Math.floor(x / dpr) - toolTipCoords.width
@@ -613,11 +617,11 @@ export abstract class DisplayScatter {
       this.toolTip.style.top = `${
         Math.floor(y / dpr) - toolTipCoords.height
       }px`;
-      this.toolTip.className = "tooltip visible";
+      this.toolTip.className = "detourrTooltip visible";
       const span = this.toolTip.querySelector("span");
       span.innerHTML = `${this.mapping.label[id - 1]}`;
     } else {
-      this.toolTip.className = "tooltip";
+      this.toolTip.className = "detourrTooltip";
     }
   }
 

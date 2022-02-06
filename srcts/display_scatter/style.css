@@ -81,7 +81,7 @@ div.axisLabel {
   pointer-events: none;
 }
 
-div.tooltip {
+div.detourrTooltip {
   position: absolute;
   top: 0px;
   left: 0px;
@@ -93,7 +93,7 @@ div.tooltip {
   font-family: sans-serif;
 }
 
-div.tooltip.visible {
+div.detourrTooltip.visible {
   visibility: visible;
 }
 
