@@ -639,14 +639,12 @@ export abstract class DisplayScatter {
       );
 
       this.points.geometry.setAttribute("position", this.currentFrameBuffer);
-      this.points.geometry.attributes.position.needsUpdate = true;
 
       if (this.hasAxes) {
         this.axisSegments.geometry.setAttribute(
           "position",
           this.getAxisLinesBuffer(currentFrame)
         );
-        this.axisSegments.geometry.attributes.position.needsUpdate = true;
       }
       if (this.hasEdges) {
         const edgesBuffer = this.getEdgesBuffer(this.currentFrameBuffer);
@@ -669,15 +667,14 @@ export abstract class DisplayScatter {
 
     // render the picking scene for box selection
     this.points.geometry.setAttribute("color", this.pickingColours);
-    // disable antialiasing and alpha in picking scene
-    (this.points.material as THREE.ShaderMaterial).uniforms.antialias.value = 0;
+    (this.points.material as THREE.ShaderMaterial).uniforms.picking.value = 1;
     this.renderer.setRenderTarget(this.pickingTexture);
     this.renderer.render(this.scene, this.camera);
 
     // reset from picking scene
     this.renderer.setRenderTarget(null);
     this.points.geometry.setAttribute("color", this.pointColours);
-    (this.points.material as THREE.ShaderMaterial).uniforms.antialias.value = 1;
+    (this.points.material as THREE.ShaderMaterial).uniforms.picking.value = 0;
 
     // update axis labels
     if (this.hasAxisLabels) {

@@ -13,14 +13,14 @@ export class DisplayScatter3d extends DisplayScatter {
   }
 
   protected addCamera() {
-    let aspect = this.width / this.height;
-    let camera = new THREE.PerspectiveCamera(45, aspect, 0.01, 1000);
+    const aspect = this.width / this.height;
+    const camera = new THREE.PerspectiveCamera(45, aspect, 0.01, 1000);
     camera.position.setZ(4);
     this.camera = camera;
   }
 
   protected addOrbitControls() {
-    let orbitControls = new OrbitControls(
+    const orbitControls = new OrbitControls(
       this.camera,
       this.renderer.domElement
     );
@@ -33,9 +33,9 @@ export class DisplayScatter3d extends DisplayScatter {
 
   protected multiply(a: Matrix, b: ProjectionMatrix): Matrix {
     // TODO: return flattened result as Float32Array for performance
-    let aRows = a.length;
-    let aCols = a[0].length;
-    let result = new Array(aRows);
+    const aRows = a.length;
+    const aCols = a[0].length;
+    const result = new Array(aRows);
     for (let r = 0; r < aRows; ++r) {
       const row = new Array(3);
       result[r] = row;
@@ -52,17 +52,16 @@ export class DisplayScatter3d extends DisplayScatter {
   }
 
   protected getShaderOpts(pointSize: number): THREE.ShaderMaterialParameters {
-    let shaderOpts: THREE.ShaderMaterialParameters;
-    shaderOpts = {
+    const shaderOpts: THREE.ShaderMaterialParameters = {
       uniforms: {
         size: { value: Math.max(pointSize, this.minPointSize) },
-        antialias: { value: 1 },
+        picking: { value: 0 },
       },
       vertexShader: VERTEX_SHADER_3D,
       fragmentShader: FRAGMENT_SHADER,
-      extensions: { derivatives: true },
       transparent: true,
-      depthTest: false,
+      depthTest: true,
+      depthWrite: true,
     };
     return shaderOpts;
   }
