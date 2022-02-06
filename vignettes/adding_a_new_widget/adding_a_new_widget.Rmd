@@ -1,0 +1,233 @@
+---
+title: "Adding a new display method and widget to {detourr}"
+output: 
+  rmarkdown::html_vignette:
+vignette: >
+  %\VignetteIndexEntry{Adding a new display method and widget to {detourr}}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  out.width = "100%",
+  fig.path = "figure/"
+)
+```
+
+
+{detourr} relies heavily on the [HTMLWidgets](https://www.htmlwidgets.org/) package, which allows us to define visuals using javascript and CSS.
+Each of these visuals is referred to as a `widget`, and the {detourr} package allows for new widgets to be added independently of existing ones.
+
+There are several reasons why HTMLWidgets and Javascript are used, for example:
+
+- Javascript, HTML, and CSS are portable. They can be used with any browser, RStudio, Shiny, and RMarkdown.
+- Perfomance of animations in JS is good, especially when using HTML Canvas elements. This means we can get smooth animations and display large datasets.
+- It's easy to build interactive elements in JS
+- A large range of JS visualisation libraries can be used
+
+Rather than writing javascript code directly, {detourr} widgets are written in typescript (TS) which is then transpiled in to javascript when the package is built. 
+Typescript is used because it makes the code easier to read, and prevents a range of runtime bugs by type-checking the code.
+
+## Prerequisites
+
+To set up the project for development, you'll need to install [node.js](https://nodejs.org) and [yarn](https://yarnpkg.com).
+
+Then after cloning this repository, open the terminal and install the node.js dependencies with:
+
+```{sh, eval=FALSE}
+yarn install
+```
+
+Then bundle the typescript code and install {detourr} using:
+
+```{sh, eval=FALSE}
+yarn run build
+```
+
+## Creating a widget
+
+To get started, we'll first create a new file `srcts/hello_world/index.ts` with the following contents:
+
+```{js, eval=FALSE}
+export class HelloWorld {
+  private containerElement: HTMLDivElement;
+  private message: HTMLHeadElement;
+
+  constructor(el: HTMLDivElement, width: number, height: number) {
+    var h = document.createElement("h1");
+    var t = document.createTextNode("Hello, world!");
+    h.appendChild(t);
+    this.message = h;
+    this.resize(width, height);
+  }
+
+  public renderValue(inputData: any) {
+    document.body.appendChild(this.message);
+    console.log(inputData);
+  }
+
+  public resize(width: number, height: number) {
+    console.log("Width: ", width, ", Height: ", height);
+  }
+}
+```
+
+Here, the `HelloWorld` widget is created as it's own class with two public methods: `renderValue` and `resize`. The `renderValue` method takes an argument `inputData`, which will contain all the data passed from R to our widget including any configuration we need, our data set, and the sequence of projection matrices representing the tour path.
+
+At the moment, all we are doing is logging the data to the browser console. This will will allow us to explore it's structure when it's up and running.
+
+## Bundling the widget
+
+The HTMLWidgets package can't deal with this typescript code as-is, so we need to modify our `webpack` configuration so that it gets transpiled to javascript and bundled when the package is built. 
+
+This only requires a small modification to the `webpack/package.config.ts` to include our TS code as an additional entrypoint:
+
+`webpack/package.config.ts`:
+
+```diff
+const path = require("path");
+const webpack = require("webpack");
+
+module.exports = {
+  mode: "production",
+  entry: {
+    "display_scatter_2d": "./srcts/display_scatter_2d/index.ts",
+    "display_scatter_3d": "./srcts/display_scatter_3d/index.ts",
++   "hello_world": "./srcts/hello_world/index.ts",
+  },
+  ...
+```
+
+Now, when we build and install our package using `yarn run build`, a file `hello_world.bundle.js` is created in the `inst/htmlwidgets/lib` folder alongside the existing bundles.
+
+## Adding the configuration and javascript bindings
+
+The steps in this section are very similar to the general example in the [htmlwidgets documentation](https://www.htmlwidgets.org/develop_intro.html), so we will gloss over many of the technical details here. 
+
+In short, we require two files for our widget to work: `inst/htmlwidgets/hello_world.yaml` which contains the configuration, and `inst/htmlwidgets/hello_world.js` which contains the javascript bindings.
+
+First we'll set up the configuration file `inst/htmlwidgets/hello_world.yaml`:
+
+```yaml
+dependencies:
+  - name: hello_world 
+    src: htmlwidgets/lib/
+    version: 0.0.9
+    script:
+      # these are specified in the order they should load
+      - runtime.bundle.js
+      - hello_world.bundle.js
+```
+
+Notice the inclusion of `runtime.bundle.js`. This contains the webpack runtime, and our code won't run without it. 
+Any external packages that your widget loads will be bundled separately as well, so we need to include them in this file _above the main bundle_. 
+
+For the javascript binding, we need to create the file `inst/htmlwidgets/hello_world.js`. Because we implemented our widget as a typescript class with `renderValue` and `resize` methods, the contents of the javascript binding can remain quite simple even as the widget itself becomes more complex:
+
+`inst/htmlwidgets/hello_world.js`:
+
+```{js, eval=FALSE}
+HTMLWidgets.widget({
+
+    name: "hello_world",
+    type: "output",
+
+    factory: function (el, width, height) {
+        let widget = new hello_world.HelloWorld(el, width, height);
+        return {
+            renderValue: function (x) {
+                widget.renderValue(x);
+            },
+            resize: function (width, height) {
+                widget.resize(width, height)
+            },
+            s: widget
+        }
+    }
+})
+```
+
+
+## Adding the display method in R
+
+Here we diverge from the [htmlwidgets documentation](https://www.htmlwidgets.org/develop_intro.html) a little bit. Rather than creating an R binding directly, we will instead create a new display method called `display_hello_world`, and let the `animate_tour` function handle the rest.
+
+`R/display_hello_world.R`:
+```{r, eval=FALSE}
+#' Display Hello World Example
+#'
+#' Note that these comments will be converted in to documentation by the
+#' {roxygen2} package when we run `yarn run build`. As such, the `@export`
+#' below is necessary, or else this function won't be made available to the
+#' user
+#'
+#' @export
+display_hello_world <- function() {
+  init <- function(data, col_spec, tour_dim) {
+    data_cols <- tidyselect::eval_select(col_spec, data)
+    labels <- names(data_cols)
+
+    list(
+      "plot" = list(
+        labels = labels
+      ),
+      "widget" = "hello_world",
+      "mapping" = list()
+    )
+  }
+  list(
+    "init" = init
+  )
+}
+```
+
+The return value of `display_hello_world` is a list containing an `init` function which is called within `animate_tour` in order to get a widget-specific configuration. The input to this function consists of:
+
+- `data`: The input data to use as a data frame. This will contain the numeric columns to use for the tour, as well as any additional columns which may be used for aesthetic mappings.
+- `col_spec`: a quosure specifying which numeric columns to use for the tour. Is evaluated using {tidyselect}
+- `tour_dim`: the output dimension of the tour. E.g. 2, 3
+
+The `init` function is expected to return a list with the following elements:
+
+- `plot`: configuation for the plot. Usually a list.
+- `widget`: the name of the htmlwidget to use as a character value. This must be consistent with what is specified in `inst/htmlwidgets/hello_world.yaml`.
+- `mapping`: aesthetic mappings for the plot, usually in the format `list("aesthetic_name": values)`
+
+All the values returned by this function will be passed through to the `hello_world` widget's `renderValue` method, along with additional fields from the `animate_tour` function such as the dataset and projection matrices.
+
+## Trying it out
+
+Now the hard part is done, we need to bundle everything together and install the package:
+
+```sh
+yarn run build
+```
+
+And then test out the widget in R:
+
+```{r, eval=FALSE}
+library(detourr)
+animate_tour(tourr::flea, grand_tour(2), display_hello_world())
+```
+
+```{r, echo=FALSE}
+knitr::include_graphics("images/package_hello_world.png")
+```
+
+Success!
+
+If we open up the browser console, we can see the full structure of the data set which is passed in to our widget. We can add additional configuation and aesthetic mappings as we need them by modifying the `display_hello_world` function:
+
+```{r, echo = FALSE}
+knitr::include_graphics("images/browser_console.png")
+```
+
+## Useful resources
+
+- [Three.js](https://threejs.org/)
+- [Webpack](https://webpack.js.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [HTMLWidgets](https://www.htmlwidgets.org/)

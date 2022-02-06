@@ -18,8 +18,8 @@ export class Timeline {
   private scrubber: HTMLElement;
   private playPauseButton: HTMLElement;
   private timelineWidth: number;
-  private scrubberWidth: number = 16;
-  private timelineThickness: number = 4;
+  private scrubberWidth = 16;
+  private timelineThickness = 4;
   private numAnimationFrames: number;
   private basisIndices: number[];
   private hasBasisIndicators = true;
@@ -27,7 +27,7 @@ export class Timeline {
   private basisIndicatorDiameter = 4;
   private tooltip: HTMLDivElement;
 
-  private mouseDown: boolean = false;
+  private mouseDown = false;
   private currentPosition: number;
   private candidatePosition: number;
   private lastMousePosition: number;
@@ -65,7 +65,7 @@ export class Timeline {
     icon: string,
     buttonCallback: Function
   ) {
-    let button = document.createElement("button");
+    const button = document.createElement("button");
     button.innerHTML = icon;
     button.title = hoverText;
     button.className = `${name}Button`;
@@ -99,13 +99,13 @@ export class Timeline {
   }
 
   private addContainer() {
-    let container = document.createElement("div");
+    const container = document.createElement("div");
     container.className = "timelineContainer";
     this.container = container;
   }
 
   private addTimeline() {
-    let timeline = document.createElement("div");
+    const timeline = document.createElement("div");
     timeline.className = "timeline";
     timeline.style.height = this.timelineThickness + "px";
     timeline.style.top = 15 - this.timelineThickness / 2 + "px";
@@ -123,7 +123,7 @@ export class Timeline {
     this.numAnimationFrames = this.widget.getNumAnimationFrames();
 
     for (let i = 0; i < this.basisIndices.length; i++) {
-      let basisIndicator = document.createElement("div");
+      const basisIndicator = document.createElement("div");
       basisIndicator.className = "basisIndicator";
       basisIndicator.style.width = this.basisIndicatorDiameter + "px";
       basisIndicator.style.height = this.basisIndicatorDiameter + "px";
@@ -139,34 +139,33 @@ export class Timeline {
   }
 
   private addTooltip() {
-    let tooltip = document.createElement("div");
-    let tooltipText = document.createElement("span");
+    const tooltip = document.createElement("div");
+    const tooltipText = document.createElement("span");
     tooltip.appendChild(tooltipText);
-    tooltipText.innerHTML = "hello";
-    tooltip.className = "tooltip";
+    tooltip.className = "detourrTooltip";
     tooltip.style.top = "-20px";
     this.container.appendChild(tooltip);
     this.tooltip = tooltip;
   }
 
   private basisIndicatorHoverCallback(event: MouseEvent, ind: number) {
-    let span = this.tooltip.querySelector("span");
+    const span = this.tooltip.querySelector("span");
     span.innerHTML = `Basis ${ind + 1}`;
-    let canvasCoords = this.container.getBoundingClientRect();
-    let tooltipCoords = this.tooltip.getBoundingClientRect();
+    const canvasCoords = this.container.getBoundingClientRect();
+    const tooltipCoords = this.tooltip.getBoundingClientRect();
 
-    let x = event.clientX - canvasCoords.left;
-    let y = event.clientY - canvasCoords.top;
-    this.tooltip.className = "tooltip visible";
+    const x = event.clientX - canvasCoords.left;
+    const y = event.clientY - canvasCoords.top;
+    this.tooltip.className = "detourrTooltip visible";
     this.tooltip.style.left = `${Math.floor(x) - tooltipCoords.width}px`;
-    setTimeout(() => (this.tooltip.className = "tooltip"), 3000);
+    setTimeout(() => (this.tooltip.className = "detourrTooltip"), 3000);
   }
   private basisIndicatorClickCallback(event: MouseEvent, ind: number) {
     this.widget.setTime(this.basisIndices[ind] / this.numAnimationFrames);
   }
 
   private addScrubber() {
-    let scrubber = document.createElement("div");
+    const scrubber = document.createElement("div");
     scrubber.style.left = "0px";
     scrubber.style.width = this.scrubberWidth + "px";
     scrubber.style.height = this.scrubberWidth + "px";
