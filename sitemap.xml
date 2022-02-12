@@ -10,7 +10,13 @@
     <loc>https://casperhart.github.io/detourr/LICENSE.html</loc>
   </url>
   <url>
-    <loc>https://casperhart.github.io/detourr/articles/adding_a_new_widget.html</loc>
+    <loc>https://casperhart.github.io/detourr/articles/adding_a_new_widget/adding_a_new_widget.html</loc>
+  </url>
+  <url>
+    <loc>https://casperhart.github.io/detourr/articles/development_setup/detourr_development_setup.html</loc>
+  </url>
+  <url>
+    <loc>https://casperhart.github.io/detourr/articles/display_scatter_interactivity/display_scatter_interactivity.html</loc>
   </url>
   <url>
     <loc>https://casperhart.github.io/detourr/articles/index.html</loc>

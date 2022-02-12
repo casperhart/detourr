@@ -1,9 +1,11 @@
-pandoc: 2.7.3
+pandoc: 2.14.2
 pkgdown: 2.0.2
 pkgdown_sha: ~
 articles:
-  adding_a_new_widget: adding_a_new_widget.html
-last_built: 2022-02-12T00:50Z
+  adding_a_new_widget: adding_a_new_widget/adding_a_new_widget.html
+  detourr_development_setup: development_setup/detourr_development_setup.html
+  display_scatter_interactivity: display_scatter_interactivity/display_scatter_interactivity.html
+last_built: 2022-02-12T03:55Z
 urls:
   reference: https://casperhart.github.io/detourr/reference
   article: https://casperhart.github.io/detourr/articles
