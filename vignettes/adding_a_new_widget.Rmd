@@ -17,19 +17,31 @@ knitr::opts_chunk$set(
 )
 ```
 
-{detourr} is designed to be extensible, allowing for the addition of new widgets and display methods independently of existing ones. This vignette details how you can extend {detourr} with your own data visuals.
+
+{detourr} relies heavily on the [HTMLWidgets](https://www.htmlwidgets.org/) package, which allows us to define visuals using javascript and CSS.
+Each of these visuals is referred to as a `widget`, and the {detourr} package allows for new widgets to be added independently of existing ones.
+
+There are several reasons why HTMLWidgets and Javascript are used, for example:
+
+- Javascript, HTML, and CSS are portable. They can be used with any browser, RStudio, Shiny, and RMarkdown.
+- Perfomance of animations in JS is good, especially when using HTML Canvas elements. This means we can get smooth animations and display large datasets.
+- It's easy to build interactive elements in JS
+- A large range of JS visualisation libraries can be used
+
+Rather than writing javascript code directly, {detourr} widgets are written in typescript (TS) which is then transpiled in to javascript when the package is built. 
+Typescript is used because it makes the code easier to read, and prevents a range of runtime bugs by type-checking the code.
 
 ## Prerequisites
 
-{detourr} uses TypeScript (TS) code to define widgets, which needs to be bundled as changes are made. In order to do this, you will need to have [node.js](https://nodejs.org) and [yarn](https://yarnpkg.com) installed.
+To set up the project for development, you'll need to install [node.js](https://nodejs.org) and [yarn](https://yarnpkg.com).
 
-After cloning this repository, install the node.js dependencies with:
+Then after cloning this repository, open the terminal and install the node.js dependencies with:
 
 ```{sh, eval=FALSE}
 yarn install
 ```
 
-Then bundle the TypeScript code and install {detourr} using:
+Then bundle the typescript code and install {detourr} using:
 
 ```{sh, eval=FALSE}
 yarn run build
@@ -69,7 +81,7 @@ At the moment, all we are doing is logging the data to the browser console. This
 
 ## Bundling the widget
 
-The HTMLWidgets package can't deal with this Typescript code as-is, so we need to modify our `webpack` configuration so that it gets transpiled to javascript and bundled when the package is built. 
+The HTMLWidgets package can't deal with this typescript code as-is, so we need to modify our `webpack` configuration so that it gets transpiled to javascript and bundled when the package is built. 
 
 This only requires a small modification to the `webpack/package.config.ts` to include our TS code as an additional entrypoint:
 
@@ -213,9 +225,9 @@ If we open up the browser console, we can see the full structure of the data set
 knitr::include_graphics("images/browser_console.png")
 ```
 
-## Useful tips
+## Useful resources
 
-### Extending existing widgets
-
-A major benefit of having each widget defined as its own class is that existing widgets can be extended and modified, which removes the need to create them from scratch.
-
+- [Three.js](https://threejs.org/)
+- [Webpack](https://webpack.js.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [HTMLWidgets](https://www.htmlwidgets.org/)
