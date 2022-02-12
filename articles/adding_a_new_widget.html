@@ -77,14 +77,22 @@
 
     
     
-<p>{detourr} is designed to be extensible, allowing for the addition of new widgets and display methods independently of existing ones. This vignette details how you can extend {detourr} with your own data visuals.</p>
+<p>{detourr} relies heavily on the <a href="https://www.htmlwidgets.org/" class="external-link">HTMLWidgets</a> package, which allows us to define visuals using javascript and CSS. Each of these visuals is referred to as a <code>widget</code>, and the {detourr} package allows for new widgets to be added independently of existing ones.</p>
+<p>There are several reasons why HTMLWidgets and Javascript are used, for example:</p>
+<ul>
+<li>Javascript, HTML, and CSS are portable. They can be used with any browser, RStudio, Shiny, and RMarkdown.</li>
+<li>Perfomance of animations in JS is good, especially when using HTML Canvas elements. This means we can get smooth animations and display large datasets.</li>
+<li>It’s easy to build interactive elements in JS</li>
+<li>A large range of JS visualisation libraries can be used</li>
+</ul>
+<p>Rather than writing javascript code directly, {detourr} widgets are written in typescript (TS) which is then transpiled in to javascript when the package is built. Typescript is used because it makes the code easier to read, and prevents a range of runtime bugs by type-checking the code.</p>
 <div class="section level2">
 <h2 id="prerequisites">Prerequisites<a class="anchor" aria-label="anchor" href="#prerequisites"></a>
 </h2>
-<p>{detourr} uses TypeScript (TS) code to define widgets, which needs to be bundled as changes are made. In order to do this, you will need to have <a href="https://nodejs.org" class="external-link">node.js</a> and <a href="https://yarnpkg.com" class="external-link">yarn</a> installed.</p>
-<p>After cloning this repository, install the node.js dependencies with:</p>
+<p>To set up the project for development, you’ll need to install <a href="https://nodejs.org" class="external-link">node.js</a> and <a href="https://yarnpkg.com" class="external-link">yarn</a>.</p>
+<p>Then after cloning this repository, open the terminal and install the node.js dependencies with:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">yarn</span> install</span></code></pre></div>
-<p>Then bundle the TypeScript code and install {detourr} using:</p>
+<p>Then bundle the typescript code and install {detourr} using:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">yarn</span> run build</span></code></pre></div>
 </div>
 <div class="section level2">
@@ -118,7 +126,7 @@
 <div class="section level2">
 <h2 id="bundling-the-widget">Bundling the widget<a class="anchor" aria-label="anchor" href="#bundling-the-widget"></a>
 </h2>
-<p>The HTMLWidgets package can’t deal with this Typescript code as-is, so we need to modify our <code>webpack</code> configuration so that it gets transpiled to javascript and bundled when the package is built.</p>
+<p>The HTMLWidgets package can’t deal with this typescript code as-is, so we need to modify our <code>webpack</code> configuration so that it gets transpiled to javascript and bundled when the package is built.</p>
 <p>This only requires a small modification to the <code>webpack/package.config.ts</code> to include our TS code as an additional entrypoint:</p>
 <p><code>webpack/package.config.ts</code>:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>const path = require("path");</span>
@@ -237,13 +245,14 @@
 <p><img src="images/browser_console.png" width="100%"></p>
 </div>
 <div class="section level2">
-<h2 id="useful-tips">Useful tips<a class="anchor" aria-label="anchor" href="#useful-tips"></a>
+<h2 id="useful-resources">Useful resources<a class="anchor" aria-label="anchor" href="#useful-resources"></a>
 </h2>
-<div class="section level3">
-<h3 id="extending-existing-widgets">Extending existing widgets<a class="anchor" aria-label="anchor" href="#extending-existing-widgets"></a>
-</h3>
-<p>A major benefit of having each widget defined as its own class is that existing widgets can be extended and modified, which removes the need to create them from scratch.</p>
-</div>
+<ul>
+<li><a href="https://threejs.org/" class="external-link">Three.js</a></li>
+<li><a href="https://webpack.js.org/" class="external-link">Webpack</a></li>
+<li><a href="https://www.typescriptlang.org/" class="external-link">TypeScript</a></li>
+<li><a href="https://www.htmlwidgets.org/" class="external-link">HTMLWidgets</a></li>
+</ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
