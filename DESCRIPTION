@@ -25,8 +25,11 @@ Roxygen: list(markdown = TRUE)
 Suggests: 
     testthat (>= 3.0.0),
     crosstalk,
-    shiny
+    shiny,
+    liminal
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://casperhart.github.io/detourr/
 BugReports: https://github.com/casperhart/detourr/issues
+Depends: 
+    R (>= 2.10)

@@ -1,4 +1,4 @@
-button {
+button.detourrButton {
   background-color: transparent;
   position: absolute;
   color: rgb(0, 0, 0);
@@ -7,42 +7,44 @@ button {
   height: 30px;
   border-color: transparent;
   left: 10px;
+  padding-top: 0px;
+  padding-right: 6px;
 }
 
-button:hover {
+button.detourrButton:hover {
   color: rgb(56, 56, 56);
 }
 
-button.resetButton {
+button.detourrButton.resetButton {
   top: 15px;
   border: 5px;
 }
 
-button.panButton {
+button.detourrButton.panButton {
   top: 50px;
   border: 5px;
 }
 
-button.orbitButton {
+button.detourrButton.orbitButton {
   top: 85px;
   border: 5px;
 }
 
-button.selectButton {
+button.detourrButton.selectButton {
   top: 120px;
   border: 5px;
 }
 
-button.brushButton {
+button.detourrButton.brushButton {
   top: 155px;
   border: 5px;
 }
 
-button.unselected {
+button.detourrButton.unselected {
   color: rgb(75, 75, 75);
 }
 
-button.selected {
+button.detourrButton.selected {
   color: rgb(44, 44, 240);
 }
 
