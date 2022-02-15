@@ -103,10 +103,10 @@ export class ScatterControls {
     icon: string,
     buttonCallback: Function
   ) {
-    let button = document.createElement("button");
+    const button = document.createElement("button");
     button.innerHTML = icon;
     button.title = hoverText;
-    button.className = className;
+    button.className = `detourrButton ${className}`;
     button.onclick = () => buttonCallback();
     this.container.appendChild(button);
     return button;
@@ -125,7 +125,7 @@ export class ScatterControls {
 
   private addColourSelector() {
     // add colour picker
-    let colourSelector = document.createElement("input");
+    const colourSelector = document.createElement("input");
     colourSelector.setAttribute("type", "color");
     colourSelector.className = "colourSelector";
     colourSelector.setAttribute("value", "#619CFF");

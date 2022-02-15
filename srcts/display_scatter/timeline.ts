@@ -68,7 +68,7 @@ export class Timeline {
     const button = document.createElement("button");
     button.innerHTML = icon;
     button.title = hoverText;
-    button.className = `${name}Button`;
+    button.className = `detourrButton ${name}Button`;
     button.onclick = () => buttonCallback();
     return button;
   }
