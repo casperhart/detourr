@@ -15,9 +15,7 @@ Aesthetic mapping for tours describing how variables in the data are
 mapped to visual properties of the tour animation.
 }
 \examples{
-animate_tour(
-  tourr::flea,
-  tourr::grand_tour(3),
-  display_scatter(tour_aes(colour = species))
-)
+detour(tourr::flea, tour_aes(projection = -species, colour = species)) \%>\%
+  tour_path(grand_tour(3), fps = 60) \%>\%
+  display_scatter(alpha = 0.7, axes = FALSE)
 }

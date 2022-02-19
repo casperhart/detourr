@@ -20,12 +20,16 @@ Imports:
     viridisLite,
     grDevices,
     jsonlite,
+    magrittr,
 RoxygenNote: 7.1.2
 Roxygen: list(markdown = TRUE)
 Suggests: 
     testthat (>= 3.0.0),
     crosstalk,
     shiny,
+    htmltools,
+    knitr,
+    dplyr,
     liminal
 Config/testthat/edition: 3
 VignetteBuilder: knitr

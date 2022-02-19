@@ -153,7 +153,7 @@ HTMLWidgets.widget({
 
 ## Adding the display method in R
 
-Here we diverge from the [htmlwidgets documentation](https://www.htmlwidgets.org/develop_intro.html) a little bit. Rather than creating an R binding directly, we will instead create a new display method called `display_hello_world`, and let the `animate_tour` function handle the rest.
+Here we create the R binding for the `display_hello_world` function. This is simply a function that takes a `detour` object and returns an HTML Widget. In this example, we've also included a `...` argument so that we can pass parameters through to `htmlwidgets::createWidget`, and included some sensible defaults for the widget `sizingPolicy`. 
 
 `R/display_hello_world.R`:
 ```{r, eval=FALSE}
@@ -163,40 +163,29 @@ Here we diverge from the [htmlwidgets documentation](https://www.htmlwidgets.org
 #' {roxygen2} package when we run `yarn run build`. As such, the `@export`
 #' below is necessary, or else this function won't be made available to the
 #' user
-#'
+#' @param d a `detour` object
+#' @param ... additional arguments to pass to `htmlwidgets::createWidget`
 #' @export
-display_hello_world <- function() {
-  init <- function(data, col_spec, tour_dim) {
-    data_cols <- tidyselect::eval_select(col_spec, data)
-    labels <- names(data_cols)
-
-    list(
-      "plot" = list(
-        labels = labels
-      ),
-      "widget" = "hello_world",
-      "mapping" = list()
-    )
-  }
-  list(
-    "init" = init
+display_hello_world <- function(d, ...) {
+  dots <- list(...)
+  htmlwidgets::createWidget(
+    name = "hello_world",
+    d,
+    sizingPolicy = htmlwidgets::sizingPolicy(
+      viewer.padding = 0,
+      viewer.paneHeight = 500,
+      browser.fill = TRUE,
+      knitr.defaultWidth = 800,
+      knitr.defaultHeight = 500
+    ),
+    package = "detourr",
+    width = dots$width,
+    height = dots$height
   )
 }
 ```
 
-The return value of `display_hello_world` is a list containing an `init` function which is called within `animate_tour` in order to get a widget-specific configuration. The input to this function consists of:
-
-- `data`: The input data to use as a data frame. This will contain the numeric columns to use for the tour, as well as any additional columns which may be used for aesthetic mappings.
-- `col_spec`: a quosure specifying which numeric columns to use for the tour. Is evaluated using {tidyselect}
-- `tour_dim`: the output dimension of the tour. E.g. 2, 3
-
-The `init` function is expected to return a list with the following elements:
-
-- `plot`: configuation for the plot. Usually a list.
-- `widget`: the name of the htmlwidget to use as a character value. This must be consistent with what is specified in `inst/htmlwidgets/hello_world.yaml`.
-- `mapping`: aesthetic mappings for the plot, usually in the format `list("aesthetic_name": values)`
-
-All the values returned by this function will be passed through to the `hello_world` widget's `renderValue` method, along with additional fields from the `animate_tour` function such as the dataset and projection matrices.
+All the values in the detour object `d` are passed through to the `hello_world` widget's `renderValue` method. This includes the tour path, data, and some basic configuration. Any configuration specific to this widget can be appended to the `detourr` object before the widget is created.
 
 ## Trying it out
 
@@ -210,7 +199,8 @@ And then test out the widget in R:
 
 ```{r, eval=FALSE}
 library(detourr)
-animate_tour(tourr::flea, grand_tour(2), display_hello_world())
+detour(tourr::flea, tour_aes(projection = where(is.numeric))) %>%
+  display_hello_world()
 ```
 
 ```{r, echo=FALSE}

@@ -1,3 +1,7 @@
+#' @importFrom magrittr %>%
+#' @export
+magrittr::`%>%`
+
 # tour paths ------------------------------------------------------------------
 
 #' @importFrom tourr dependence_tour

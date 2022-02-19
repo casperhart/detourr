@@ -18,3 +18,9 @@ demo/*
 ^docs$
 ^pkgdown$
 ^\.github$
+.editorConfig
+.eslintrc.json
+.nvmrc
+.yarnrc.yml
+.vscode
+.yarn

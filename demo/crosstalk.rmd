@@ -22,13 +22,11 @@ a <- d3scatter(shared_flea,
   x = ~tars1, y = ~head, color = ~species,
   width = "100%"
 )
-b <- animate_tour(
-  shared_flea,
-  display = display_scatter(tour_aes(colour = species)),
-  max_bases = 10,
-  tour_path = tourr::grand_tour(2),
-  width = "100%"
-)
+b <- detour(
+  shared_flea, tour_aes(projection = tars1:aede3, colour = species)
+) %>%
+  display_scatter(width = "100%")
+
 c <- datatable(shared_flea, width = "100%")
 
 bscols(

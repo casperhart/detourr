@@ -9,7 +9,6 @@ export interface ScatterInputData {
 export interface Config {
   fps: number;
   duration: number;
-  center: boolean;
   size: number;
   axisLabels: string[];
   axes: boolean;
