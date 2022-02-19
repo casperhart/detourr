@@ -7,7 +7,7 @@
 #'
 #' This display method produces an interactive scatterplot animation which
 #' supports both 2D and 3D tours. Linked selection and filtering is also
-#' supported using {crosstalk}. The set of interactive controls availabe are:
+#' supported using {crosstalk}. The set of interactive controls available are:
 #' - A timeline with a play / pause button and indicators at the position of
 #' each basis used. The basis indicators can be hovered with the mouse to show
 #' the index of the basis, or clicked to jump to that basis. The timeline
@@ -24,9 +24,8 @@
 #' shift key
 #' - Colouring / brushing of highlighted points
 #'
-#' @param mapping mapping created via `tour_aes()`. Currently supports `colour`
-#' and `labels`.
-#' @param ... used to support aestetic parameters for the plot, including
+#' @param d a `detour` object
+#' @param ... used to support aesthetic parameters for the plot, including
 #' - size: point size, defaults to 1
 #' - alpha: point opacity, defaults to 1
 #' - background_colour: defaults to "white"
@@ -45,21 +44,24 @@
 #' `h`
 #' @param edges A two column numeric matrix giving indices of ends of lines.
 #' @param paused whether the widget should be initialised in the 'paused' state
+#' @param scale_factor used as a multiplier for the point coordinates so they
+#' are displayed on a sensible range. Defaults to the reciprocal of maximum distance
+#' from a point to the origin.
 #' @importFrom rlang `%||%`
 #' @export
 #' @examples
-#' animate_tour(tourr::flea, tourr::grand_tour(3), display_scatter())
-display_scatter <- function(mapping = NULL,
+#' detour(tourr::flea, tour_aes(projection = -species, colour = species)) %>%
+#'   tour_path(grand_tour(3), fps = 60) %>%
+#'   display_scatter(alpha = 0.7, axes = FALSE)
+#' @export
+display_scatter <- function(d,
                             ...,
                             palette = viridisLite::viridis,
                             center = TRUE,
                             axes = TRUE,
                             edges = NULL,
-                            paused = TRUE) {
-  if (!rlang::is_null(mapping)) {
-    names(mapping) <- sub("color", "colour", names(mapping))
-  }
-
+                            paused = TRUE,
+                            scale_factor = NULL) {
   dots <- list(...)
   names(dots) <- sub("color", "colour", names(dots))
   check_dots(dots, c("size", "alpha", "background_colour"))
@@ -67,65 +69,81 @@ display_scatter <- function(mapping = NULL,
   alpha <- dots[["alpha"]] %||% 1
   background_colour <- dots[["background_colour"]] %||% "white"
 
-  if (missing(palette) && !("colour" %in% names(mapping))) palette <- "black"
+  if (missing(palette) && !("colour" %in% names(d$mapping))) palette <- "black"
 
-  init <- function(data, col_spec, tour_dim) {
-    default_mapping <- list(colour = character(0), label = character(0))
-    mapping <- purrr::map(mapping, get_mapping_cols, data)
-
-    colours <- get_colour_mapping(data, mapping, palette)
-    mapping[["colour"]] <- colours[["colours"]]
-    pal <- colours[["pal"]]
-
-    mapping[["label"]] <- get_label_mapping(data, mapping)
-
-    mapping <- merge_defaults_list(mapping, default_mapping)
-
-    data_cols <- tidyselect::eval_select(col_spec, data)
-    default_labels <- names(data_cols)
-    axes <- validate_axes(axes, default_labels, data_cols)
-
-    edges <- validate_edges(edges)
-    alpha <- validate_alpha(alpha)
-
-    widget <- infer_widget("display_scatter", tour_dim)
-
-    list(
-      "mapping" = mapping,
-      "plot" = list(
-        "center" = center,
-        "size" = size,
-        "axisLabels" = axes[["labels"]],
-        "edges" = edges,
-        "axes" = axes[["has_axes"]],
-        "alpha" = alpha,
-        "backgroundColour" = col2hex(background_colour),
-        "paused" = paused
-      ),
-      "widget" = widget
-    )
+  if (is.null(d$projectionMatrices)) {
+    d <- tour_path(d)
   }
-  list(
-    "init" = init
+
+  colours <- get_colour_mapping(nrow(d$dataset), d$mapping$colour, palette)
+  d$mapping[["colour"]] <- colours[["colours"]]
+  pal <- colours[["pal"]]
+
+  d$mapping[["label"]] <- get_label_mapping(d$mapping$label)
+
+  default_labels <- colnames(d$dataset)
+  axes <- validate_axes(axes, default_labels)
+
+  edges <- validate_edges(edges)
+  alpha <- validate_alpha(alpha)
+
+  if (center) {
+    d$dataset <- scale(d$dataset, center = TRUE, scale = FALSE)
+  }
+
+  if (is.null(scale_factor)) {
+    scale_factor <- 1 / max(sqrt(rowSums(d$dataset^2)))
+  }
+
+  d$dataset <- d$dataset * scale_factor
+
+  # only include supported mappings
+  d$mapping <- d$mapping[names(d$mapping) %in% c("colour", "label")]
+
+  d$config <- append(d$config, list(
+    size = size,
+    axisLabels = axes[["labels"]],
+    edges = edges,
+    axes = axes[["has_axes"]],
+    alpha = alpha,
+    backgroundColour = col2hex(background_colour),
+    paused = paused
+  ))
+
+  widget <- infer_widget("display_scatter", ncol(d$projectionMatrices[[1]]))
+
+  htmlwidgets::createWidget(
+    widget,
+    d,
+    sizingPolicy = htmlwidgets::sizingPolicy(
+      viewer.padding = 0,
+      viewer.paneHeight = 500,
+      browser.fill = TRUE,
+      knitr.defaultWidth = 800,
+      knitr.defaultHeight = 500
+    ),
+    package = "detourr",
+    dependencies = d$crosstalk_dependencies,
+    width = dots$width,
+    height = dots$height
   )
 }
 
-get_colour_mapping <- function(data, mapping, palette) {
-  if ("colour" %in% names(mapping)) {
-    colours <- vec_to_colour(mapping[["colour"]], palette)
+get_colour_mapping <- function(n, colour_df, palette) {
+  if (!is.null(colour_df)) {
+    colours <- df_to_colour(colour_df, palette)
   } else {
-    colours <- vec_to_colour(data.frame(rep("", nrow(data))), palette)
+    colours <- df_to_colour(data.frame(rep("", n)), palette)
   }
   colours
 }
 
-get_label_mapping <- function(data, mapping) {
-  if ("label" %in% names(mapping)) {
-    label <- mapping[["label"]]
-    if (inherits(label, "AsIs")) {
-      label <- as.character(label[[1]])
+get_label_mapping <- function(label_df) {
+  if (!is.null(label_df)) {
+    if (inherits(label_df, "AsIs")) {
+      label <- as.character(label_df[[1]])
     } else {
-      label <- purrr::map(names(label), ~ paste0(., ": ", label[[.]]))
+      label <- purrr::map(names(label_df), ~ paste0(., ": ", label_df[[.]]))
       label <- do.call(paste, c(label, sep = "<br>"))
     }
   } else {
@@ -134,7 +152,7 @@ get_label_mapping <- function(data, mapping) {
   label
 }
 
-validate_axes <- function(axes, default_labels, data_cols) {
+validate_axes <- function(axes, default_labels) {
   if (rlang::is_true(axes)) {
     axis_labels <- default_labels
   } else if (rlang::is_false(axes)) {
@@ -143,11 +161,12 @@ validate_axes <- function(axes, default_labels, data_cols) {
     axis_labels <- character(0)
     axes <- TRUE
   } else if (rlang::is_named(axes)) {
-    renamed <- tidyselect::eval_rename(axes, data_cols)
+    # renamed <- tidyselect::eval_rename(axes, data_cols)
+    axes <- axes[axes %in% default_labels]
+    default_labels[match(axes, default_labels)] <- names(axes)
     axis_labels <- default_labels
-    axis_labels[renamed] <- names(renamed)
     axes <- TRUE
-  } else if (rlang::has_length(axes, length(data_cols))) {
+  } else if (rlang::has_length(axes, length(default_labels))) {
     axis_labels <- as.character(axes)
     axes <- TRUE
   } else {

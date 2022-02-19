@@ -9,7 +9,6 @@ import {
   ScatterInputData,
 } from "./types";
 import { Timeline } from "./timeline";
-import { centerColumns, getColMeans } from "./utils";
 import { SelectionHelper } from "./selection_helper";
 import { AxisLabel } from "./axis_label";
 import { ScatterControls } from "./controls";
@@ -91,7 +90,6 @@ export abstract class DisplayScatter {
   }
 
   private constructPlot() {
-    this.colMeans = getColMeans(this.dataset);
 
     this.setDefaultPointColours();
     this.setDefaultFilterSelection();
@@ -112,7 +110,7 @@ export abstract class DisplayScatter {
     const shaderOpts = this.getShaderOpts(pointSize);
     const pointsMaterial = new THREE.ShaderMaterial(shaderOpts);
 
-    this.currentFrameBuffer = this.getPointsBuffer(0, this.config.center);
+    this.currentFrameBuffer = this.getPointsBuffer(0);
     pointsGeometry.setAttribute("position", this.currentFrameBuffer);
 
     this.points = new THREE.Points(pointsGeometry, pointsMaterial);
@@ -162,7 +160,7 @@ export abstract class DisplayScatter {
       this.axisLabels = [];
     }
     this.orbitButtonAction();
-    this.scene.remove.apply(this.scene, this.scene.children);
+    this.scene.remove(...this.scene.children);
   }
 
   public resize(newWidth: number, newHeight: number) {
@@ -360,16 +358,11 @@ export abstract class DisplayScatter {
     );
   }
 
-  private getPointsBuffer(i: number, center: boolean): THREE.BufferAttribute {
-    let positionMatrix: Matrix = this.multiply(
+  private getPointsBuffer(i: number): THREE.BufferAttribute {
+    const positionMatrix: Matrix = this.multiply(
       this.dataset,
       this.projectionMatrices[i]
     );
-
-    if (center) {
-      const colMeans = this.multiply(this.colMeans, this.projectionMatrices[i]);
-      positionMatrix = centerColumns(positionMatrix, colMeans);
-    }
 
     const flattenedPositionMatrix = new Float32Array(positionMatrix.flat());
     return new THREE.BufferAttribute(flattenedPositionMatrix, 3);
@@ -559,7 +552,12 @@ export abstract class DisplayScatter {
       newSelection = this.selectedPointIndices.concat(newSelection);
     }
 
-    this.selectedPointIndices = newSelection;
+    if (newSelection.length == 0) {
+      this.setDefaultPointSelection();
+    } else {
+      this.selectedPointIndices = newSelection;
+    }
+
     this.highlightSelectedPoints();
     if (this.isSleeping) {
       this.animate();
@@ -611,12 +609,10 @@ export abstract class DisplayScatter {
     ) {
       console.log(id)
       const toolTipCoords = this.toolTip.getBoundingClientRect();
-      this.toolTip.style.left = `${
-        Math.floor(x / dpr) - toolTipCoords.width
-      }px`;
-      this.toolTip.style.top = `${
-        Math.floor(y / dpr) - toolTipCoords.height
-      }px`;
+      this.toolTip.style.left = `${Math.floor(x / dpr) - toolTipCoords.width
+        }px`;
+      this.toolTip.style.top = `${Math.floor(y / dpr) - toolTipCoords.height
+        }px`;
       this.toolTip.className = "detourrTooltip visible";
       const span = this.toolTip.querySelector("span");
       span.innerHTML = `${this.mapping.label[id - 1]}`;
@@ -640,9 +636,7 @@ export abstract class DisplayScatter {
 
     if (currentFrame != this.oldFrame) {
       this.currentFrameBuffer = this.getPointsBuffer(
-        currentFrame % this.projectionMatrices.length,
-        this.config.center
-      );
+        currentFrame % this.projectionMatrices.length);
 
       this.points.geometry.setAttribute("position", this.currentFrameBuffer);
 

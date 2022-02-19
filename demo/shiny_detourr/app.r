@@ -18,7 +18,7 @@ ui <- fluidPage(
 
     # output function used matches display method (display_scatter) and tour
     # dimension (3d)
-    column(8, displayScatter3dOutput("detourr", height = "800px"))
+    column(8, displayScatter3dOutput("detour", height = "800px"))
   )
 )
 
@@ -39,13 +39,12 @@ server <- function(input, output, session) {
     )
   })
 
-  output$detourr <- shinyRenderTour({
+  output$detour <- shinyRenderDisplayScatter3d({
     set.seed(input$seed)
-    animate_tour(shared_iris,
-      tourr::grand_tour(3),
-      display_scatter(tour_aes(colour = Species)),
-      max_bases = input$max_bases
-    )
+
+    detour(shared_iris, tour_aes(projection = -Species, colour = Species)) %>%
+      tour_path(grand_tour(3), max_bases = input$max_bases) %>%
+      display_scatter()
   })
 }
 

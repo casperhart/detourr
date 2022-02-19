@@ -8,19 +8,6 @@ quiet <- function(x) {
   invisible(force(x))
 }
 
-compute_half_range <- function(half_range, data, center) {
-  if (!is.null(half_range)) {
-    return(half_range)
-  }
-
-  if (center) {
-    data <- tourr::center(data)
-  }
-  half_range <- max(sqrt(rowSums(data^2)))
-  message("Using half_range ", format(half_range, digits = 2))
-  half_range
-}
-
 col2hex <- function(col) {
   grDevices::rgb(t(grDevices::col2rgb(col)), maxColorValue = 255)
 }
@@ -31,14 +18,6 @@ merge_defaults_list <- function(l, default_l) {
   default_l
 }
 
-get_tour_data_matrix <- function(data, col_spec) {
-  tour_cols <- tidyselect::eval_select(col_spec, data)
-  if (!all(sapply(tour_cols, is.numeric))) {
-    rlang::abort("all specified cols must be numeric")
-  }
-  tour_cols <- as.matrix(data[tour_cols])
-}
-
 #' Aesthetic mapping for tours
 #'
 #' Aesthetic mapping for tours describing how variables in the data are
@@ -46,29 +25,28 @@ get_tour_data_matrix <- function(data, col_spec) {
 #' @param ... list of name-value pairs in the form 'aesthetic = variable'.
 #' Variables are evaluated using {tidyselect} syntax.
 #' @examples
-#' animate_tour(
-#'   tourr::flea,
-#'   tourr::grand_tour(3),
-#'   display_scatter(tour_aes(colour = species))
-#' )
+#' detour(tourr::flea, tour_aes(projection = -species, colour = species)) %>%
+#'   tour_path(grand_tour(3), fps = 60) %>%
+#'   display_scatter(alpha = 0.7, axes = FALSE)
 #' @export
 tour_aes <- function(...) {
   rlang::enquos(...)
 }
 
-get_mapping_cols <- function(aes, data) {
-  if (rlang::quo_is_call(aes, name = "I")) {
-    aes_vals <- rlang::eval_tidy(aes, data)
+get_mapping_cols <- function(mapping, .data) {
+  if (rlang::quo_is_call(mapping, name = "I")) {
+    aes_vals <- rlang::eval_tidy(mapping, .data)
     # recycle in case literal values are being used. E.g. "red" vs. red
-    aes_vals <- rep(aes_vals, length.out = nrow(data))
+    aes_vals <- rep(aes_vals, length.out = nrow(.data))
     I(data.frame(aes_vals = aes_vals))
   } else {
-    col <- tidyselect::vars_select(names(data), !!aes)
-    data[col]
+    col <- tidyselect::eval_select(mapping, .data)
+    .data[col]
   }
 }
 
-vec_to_colour <- function(vec, pal) {
+
+df_to_colour <- function(vec, pal) {
   if (inherits(vec, "AsIs")) {
     vec <- as.factor(vec[[1]])
     pal <- col2hex(levels(vec))

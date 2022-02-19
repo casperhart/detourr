@@ -56,19 +56,14 @@ Below is the 2D variant of `display_scatter()`:
 ```{r 2d-scatter, message=FALSE}
 set.seed(1)
 
-animate_tour(
+detour(
   plot_data,
-  cols = starts_with("PC"),
-  grand_tour(2),
-  display_scatter(tour_aes(
-    colour = Type,
-    label = I(ID)
-  ),
-  axes = FALSE,
-  size = 0.5,
-  alpha = 0.7
+  tour_aes(
+    projection = starts_with("PC"),
+    colour = Type, label = I(ID)
   )
-)
+) %>%
+  display_scatter(axes = FALSE, alpha = 0.7, size = 0.5)
 ```
 
 And the 3D variant:
@@ -76,19 +71,16 @@ And the 3D variant:
 ```{r 3d-scatter, message=FALSE}
 set.seed(1)
 
-animate_tour(
+detour(
   plot_data,
-  cols = starts_with("PC"),
-  grand_tour(3),
-  display_scatter(tour_aes(
+  tour_aes(
+    projection = starts_with("PC"),
     colour = Type,
     label = c(InFit, Type, ID, pt, x, mu)
-  ),
-  axes = FALSE,
-  size = 0.5,
-  alpha = 0.7
   )
-)
+) %>%
+  tour_path(grand_tour(3)) %>%
+  display_scatter(axes = FALSE, alpha = 0.7, size = 0.5)
 ```
 
 ---
