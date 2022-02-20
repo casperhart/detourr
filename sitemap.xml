@@ -28,7 +28,7 @@
     <loc>https://casperhart.github.io/detourr/index.html</loc>
   </url>
   <url>
-    <loc>https://casperhart.github.io/detourr/reference/animate_tour.html</loc>
+    <loc>https://casperhart.github.io/detourr/reference/detour.html</loc>
   </url>
   <url>
     <loc>https://casperhart.github.io/detourr/reference/detourr-shiny.html</loc>
@@ -44,5 +44,8 @@
   </url>
   <url>
     <loc>https://casperhart.github.io/detourr/reference/tour_aes.html</loc>
+  </url>
+  <url>
+    <loc>https://casperhart.github.io/detourr/reference/tour_path.html</loc>
   </url>
 </urlset>
