@@ -66,7 +66,7 @@ display_scatter <- function(x,
     rlang::abort(c("x must be a `detour` object", x = paste("got:", class(x)[1])))
   }
 
-  if (length(x) == 0) {
+  if (length(x$projection_matrix) == 0) {
     x <- tour_path(x)
   }
 
@@ -116,13 +116,13 @@ display_scatter <- function(x,
     paused = paused
   ))
 
-  attributes(x) <- d
+  widget <- infer_widget("display_scatter", ncol(x$projection_matrix[[1]]))
 
-  widget <- infer_widget("display_scatter", ncol(x[[1]]))
+  x <- make_detour(x, d) |> as.list()
 
   htmlwidgets::createWidget(
     widget,
-    as.list(x),
+    x,
     sizingPolicy = htmlwidgets::sizingPolicy(
       viewer.padding = 0,
       viewer.paneHeight = 500,
@@ -131,7 +131,7 @@ display_scatter <- function(x,
       knitr.defaultHeight = 500
     ),
     package = "detourr",
-    dependencies = d$crosstalk_dependencies,
+    dependencies = x$crosstalk$dependencies,
     width = dots$width,
     height = dots$height
   )

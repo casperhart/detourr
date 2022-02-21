@@ -9,6 +9,7 @@
 #' determines which columns are used to generate the tour path and supports tidy selection.
 #'
 #' @importFrom utils object.size
+#' @importFrom tibble new_tibble tibble
 #' @examples
 #' detour(tourr::flea, tour_aes(projection = -species, colour = species)) |>
 #'   tour_path(grand_tour(3), fps = 60) |>
@@ -60,17 +61,26 @@ detour <- function(.data, mapping) {
     ))
   }
 
-  structure(list(),
+  new_tibble(tibble(is_new_basis = logical(0), projection_matrix = list()),
     mapping = mapping[!names(mapping) == "projection"],
     config = NULL,
-    widget = NULL,
     crosstalk = list(
       crosstalkIndex = crosstalk_key,
-      crosstalkGroup = crosstalk_group
+      crosstalkGroup = crosstalk_group,
+      dependencies = crosstalk_dependencies
     ),
-    projectionMatrices = NULL,
     dataset = dataset,
-    crosstalk_dependencies = crosstalk_dependencies,
+    class = "detour"
+  )
+}
+
+# make a detourr object from a tibble + attributes
+make_detour <- function(x, att) {
+  new_tibble(x,
+    mapping = att$mapping,
+    config = att$config,
+    crosstalk = att$crosstalk,
+    dataset = att$dataset,
     class = "detour"
   )
 }
@@ -78,10 +88,14 @@ detour <- function(.data, mapping) {
 #' @export
 as.list.detour <- function(x, ...) {
   tour_attrs <- attributes(x)
-  attributes(x) <- NULL
+  tour_attrs$config$basisIndices <- which(x$is_new_basis) - 1
+
+  tour_attrs <- tour_attrs[c("mapping", "config", "crosstalk", "dataset")]
+
+  tour_attrs$crosstalk$crosstalk_dependencies <- NULL
 
   append(
-    list(projectionMatrices = x),
+    list(projectionMatrices = x$projection_matrix),
     tour_attrs
   )
 }
@@ -91,12 +105,4 @@ as.list.detour <- function(x, ...) {
 #' @export
 is_detour <- function(x) {
   inherits(x, "detour")
-}
-
-#' @export
-print.detour <- function(x, ...) {
-  cat(sprintf(
-    "Object of class `detour` with %d bases and %d animation frames",
-    length(attr(x, "config")$basisIndices), length(x)
-  ))
 }

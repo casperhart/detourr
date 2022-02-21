@@ -32,20 +32,18 @@ tour_path <- function(x, tour_path = grand_tour(2),
     aps / fps
   ))
 
-  basis_indices <- numeric(0)
-  if (!rlang::is_null(attr(projection_matrices, "new_basis"))) {
-    basis_indices <- which(attr(projection_matrices, "new_basis")) - 1
-  }
+  is_new_basis <- attr(projection_matrices, "new_basis")
+
   projection_matrices <- purrr::array_branch(projection_matrices, 3)
-  n_frames <- length(projection_matrices)
+
+  x <- tibble(is_new_basis = is_new_basis, projection_matrix = projection_matrices)
+
+  n_frames <- nrow(x)
 
   d$config <- list(
     fps = fps,
-    duration = n_frames / fps,
-    basisIndices = basis_indices
+    duration = n_frames / fps
   )
 
-  x <- structure(projection_matrices)
-  attributes(x) <- d
-  x
+  make_detour(x, d)
 }
