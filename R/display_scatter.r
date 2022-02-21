@@ -24,7 +24,7 @@
 #' shift key
 #' - Colouring / brushing of highlighted points
 #'
-#' @param d a `detour` object
+#' @param x a `detour` object
 #' @param ... used to support aesthetic parameters for the plot, including
 #' - size: point size, defaults to 1
 #' - alpha: point opacity, defaults to 1
@@ -50,11 +50,11 @@
 #' @importFrom rlang `%||%`
 #' @export
 #' @examples
-#' detour(tourr::flea, tour_aes(projection = -species, colour = species)) %>%
-#'   tour_path(grand_tour(3), fps = 60) %>%
+#' detour(tourr::flea, tour_aes(projection = -species, colour = species)) |>
+#'   tour_path(grand_tour(3), fps = 60) |>
 #'   display_scatter(alpha = 0.7, axes = FALSE)
 #' @export
-display_scatter <- function(d,
+display_scatter <- function(x,
                             ...,
                             palette = viridisLite::viridis,
                             center = TRUE,
@@ -62,6 +62,16 @@ display_scatter <- function(d,
                             edges = NULL,
                             paused = TRUE,
                             scale_factor = NULL) {
+  if (!is_detour(x)) {
+    rlang::abort(c("x must be a `detour` object", x = paste("got:", class(x)[1])))
+  }
+
+  if (length(x) == 0) {
+    x <- tour_path(x)
+  }
+
+  d <- attributes(x)
+
   dots <- list(...)
   names(dots) <- sub("color", "colour", names(dots))
   check_dots(dots, c("size", "alpha", "background_colour"))
@@ -70,10 +80,6 @@ display_scatter <- function(d,
   background_colour <- dots[["background_colour"]] %||% "white"
 
   if (missing(palette) && !("colour" %in% names(d$mapping))) palette <- "black"
-
-  if (is.null(d$projectionMatrices)) {
-    d <- tour_path(d)
-  }
 
   colours <- get_colour_mapping(nrow(d$dataset), d$mapping$colour, palette)
   d$mapping[["colour"]] <- colours[["colours"]]
@@ -110,11 +116,13 @@ display_scatter <- function(d,
     paused = paused
   ))
 
-  widget <- infer_widget("display_scatter", ncol(d$projectionMatrices[[1]]))
+  attributes(x) <- d
+
+  widget <- infer_widget("display_scatter", ncol(x[[1]]))
 
   htmlwidgets::createWidget(
     widget,
-    d,
+    as.list(x),
     sizingPolicy = htmlwidgets::sizingPolicy(
       viewer.padding = 0,
       viewer.paneHeight = 500,

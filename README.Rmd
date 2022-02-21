@@ -33,14 +33,14 @@ remotes::install_github("casperhart/detourr")
 # 2D scatter
 library(tourr)
 library(detourr)
-detour(olive, tour_aes(projection = palmitic:eicosenoic, colour = region)) %>%
+detour(olive, tour_aes(projection = palmitic:eicosenoic, colour = region)) |>
   display_scatter()
 ```
 
 ```{r, eval=FALSE}
 # 3D scatter
-detour(olive, tour_aes(projection = palmitic:eicosenoic, colour = region)) %>%
-  tour_path(grand_tour(3)) %>%
+detour(olive, tour_aes(projection = palmitic:eicosenoic, colour = region)) |>
+  tour_path(grand_tour(3)) |>
   display_scatter()
 ```
 

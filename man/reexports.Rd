@@ -3,7 +3,6 @@
 \docType{import}
 \name{reexports}
 \alias{reexports}
-\alias{\%>\%}
 \alias{dependence_tour}
 \alias{frozen_tour}
 \alias{frozen_guided_tour}
@@ -20,8 +19,6 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{magrittr}{\code{\link[magrittr:pipe]{\%>\%}}}
-
   \item{tourr}{\code{\link[tourr]{dependence_tour}}, \code{\link[tourr]{frozen_guided_tour}}, \code{\link[tourr]{frozen_tour}}, \code{\link[tourr]{grand_tour}}, \code{\link[tourr]{guided_section_tour}}, \code{\link[tourr]{guided_tour}}, \code{\link[tourr]{little_tour}}, \code{\link[tourr]{local_tour}}, \code{\link[tourr]{planned_tour}}}
 }}
 

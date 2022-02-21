@@ -25,8 +25,8 @@ merge_defaults_list <- function(l, default_l) {
 #' @param ... list of name-value pairs in the form 'aesthetic = variable'.
 #' Variables are evaluated using {tidyselect} syntax.
 #' @examples
-#' detour(tourr::flea, tour_aes(projection = -species, colour = species)) %>%
-#'   tour_path(grand_tour(3), fps = 60) %>%
+#' detour(tourr::flea, tour_aes(projection = -species, colour = species)) |>
+#'   tour_path(grand_tour(3), fps = 60) |>
 #'   display_scatter(alpha = 0.7, axes = FALSE)
 #' @export
 tour_aes <- function(...) {

@@ -8,13 +8,18 @@
 #' visualisation.
 #'
 #' @inheritParams tourr::animate
-#' @param d a `detour` object
+#' @param x a `detour` object
 #' @param fps target frames per second
 #' @param max_bases the maximum number of bases to generate
 #' @export
-tour_path <- function(d, tour_path = grand_tour(2),
+tour_path <- function(x, tour_path = grand_tour(2),
                       start = NULL, aps = 1, fps = 30,
                       max_bases = 10) {
+  if (!is_detour(x)) {
+    rlang::abort(c("x must be a `detour` object", x = paste("got:", class(x)[1])))
+  }
+  d <- attributes(x)
+
   bases <- quiet(tourr::save_history(
     data = d$dataset,
     tour_path = tour_path,
@@ -40,6 +45,7 @@ tour_path <- function(d, tour_path = grand_tour(2),
     basisIndices = basis_indices
   )
 
-  d$projectionMatrices <- projection_matrices
-  d
+  x <- structure(projection_matrices)
+  attributes(x) <- d
+  x
 }
