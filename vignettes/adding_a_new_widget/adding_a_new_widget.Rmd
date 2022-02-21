@@ -166,11 +166,11 @@ Here we create the R binding for the `display_hello_world` function. This is sim
 #' @param d a `detour` object
 #' @param ... additional arguments to pass to `htmlwidgets::createWidget`
 #' @export
-display_hello_world <- function(d, ...) {
+display_hello_world <- function(x, ...) {
   dots <- list(...)
   htmlwidgets::createWidget(
     name = "hello_world",
-    d,
+    as.list(x),
     sizingPolicy = htmlwidgets::sizingPolicy(
       viewer.padding = 0,
       viewer.paneHeight = 500,
@@ -199,7 +199,7 @@ And then test out the widget in R:
 
 ```{r, eval=FALSE}
 library(detourr)
-detour(tourr::flea, tour_aes(projection = where(is.numeric))) %>%
+detour(tourr::flea, tour_aes(projection = where(is.numeric))) |>
   display_hello_world()
 ```
 

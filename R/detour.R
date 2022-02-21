@@ -6,12 +6,12 @@
 #' @param .data a data frame, tibble, or crosstalk::SharedData object
 #' @param mapping a mapping of data columns to aesthetic values using the
 #' `tour_aes` function. The only required aesthetic is `projection`, which
-#' determines which columns are used to generate the tour path.
+#' determines which columns are used to generate the tour path and supports tidy selection.
 #'
 #' @importFrom utils object.size
 #' @examples
-#' detour(tourr::flea, tour_aes(projection = -species, colour = species)) %>%
-#'   tour_path(grand_tour(3), fps = 60) %>%
+#' detour(tourr::flea, tour_aes(projection = -species, colour = species)) |>
+#'   tour_path(grand_tour(3), fps = 60) |>
 #'   display_scatter(alpha = 0.7, axes = FALSE)
 #' @export
 detour <- function(.data, mapping) {
@@ -31,7 +31,7 @@ detour <- function(.data, mapping) {
     crosstalk_group <- .data$groupName()
     .data <- .data$origData()
     crosstalk_dependencies <- crosstalk::crosstalkLibs()
-  } else if (!inherits(.data, "data.frame")) {
+  } else if (!is.data.frame(.data)) {
     rlang::abort(c("argument `.data` is invalid",
       i = "Expected a data frame or crosstalk::SharedData object",
       x = paste0("got: ", class(.data)[1])
@@ -60,7 +60,7 @@ detour <- function(.data, mapping) {
     ))
   }
 
-  structure(list(
+  structure(list(),
     mapping = mapping[!names(mapping) == "projection"],
     config = NULL,
     widget = NULL,
@@ -70,6 +70,33 @@ detour <- function(.data, mapping) {
     ),
     projectionMatrices = NULL,
     dataset = dataset,
-    crosstalk_dependencies = crosstalk_dependencies
-  ), class = "detour")
+    crosstalk_dependencies = crosstalk_dependencies,
+    class = "detour"
+  )
+}
+
+#' @export
+as.list.detour <- function(x, ...) {
+  tour_attrs <- attributes(x)
+  attributes(x) <- NULL
+
+  append(
+    list(projectionMatrices = x),
+    tour_attrs
+  )
+}
+
+#' Test for detour-ness
+#' @param x an object
+#' @export
+is_detour <- function(x) {
+  inherits(x, "detour")
+}
+
+#' @export
+print.detour <- function(x, ...) {
+  cat(sprintf(
+    "Object of class `detour` with %d bases and %d animation frames",
+    length(attr(x, "config")$basisIndices), length(x)
+  ))
 }

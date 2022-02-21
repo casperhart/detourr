@@ -5,7 +5,7 @@
 \title{Generate a tour path for a detour object}
 \usage{
 tour_path(
-  d,
+  x,
   tour_path = grand_tour(2),
   start = NULL,
   aps = 1,
@@ -14,7 +14,7 @@ tour_path(
 )
 }
 \arguments{
-\item{d}{a \code{detour} object}
+\item{x}{a \code{detour} object}
 
 \item{tour_path}{tour path generator, defaults to 2d grand tour}
 

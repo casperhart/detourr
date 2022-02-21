@@ -34,16 +34,16 @@ library(detourr)
 library(dplyr)
 data(pdfsense, package = "liminal")
 
-pcs <- pdfsense %>%
-  select(X1:X56) %>%
+pcs <- pdfsense |>
+  select(X1:X56) |>
   prcomp()
 
-pcs <- as_tibble(pcs$x) %>%
+pcs <- as_tibble(pcs$x) |>
   select(PC1:PC6)
 
-plot_data <- pdfsense %>%
-  select(-(X1:X56)) %>%
-  mutate(Type = as.character(Type)) %>%
+plot_data <- pdfsense |>
+  select(-(X1:X56)) |>
+  mutate(Type = as.character(Type)) |>
   bind_cols(pcs)
 ```
 
@@ -62,7 +62,7 @@ detour(
     projection = starts_with("PC"),
     colour = Type, label = I(ID)
   )
-) %>%
+) |>
   display_scatter(axes = FALSE, alpha = 0.7, size = 0.5)
 ```
 
@@ -78,8 +78,8 @@ detour(
     colour = Type,
     label = c(InFit, Type, ID, pt, x, mu)
   )
-) %>%
-  tour_path(grand_tour(3)) %>%
+) |>
+  tour_path(grand_tour(3)) |>
   display_scatter(axes = FALSE, alpha = 0.7, size = 0.5)
 ```
 

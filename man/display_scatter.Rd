@@ -5,7 +5,7 @@
 \title{2D and 3D Scatterplot display for tours}
 \usage{
 display_scatter(
-  d,
+  x,
   ...,
   palette = viridisLite::viridis,
   center = TRUE,
@@ -16,7 +16,7 @@ display_scatter(
 )
 }
 \arguments{
-\item{d}{a \code{detour} object}
+\item{x}{a \code{detour} object}
 
 \item{...}{used to support aesthetic parameters for the plot, including
 \itemize{
@@ -81,7 +81,7 @@ shift key
 }
 }
 \examples{
-detour(tourr::flea, tour_aes(projection = -species, colour = species)) \%>\%
-  tour_path(grand_tour(3), fps = 60) \%>\%
+detour(tourr::flea, tour_aes(projection = -species, colour = species)) |>
+  tour_path(grand_tour(3), fps = 60) |>
   display_scatter(alpha = 0.7, axes = FALSE)
 }

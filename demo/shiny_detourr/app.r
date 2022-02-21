@@ -42,8 +42,8 @@ server <- function(input, output, session) {
   output$detour <- shinyRenderDisplayScatter3d({
     set.seed(input$seed)
 
-    detour(shared_iris, tour_aes(projection = -Species, colour = Species)) %>%
-      tour_path(grand_tour(3), max_bases = input$max_bases) %>%
+    detour(shared_iris, tour_aes(projection = -Species, colour = Species)) |>
+      tour_path(grand_tour(3), max_bases = input$max_bases) |>
       display_scatter()
   })
 }

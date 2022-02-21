@@ -11,14 +11,14 @@ detour(.data, mapping)
 
 \item{mapping}{a mapping of data columns to aesthetic values using the
 \code{tour_aes} function. The only required aesthetic is \code{projection}, which
-determines which columns are used to generate the tour path.}
+determines which columns are used to generate the tour path and supports tidy selection.}
 }
 \description{
 This function initialises a \code{detour} object which, along with the
 \code{tour_path} and \code{display_functions} is used to build a detour visualisation.
 }
 \examples{
-detour(tourr::flea, tour_aes(projection = -species, colour = species)) \%>\%
-  tour_path(grand_tour(3), fps = 60) \%>\%
+detour(tourr::flea, tour_aes(projection = -species, colour = species)) |>
+  tour_path(grand_tour(3), fps = 60) |>
   display_scatter(alpha = 0.7, axes = FALSE)
 }

@@ -4,7 +4,7 @@ library(detourr)
 
 set.seed(1)
 
-p <- detour(tourr::flea, tour_aes(projection = where(is.numeric), color = species, label = species)) %>%
+p <- detour(tourr::flea, tour_aes(projection = where(is.numeric), color = species, label = species)) |>
   display_scatter()
 
 writeLines(
@@ -14,8 +14,8 @@ writeLines(
 
 set.seed(1)
 
-p <- detour(tourr::flea, tour_aes(projection = where(is.numeric), color = species, label = species)) %>%
-  tour_path(grand_tour(3)) %>%
+p <- detour(tourr::flea, tour_aes(projection = where(is.numeric), color = species, label = species)) |>
+  tour_path(grand_tour(3)) |>
   display_scatter()
 
 writeLines(
