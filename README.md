@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# detourr
+# detourr <img src="man/figures/logo.png" align="right"/>
 
 Animations for {tourr} using htmlwidgets for performance and
 portability.
