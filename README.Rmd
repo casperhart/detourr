@@ -6,18 +6,18 @@ output:
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+# detourr <img src="man/figures/logo.png" align="right"/>
+
+Animations for {tourr} using htmlwidgets for performance and portability.
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "man/figures/README-",
+  fig.path = "man/figures/",
   out.width = "100%"
 )
 ```
-
-# detourr
-
-Animations for {tourr} using htmlwidgets for performance and portability.
 
 # Installation
 
