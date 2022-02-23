@@ -83,7 +83,7 @@
 </h1>
 <p>Install this package by running the following in R:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"casperhart/detourr"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"casperhart/detourr"</span><span class="op">)</span></code></pre></div>
 </div>
 <div class="section level1">
 <h1 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
@@ -108,11 +108,11 @@
 </h2>
 <p>This project uses TypeScript code which needs to be compiled and bundled for the package to work. To do this, you will need <code>node.js</code>, and <code>yarn</code> installed.</p>
 <p>After cloning this repository, you can install the node.js dependencies via:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">yarn</span> install</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1"></a><span class="ex">yarn</span> install</span></code></pre></div>
 <p>Compile and bundle the TypeScript code and install the R package from source by running:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">yarn</span> run build</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1"></a><span class="ex">yarn</span> run build</span></code></pre></div>
 <p>The TypeScript code which powers the HTMLWidgets can also be run as a standalone app using <code>webpack-dev-server</code> as follows:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">yarn</span> run start-dev</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1"></a><span class="ex">yarn</span> run start-dev</span></code></pre></div>
 <p>This will start the webpack dev server, which will automatically recompile and reload the TypeScript code as changes are made. The sample data and HTML used by the dev server can be found in <code>./dev</code>, and are loaded in to memory based on the configuration in <code>webpack/dev.config.ts</code></p>
 <p>If you wish to make changes to the HTML files in <code>dev/</code>, or debug the <code>yarn run start-dev</code> command, you can instead run <code>yarn run build-dev</code>. This will load the files in <code>dev/</code> in to a folder called <code>dev_build/</code> rather than in to memory, which can make debugging easier.</p>
 </div>
