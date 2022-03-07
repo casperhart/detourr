@@ -19,7 +19,7 @@ Imports:
     purrr,
     viridisLite,
     grDevices,
-    jsonlite,
+    jsonlite
 RoxygenNote: 7.1.2
 Roxygen: list(markdown = TRUE)
 Suggests: 
@@ -29,7 +29,8 @@ Suggests:
     htmltools,
     knitr,
     dplyr,
-    liminal
+    liminal,
+    rmarkdown
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://casperhart.github.io/detourr/
