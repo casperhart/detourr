@@ -1,12 +1,10 @@
 import * as THREE from "three";
 import {
   Camera,
-  Config,
   Dim,
   Mapping,
   Matrix,
   ProjectionMatrix,
-  ScatterInputData,
 } from "./types";
 import { Timeline } from "./timeline";
 import { SelectionHelper } from "./selection_helper";
@@ -19,17 +17,38 @@ declare global {
   const crosstalk: any;
 }
 
+export interface DisplayScatterConfig {
+  fps: number;
+  duration: number;
+  size: number;
+  axisLabels: string[];
+  axes: boolean;
+  edges: Matrix;
+  alpha: number;
+  backgroundColour: string;
+  paused: boolean;
+  basisIndices: number[];
+}
+export interface DisplayScatterInputData {
+  config: DisplayScatterConfig;
+  dataset: Matrix;
+  projectionMatrices: Array<ProjectionMatrix>;
+  mapping: Mapping;
+  crosstalk: any;
+}
+
 export abstract class DisplayScatter {
   protected abstract camera: Camera;
   protected abstract addCamera(): void;
   protected abstract resizeCamera(aspect: number): void;
-  protected abstract multiply(a: Matrix, b: ProjectionMatrix): Matrix;
+  protected abstract project(a: Matrix, b: ProjectionMatrix): Matrix;
   protected abstract getShaderOpts(
     pointSize: number
   ): THREE.ShaderMaterialParameters;
   protected abstract addOrbitControls(): void;
   protected abstract projectionMatrixToAxisLines(mat: Matrix): Matrix;
 
+  protected config: DisplayScatterConfig;
   protected width: number;
   protected height: number;
   protected minPointSize = 0.02;
@@ -43,7 +62,6 @@ export abstract class DisplayScatter {
 
   private backgroundColour: number;
   private scene: THREE.Scene;
-  private config: Config;
   private dataset: Matrix;
   private projectionMatrices: Array<ProjectionMatrix>;
   private clock = new THREE.Clock();
@@ -184,7 +202,7 @@ export abstract class DisplayScatter {
     }
   }
 
-  public renderValue(inputData: ScatterInputData) {
+  private renderValue(inputData: DisplayScatterInputData) {
     if (this.config !== undefined) {
       this.clearPlot();
     }
@@ -359,7 +377,7 @@ export abstract class DisplayScatter {
   }
 
   private getPointsBuffer(i: number): THREE.BufferAttribute {
-    const positionMatrix: Matrix = this.multiply(
+    const positionMatrix: Matrix = this.project(
       this.dataset,
       this.projectionMatrices[i]
     );
@@ -587,9 +605,6 @@ export abstract class DisplayScatter {
     const width = 1;
     const height = 1;
 
-    //console.log(`event x: ${event.x} y: ${event.y}`)
-    //console.log(`canvas x: ${x} y: ${y}`)
-
     const pixelBuffer = new Uint8Array(12);
 
     renderer.readRenderTargetPixels(
@@ -607,7 +622,6 @@ export abstract class DisplayScatter {
       id != this.backgroundColour &&
       this.filteredPointIndices.includes(id - 1)
     ) {
-      console.log(id)
       const toolTipCoords = this.toolTip.getBoundingClientRect();
       this.toolTip.style.left = `${Math.floor(x / dpr) - toolTipCoords.width
         }px`;

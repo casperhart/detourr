@@ -31,7 +31,7 @@ export class DisplayScatter3d extends DisplayScatter {
     this.camera.aspect = aspect;
   }
 
-  protected multiply(a: Matrix, b: ProjectionMatrix): Matrix {
+  protected project(a: Matrix, b: ProjectionMatrix): Matrix {
     // TODO: return flattened result as Float32Array for performance
     const aRows = a.length;
     const aCols = a[0].length;

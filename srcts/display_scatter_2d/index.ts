@@ -48,7 +48,7 @@ export class DisplayScatter2d extends DisplayScatter {
     (this.camera as THREE.OrthographicCamera).bottom = -1;
   }
 
-  protected multiply(a: Matrix, b: ProjectionMatrix): Matrix {
+  protected project(a: Matrix, b: ProjectionMatrix): Matrix {
     // TODO: return flattened result as Float32Array for performance
     const aRows = a.length;
     const aCols = a[0].length;
