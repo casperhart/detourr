@@ -8,6 +8,10 @@ module.exports = {
       "./srcts/display_scatter_2d/index.ts",
     "display_scatter_3d/display_scatter_3d":
       "./srcts/display_scatter_3d/index.ts",
+    "display_sage_2d/display_sage_2d":
+      "./srcts/display_sage_2d/index.ts",
+    "display_sage_3d/display_sage_3d":
+      "./srcts/display_sage_3d/index.ts",
   },
   module: {
     rules: [
@@ -42,6 +46,12 @@ module.exports = {
       }, {
         from: "dev/display_scatter_3d/static/",
         to: "display_scatter_3d",
+      }, {
+        from: "dev/display_sage_2d/static/",
+        to: "display_sage_2d",
+      }, {
+        from: "dev/display_sage_3d/static/",
+        to: "display_sage_3d",
       }, {
         from: "dev/index.html",
         to: "",

@@ -2,6 +2,7 @@
   "name": "detourr",
   "license": "MIT",
   "dependencies": {
+    "@stdlib/math-base-special-betainc": "^0.0.6",
     "three": "^0.128.0"
   },
   "devDependencies": {
