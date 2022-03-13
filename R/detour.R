@@ -106,3 +106,29 @@ as.list.detour <- function(x, ...) {
 is_detour <- function(x) {
   inherits(x, "detour")
 }
+
+assert_is_detour <- function(x) {
+  if (!is_detour(x)) {
+    rlang::abort(c("argument `x` is invalid",
+      i = "Expected a detour object",
+      x = paste0("got: ", class(x)[1])
+    ))
+  }
+}
+
+tour_input_dim <- function(x) {
+  assert_is_detour(x)
+  ncol(attributes(x)$dataset)
+}
+
+tour_output_dim <- function(x) {
+  assert_is_detour(x)
+
+  if (nrow(x) == 0) {
+    rlang::abort(c("Cannot get output dimension of an empty detour",
+      i = "Has this `detour` object been passed to `tour_path()`?"
+    ))
+  }
+
+  ncol(x$projection_matrix[[1]])
+}
