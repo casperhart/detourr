@@ -6,6 +6,8 @@ module.exports = {
   entry: {
     "display_scatter_2d": "./srcts/display_scatter_2d/index.ts",
     "display_scatter_3d": "./srcts/display_scatter_3d/index.ts",
+    "display_sage_2d": "./srcts/display_sage_2d/index.ts",
+    "display_sage_3d": "./srcts/display_sage_3d/index.ts",
   },
   module: {
     rules: [
@@ -33,7 +35,7 @@ module.exports = {
           name(module) {
             const packageName =
               module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
-            return packageName;
+            return packageName.replace("@", "");
           },
           chunks: "all",
         },

@@ -122,8 +122,20 @@ check_dots <- function(dots, supported_arg_names) {
   }
 }
 
-
-infer_widget <- function(display_name, dim) {
-  # e.g. display_scatter_2d, display_scatter_3d
-  widget <- paste0(display_name, "_", dim, "d")
+make_widget <- function(x, widget, width, height, dependencies) {
+  htmlwidgets::createWidget(
+    widget,
+    as.list(x),
+    sizingPolicy = htmlwidgets::sizingPolicy(
+      viewer.padding = 0,
+      viewer.paneHeight = 500,
+      browser.fill = TRUE,
+      knitr.defaultWidth = 800,
+      knitr.defaultHeight = 500
+    ),
+    package = "detourr",
+    dependencies = dependencies,
+    width = width,
+    height = height
+  )
 }

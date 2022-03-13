@@ -1,10 +1,46 @@
 
 #' 2D and 3D Scatterplot display for tours
 #'
+#' @description
 #' Display method for a high performance 2D or 3D scatterplot.
 #' Performance is achieved through the use of Three.js / WebGL, and the 2D or
 #' 3D variant is selected automatically based on the tour generator provided.
 #'
+#' @inherit display_scatter_internal details
+#' @inheritParams display_scatter_internal
+#' @examples
+#' detour(tourr::flea, tour_aes(projection = -species, colour = species)) |>
+#'   tour_path(grand_tour(3), fps = 60) |>
+#'   display_scatter(alpha = 0.7, axes = FALSE)
+#' @export
+display_scatter <- function(x,
+                            ...,
+                            palette = viridisLite::viridis,
+                            center = TRUE,
+                            axes = TRUE,
+                            edges = NULL,
+                            paused = TRUE,
+                            scale_factor = NULL) {
+  dots <- list(...)
+
+  x <- display_scatter_internal(x,
+    ...,
+    palette = palette,
+    center = center,
+    axes = axes,
+    edges = edges,
+    paused = paused,
+    scale_factor = scale_factor
+  )
+
+  d <- attributes(x)
+
+  widget <- paste0("display_scatter", "_", tour_output_dim(x), "d")
+
+  make_widget(x, widget, dots$width, dots$height, d$crosstalk$crosstalk_libs)
+}
+
+#' @details
 #' This display method produces an interactive scatterplot animation which
 #' supports both 2D and 3D tours. Linked selection and filtering is also
 #' supported using {crosstalk}. The set of interactive controls available are:
@@ -48,20 +84,14 @@
 #' are displayed on a sensible range. Defaults to the reciprocal of maximum distance
 #' from a point to the origin.
 #' @importFrom rlang `%||%`
-#' @export
-#' @examples
-#' detour(tourr::flea, tour_aes(projection = -species, colour = species)) |>
-#'   tour_path(grand_tour(3), fps = 60) |>
-#'   display_scatter(alpha = 0.7, axes = FALSE)
-#' @export
-display_scatter <- function(x,
-                            ...,
-                            palette = viridisLite::viridis,
-                            center = TRUE,
-                            axes = TRUE,
-                            edges = NULL,
-                            paused = TRUE,
-                            scale_factor = NULL) {
+display_scatter_internal <- function(x,
+                                     ...,
+                                     palette = viridisLite::viridis,
+                                     center = TRUE,
+                                     axes = TRUE,
+                                     edges = NULL,
+                                     paused = TRUE,
+                                     scale_factor = NULL) {
   if (!is_detour(x)) {
     rlang::abort(c("x must be a `detour` object", x = paste("got:", class(x)[1])))
   }
@@ -79,7 +109,7 @@ display_scatter <- function(x,
   alpha <- dots[["alpha"]] %||% 1
   background_colour <- dots[["background_colour"]] %||% "white"
 
-  if (missing(palette) && !("colour" %in% names(d$mapping))) palette <- "black"
+  if (!("colour" %in% names(d$mapping))) palette <- "black"
 
   colours <- get_colour_mapping(nrow(d$dataset), d$mapping$colour, palette)
   d$mapping[["colour"]] <- colours[["colours"]]
@@ -116,25 +146,7 @@ display_scatter <- function(x,
     paused = paused
   ))
 
-  widget <- infer_widget("display_scatter", ncol(x$projection_matrix[[1]]))
-
-  x <- make_detour(x, d) |> as.list()
-
-  htmlwidgets::createWidget(
-    widget,
-    x,
-    sizingPolicy = htmlwidgets::sizingPolicy(
-      viewer.padding = 0,
-      viewer.paneHeight = 500,
-      browser.fill = TRUE,
-      knitr.defaultWidth = 800,
-      knitr.defaultHeight = 500
-    ),
-    package = "detourr",
-    dependencies = x$crosstalk$dependencies,
-    width = dots$width,
-    height = dots$height
-  )
+  make_detour(x, d)
 }
 
 get_colour_mapping <- function(n, colour_df, palette) {

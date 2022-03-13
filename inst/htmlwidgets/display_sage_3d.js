@@ -1,17 +1,17 @@
 HTMLWidgets.widget({
-  name: "display_scatter_2d",
+  name: "display_sage_3d",
   type: "output",
 
   factory: function (el, width, height) {
-    let scatter = new display_scatter_2d.DisplayScatter2d(el, width, height);
+    let sage = new display_sage_3d.DisplaySage3d(el, width, height);
     return {
       renderValue: function (x) {
-        scatter.renderValue(x);
+        sage.renderValue(x);
       },
       resize: function (width, height) {
-        scatter.resize(width, height);
+        sage.resize(width, height);
       },
-      s: scatter,
+      s: sage,
     };
   },
 });
