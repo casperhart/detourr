@@ -50,9 +50,8 @@ export class DisplayScatter2d extends DisplayScatter {
     (this.camera as THREE.OrthographicCamera).bottom = -1;
   }
 
-  protected project(a: Tensor2D, b: Tensor2D): Float32Array {
-    // TODO: return flattened result as Float32Array for performance
-    return matMul(a, b).dataSync() as Float32Array;
+  protected project(X: Tensor2D, A: Tensor2D): Float32Array {
+    return matMul(X, A).dataSync() as Float32Array;
   }
 
   protected projectionMatrixToTensor(mat: Matrix): Tensor2D {

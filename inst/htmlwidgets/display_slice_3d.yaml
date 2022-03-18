@@ -1,0 +1,13 @@
+dependencies:
+  - name: display_slice_3d
+    src: htmlwidgets/lib/
+    version: 0.0.1
+    script:
+      # these have to be in order of loading
+      - runtime.bundle.js # webpack runtime
+      - three.bundle.js
+      - stdlib.bundle.js
+      - tensorflow.bundle.js
+      - seedrandom.bundle.js
+      - long.bundle.js
+      - display_slice_3d.bundle.js
