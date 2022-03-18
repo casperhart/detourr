@@ -1,9 +1,10 @@
 import * as THREE from "three";
 import { DisplayScatter } from "../display_scatter";
-import { Matrix, ProjectionMatrix } from "../display_scatter/types";
+import { Matrix } from "../display_scatter/types";
 import { VERTEX_SHADER_3D } from "./shaders";
 import { FRAGMENT_SHADER } from "../display_scatter/shaders";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { tensor, matMul, Tensor2D } from "@tensorflow/tfjs-core";
 
 export class DisplayScatter3d extends DisplayScatter {
   public camera: THREE.PerspectiveCamera;
@@ -31,24 +32,12 @@ export class DisplayScatter3d extends DisplayScatter {
     this.camera.aspect = aspect;
   }
 
-  protected project(a: Matrix, b: ProjectionMatrix): Matrix {
-    // TODO: return flattened result as Float32Array for performance
-    const aRows = a.length;
-    const aCols = a[0].length;
-    const result = new Array(aRows);
-    for (let r = 0; r < aRows; ++r) {
-      const row = new Array(3);
-      result[r] = row;
-      const ar = a[r];
-      for (let c = 0; c < 3; ++c) {
-        let sum = 0;
-        for (let i = 0; i < aCols; ++i) {
-          sum += ar[i] * b[i][c];
-        }
-        row[c] = sum;
-      }
-    }
-    return result;
+  protected project(a: Tensor2D, b: Tensor2D): Float32Array {
+    return matMul(a, b).dataSync() as Float32Array;
+  }
+
+  protected projectionMatrixToTensor(mat: Matrix): Tensor2D {
+    return tensor(mat);
   }
 
   protected getShaderOpts(pointSize: number): THREE.ShaderMaterialParameters {
@@ -64,9 +53,5 @@ export class DisplayScatter3d extends DisplayScatter {
       depthWrite: true,
     };
     return shaderOpts;
-  }
-
-  protected projectionMatrixToAxisLines(m: Matrix): Matrix {
-    return m.map((row) => [0, 0, 0].concat(row));
   }
 }

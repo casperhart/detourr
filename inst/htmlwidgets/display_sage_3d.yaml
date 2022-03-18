@@ -7,4 +7,7 @@ dependencies:
       - runtime.bundle.js # webpack runtime
       - three.bundle.js
       - stdlib.bundle.js
+      - tensorflow.bundle.js
+      - seedrandom.bundle.js
+      - long.bundle.js
       - display_sage_3d.bundle.js

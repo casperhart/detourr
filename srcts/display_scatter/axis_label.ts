@@ -35,12 +35,9 @@ export class AxisLabel {
   }
 
   public updatePosition(pos: number[], camera: Camera) {
-    if (this.dim == 3) {
-      this.position.set(pos[0], pos[1], pos[2]);
-    } else {
-      this.position.set(pos[0], 0, pos[1]);
-    }
-    var coords2d = this.get2DCoords(camera);
+    this.position.set(pos[0], pos[1], pos[2]);
+
+    const coords2d = this.get2DCoords(camera);
 
     this.div.style.left = coords2d.x + "px";
     this.div.style.top = coords2d.y + "px";
@@ -55,7 +52,7 @@ export class AxisLabel {
   }
 
   private get2DCoords(camera: Camera) {
-    var vector = this.position.project(camera);
+    const vector = this.position.project(camera);
     vector.x = ((vector.x + 1) * this.canvas.width) / (2 * this.dpr);
     vector.y = (-(vector.y - 1) * this.canvas.height) / (2 * this.dpr);
     return vector;

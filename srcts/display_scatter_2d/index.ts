@@ -4,6 +4,8 @@ import { Matrix, ProjectionMatrix } from "../display_scatter/types";
 import { VERTEX_SHADER_2D } from "./shaders";
 import { FRAGMENT_SHADER } from "../display_scatter/shaders";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { Tensor2D, tensor, matMul, zeros, concat } from "@tensorflow/tfjs-core";
+import { TextureFilter } from "three";
 
 export class DisplayScatter2d extends DisplayScatter {
   public camera: THREE.OrthographicCamera;
@@ -48,25 +50,21 @@ export class DisplayScatter2d extends DisplayScatter {
     (this.camera as THREE.OrthographicCamera).bottom = -1;
   }
 
-  protected project(a: Matrix, b: ProjectionMatrix): Matrix {
+  protected project(a: Tensor2D, b: Tensor2D): Float32Array {
     // TODO: return flattened result as Float32Array for performance
-    const aRows = a.length;
-    const aCols = a[0].length;
-    const result = new Array(aRows);
-    for (let r = 0; r < aRows; ++r) {
-      const row = new Array(3);
-      result[r] = row;
-      const ar = a[r];
-      for (let c = 0; c < 2; c++) {
-        let sum = 0;
-        for (let i = 0; i < aCols; ++i) {
-          sum += ar[i] * b[i][c];
-        }
-        row[c * 2] = sum;
-      }
-      row[1] = 0; // no y dimension for 2D
-    }
-    return result;
+    return matMul(a, b).dataSync() as Float32Array;
+  }
+
+  protected projectionMatrixToTensor(mat: Matrix): Tensor2D {
+    // convert 2 projection matrix in to 3D by adding a column
+    // of zeros in the middle
+    return matMul(
+      tensor(mat),
+      tensor([
+        [1, 0, 0],
+        [0, 0, 1],
+      ])
+    );
   }
 
   protected getShaderOpts(pointSize: number) {
@@ -84,10 +82,6 @@ export class DisplayScatter2d extends DisplayScatter {
     };
 
     return shaderOpts;
-  }
-
-  protected projectionMatrixToAxisLines(m: Matrix): Matrix {
-    return m.map((row) => [0, 0, 0, row[0], 0, row[1]]);
   }
 
   protected adjustPointSizeFromZoom() {

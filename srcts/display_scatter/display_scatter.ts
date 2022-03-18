@@ -1,11 +1,13 @@
 import * as THREE from "three";
 import {
-  Camera,
-  Dim,
-  Mapping,
-  Matrix,
-  ProjectionMatrix,
-} from "./types";
+  tensor,
+  Tensor2D,
+  setBackend,
+  concat,
+  zeros,
+} from "@tensorflow/tfjs-core";
+import "@tensorflow/tfjs-backend-cpu";
+import { Camera, Dim, Mapping, Matrix, ProjectionMatrix } from "./types";
 import { Timeline } from "./timeline";
 import { SelectionHelper } from "./selection_helper";
 import { AxisLabel } from "./axis_label";
@@ -32,7 +34,7 @@ export interface DisplayScatterConfig {
 export interface DisplayScatterInputData {
   config: DisplayScatterConfig;
   dataset: Matrix;
-  projectionMatrices: Array<ProjectionMatrix>;
+  projectionMatrices: ProjectionMatrix[];
   mapping: Mapping;
   crosstalk: any;
 }
@@ -41,12 +43,12 @@ export abstract class DisplayScatter {
   protected abstract camera: Camera;
   protected abstract addCamera(): void;
   protected abstract resizeCamera(aspect: number): void;
-  protected abstract project(a: Matrix, b: ProjectionMatrix): Matrix;
+  protected abstract project(a: Tensor2D, b: Tensor2D): Float32Array;
   protected abstract getShaderOpts(
     pointSize: number
   ): THREE.ShaderMaterialParameters;
   protected abstract addOrbitControls(): void;
-  protected abstract projectionMatrixToAxisLines(mat: Matrix): Matrix;
+  protected abstract projectionMatrixToTensor(mat: Matrix): Tensor2D;
 
   protected config: DisplayScatterConfig;
   protected width: number;
@@ -60,10 +62,11 @@ export abstract class DisplayScatter {
   public container: HTMLDivElement;
   public canvas: HTMLCanvasElement = document.createElement("canvas");
 
+  private n: number;
   private backgroundColour: number;
   private scene: THREE.Scene;
-  private dataset: Matrix;
-  private projectionMatrices: Array<ProjectionMatrix>;
+  private dataset: Tensor2D;
+  private projectionMatrices: Tensor2D[];
   private clock = new THREE.Clock();
   private time: number;
   private currentFrame: number;
@@ -108,6 +111,7 @@ export abstract class DisplayScatter {
   }
 
   private constructPlot() {
+    this.n = this.dataset.shape[0];
 
     this.setDefaultPointColours();
     this.setDefaultFilterSelection();
@@ -203,53 +207,60 @@ export abstract class DisplayScatter {
   }
 
   private renderValue(inputData: DisplayScatterInputData) {
-    if (this.config !== undefined) {
-      this.clearPlot();
-    }
-    this.config = inputData.config;
-    this.dataset = inputData.dataset;
+    setBackend("cpu").then(() => {
+      if (this.config !== undefined) {
+        this.clearPlot();
+      }
+      this.config = inputData.config;
+      this.dataset = tensor(inputData.dataset);
 
-    this.crosstalkIndex = inputData.crosstalk.crosstalkIndex;
-    this.crosstalkGroup = inputData.crosstalk.crosstalkGroup;
+      this.crosstalkIndex = inputData.crosstalk.crosstalkIndex;
+      this.crosstalkGroup = inputData.crosstalk.crosstalkGroup;
 
-    if (this.crosstalkIndex) {
-      this.crosstalkSelectionHandle = new crosstalk.SelectionHandle();
-      this.crosstalkSelectionHandle.setGroup(this.crosstalkGroup);
-      this.crosstalkSelectionHandle.on("change", (e: any) =>
-        this.setPointSelectionFromCrosstalkEvent(e)
+      if (this.crosstalkIndex) {
+        this.crosstalkSelectionHandle = new crosstalk.SelectionHandle();
+        this.crosstalkSelectionHandle.setGroup(this.crosstalkGroup);
+        this.crosstalkSelectionHandle.on("change", (e: any) =>
+          this.setPointSelectionFromCrosstalkEvent(e)
+        );
+
+        this.crosstalkFilterHandle = new crosstalk.FilterHandle();
+        this.crosstalkFilterHandle.setGroup(this.crosstalkGroup);
+        this.crosstalkFilterHandle.on("change", (e: any) =>
+          this.setPointFilterFromCrosstalkEvent(e)
+        );
+      }
+
+      this.projectionMatrices = inputData.projectionMatrices.map((x) =>
+        this.projectionMatrixToTensor(x)
       );
 
-      this.crosstalkFilterHandle = new crosstalk.FilterHandle();
-      this.crosstalkFilterHandle.setGroup(this.crosstalkGroup);
-      this.crosstalkFilterHandle.on("change", (e: any) =>
-        this.setPointFilterFromCrosstalkEvent(e)
+      this.dim = inputData.projectionMatrices[0][0].length;
+
+      if (inputData.config.edges[0]) {
+        this.hasEdges = true;
+        this.edges = inputData.config.edges.flat();
+      }
+
+      this.hasPointLabels = inputData.mapping.label.length == 0 ? false : true;
+      this.hasAxes = this.config.axes;
+
+      this.addCamera();
+      this.mapping = inputData.mapping;
+
+      this.scene.background = new THREE.Color(
+        inputData.config.backgroundColour
       );
-    }
+      this.backgroundColour = parseInt(
+        inputData.config.backgroundColour.substring(1),
+        16
+      );
 
-    this.projectionMatrices = inputData.projectionMatrices;
-    this.dim = inputData.projectionMatrices[0][0].length;
+      this.constructPlot();
+      this.animate();
 
-    if (inputData.config.edges[0]) {
-      this.hasEdges = true;
-      this.edges = inputData.config.edges.flat();
-    }
-
-    this.hasPointLabels = inputData.mapping.label.length == 0 ? false : true;
-    this.hasAxes = this.config.axes;
-
-    this.addCamera();
-    this.mapping = inputData.mapping;
-
-    this.scene.background = new THREE.Color(inputData.config.backgroundColour);
-    this.backgroundColour = parseInt(
-      inputData.config.backgroundColour.substring(1),
-      16
-    );
-
-    this.constructPlot();
-    this.animate();
-
-    this.setIsPaused(this.config.paused);
+      this.setIsPaused(this.config.paused);
+    });
   }
 
   public getContainerElement(): HTMLDivElement {
@@ -377,23 +388,24 @@ export abstract class DisplayScatter {
   }
 
   private getPointsBuffer(i: number): THREE.BufferAttribute {
-    const positionMatrix: Matrix = this.project(
+    // flattened projection matrix
+    const positionArray: Float32Array = this.project(
       this.dataset,
       this.projectionMatrices[i]
     );
 
-    const flattenedPositionMatrix = new Float32Array(positionMatrix.flat());
-    return new THREE.BufferAttribute(flattenedPositionMatrix, 3);
+    return new THREE.BufferAttribute(positionArray, 3);
+  }
+
+  private projectionMatrixToAxisLines(m: Tensor2D): Float32Array {
+    return concat([zeros(m.shape), m], 1).dataSync() as Float32Array;
   }
 
   private getAxisLinesBuffer(i: number): THREE.BufferAttribute {
-    const projectionMatrix = this.projectionMatrices[i];
-    const linesBufferMatrix =
-      this.projectionMatrixToAxisLines(projectionMatrix);
-    return new THREE.BufferAttribute(
-      new Float32Array(linesBufferMatrix.flat()),
-      3
+    const linesBufferArray = this.projectionMatrixToAxisLines(
+      this.projectionMatrices[i]
     );
+    return new THREE.BufferAttribute(linesBufferArray, 3);
   }
 
   private getEdgesBuffer(frameBuffer: THREE.BufferAttribute) {
@@ -418,7 +430,7 @@ export abstract class DisplayScatter {
 
   private coloursToBufferAttribute(colours: string[]): THREE.BufferAttribute {
     const colour = new THREE.Color();
-    const bufferArray = new Float32Array(this.dataset.length * 3);
+    const bufferArray = new Float32Array(this.n * 3);
 
     if (colours.length > 0) {
       let j = 0;
@@ -435,16 +447,16 @@ export abstract class DisplayScatter {
 
   private getPointAlphas(): THREE.BufferAttribute {
     return new THREE.BufferAttribute(
-      new Float32Array(this.dataset.length).fill(this.config.alpha),
+      new Float32Array(this.n).fill(this.config.alpha),
       1
     );
   }
 
   private getPickingColours(): THREE.BufferAttribute {
     // picking colours are just sequential IDs converted to RGB values
-    const bufferArray = new Float32Array(this.dataset.length * 3);
+    const bufferArray = new Float32Array(this.n * 3);
     let j = 0;
-    for (let i = 1; i <= this.dataset.length; i++) {
+    for (let i = 1; i <= this.n; i++) {
       // bit masking
       bufferArray[j] = ((i >> 16) & 0xff) / 255;
       bufferArray[j + 1] = ((i >> 8) & 0xff) / 255;
@@ -623,10 +635,12 @@ export abstract class DisplayScatter {
       this.filteredPointIndices.includes(id - 1)
     ) {
       const toolTipCoords = this.toolTip.getBoundingClientRect();
-      this.toolTip.style.left = `${Math.floor(x / dpr) - toolTipCoords.width
-        }px`;
-      this.toolTip.style.top = `${Math.floor(y / dpr) - toolTipCoords.height
-        }px`;
+      this.toolTip.style.left = `${
+        Math.floor(x / dpr) - toolTipCoords.width
+      }px`;
+      this.toolTip.style.top = `${
+        Math.floor(y / dpr) - toolTipCoords.height
+      }px`;
       this.toolTip.className = "detourrTooltip visible";
       const span = this.toolTip.querySelector("span");
       span.innerHTML = `${this.mapping.label[id - 1]}`;
@@ -650,7 +664,8 @@ export abstract class DisplayScatter {
 
     if (currentFrame != this.oldFrame) {
       this.currentFrameBuffer = this.getPointsBuffer(
-        currentFrame % this.projectionMatrices.length);
+        currentFrame % this.projectionMatrices.length
+      );
 
       this.points.geometry.setAttribute("position", this.currentFrameBuffer);
 
@@ -693,7 +708,10 @@ export abstract class DisplayScatter {
     // update axis labels
     if (this.hasAxisLabels) {
       this.axisLabels.map((x, i) =>
-        x.updatePosition(this.projectionMatrices[currentFrame][i], this.camera)
+        x.updatePosition(
+          this.projectionMatrices[currentFrame].arraySync()[i],
+          this.camera
+        )
       );
     }
 
@@ -762,13 +780,13 @@ export abstract class DisplayScatter {
   }
 
   private setDefaultPointSelection() {
-    this.selectedPointIndices = Array(this.dataset.length)
+    this.selectedPointIndices = Array(this.n)
       .fill(0)
       .map((_, i) => i);
   }
 
   private setDefaultFilterSelection() {
-    this.filteredPointIndices = Array(this.dataset.length)
+    this.filteredPointIndices = Array(this.n)
       .fill(0)
       .map((_, i) => i);
   }
@@ -785,7 +803,7 @@ export abstract class DisplayScatter {
   }
 
   private filterPoints() {
-    for (let i = 0; i < this.dataset.length; i++) {
+    for (let i = 0; i < this.n; i++) {
       if (!this.filteredPointIndices.includes(i)) {
         this.pointAlphas.set([0], i);
       }
