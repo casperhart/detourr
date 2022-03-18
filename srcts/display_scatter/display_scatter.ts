@@ -43,7 +43,7 @@ export abstract class DisplayScatter {
   protected abstract camera: Camera;
   protected abstract addCamera(): void;
   protected abstract resizeCamera(aspect: number): void;
-  protected abstract project(a: Tensor2D, b: Tensor2D): Float32Array;
+  protected abstract project(X: Tensor2D, A: Tensor2D): Float32Array;
   protected abstract getShaderOpts(
     pointSize: number
   ): THREE.ShaderMaterialParameters;
@@ -58,6 +58,7 @@ export abstract class DisplayScatter {
   protected orbitControls: OrbitControls;
   protected adjustPointSizeFromZoom?(): void;
   protected points: THREE.Points;
+  protected pointAlphas: THREE.BufferAttribute;
 
   public container: HTMLDivElement;
   public canvas: HTMLCanvasElement = document.createElement("canvas");
@@ -77,7 +78,6 @@ export abstract class DisplayScatter {
   private colMeans: Matrix;
   private mapping: Mapping;
   private pointColours: THREE.BufferAttribute;
-  private pointAlphas: THREE.BufferAttribute;
   private pickingColours: THREE.BufferAttribute;
   private currentFrameBuffer: THREE.BufferAttribute;
   private dim: Dim;
@@ -131,13 +131,13 @@ export abstract class DisplayScatter {
 
     const shaderOpts = this.getShaderOpts(pointSize);
     const pointsMaterial = new THREE.ShaderMaterial(shaderOpts);
+    this.pointAlphas = this.getPointAlphas();
 
     this.currentFrameBuffer = this.getPointsBuffer(0);
     pointsGeometry.setAttribute("position", this.currentFrameBuffer);
 
     this.points = new THREE.Points(pointsGeometry, pointsMaterial);
     this.points.geometry.setAttribute("color", this.pointColours);
-    this.pointAlphas = this.getPointAlphas();
     this.points.geometry.setAttribute("alpha", this.pointAlphas);
     this.scene.add(this.points);
 

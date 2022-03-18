@@ -1,8 +1,8 @@
 
-#' 2D and 3D Scatterplot display for tours
+#' 2D and 3D Scatter Plot Display for Tours
 #'
 #' @description
-#' Display method for a high performance 2D or 3D scatterplot.
+#' Display method for a high performance 2D or 3D scatter plot.
 #' Performance is achieved through the use of Three.js / WebGL, and the 2D or
 #' 3D variant is selected automatically based on the tour generator provided.
 #'

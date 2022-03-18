@@ -40,7 +40,7 @@ export class DisplaySage2d extends DisplayScatter2d {
     return projected;
   }
 
-  protected project(a: Tensor2D, b: Tensor2D): Float32Array {
-    return this.scaleRadii(matMul(a, b).dataSync() as Float32Array);
+  protected project(X: Tensor2D, A: Tensor2D): Float32Array {
+    return this.scaleRadii(matMul(X, A).dataSync() as Float32Array);
   }
 }
