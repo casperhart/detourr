@@ -6,4 +6,7 @@ dependencies:
       # these have to be in order of loading
       - runtime.bundle.js # webpack runtime
       - three.bundle.js
+      - tensorflow.bundle.js
+      - seedrandom.bundle.js
+      - long.bundle.js
       - display_scatter_2d.bundle.js
