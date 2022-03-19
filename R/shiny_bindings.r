@@ -18,7 +18,7 @@ displayScatter3dOutput <- function(output_id,
                                    height = "400px") {
   htmltools::attachDependencies(
     shiny::tagList(
-      htmlwidgets::shinyWidgetOutput(output_id, "display_scatter_3d",
+      htmlwidgets::shinyWidgetOutput(output_id, "show_scatter_3d",
         width, height,
         package = "detourr"
       )
@@ -34,7 +34,7 @@ displayScatter2dOutput <- function(output_id,
                                    height = "400px") {
   htmltools::attachDependencies(
     shiny::tagList(
-      htmlwidgets::shinyWidgetOutput(output_id, "display_scatter_2d",
+      htmlwidgets::shinyWidgetOutput(output_id, "show_scatter_2d",
         width, height,
         package = "detourr"
       )

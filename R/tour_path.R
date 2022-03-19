@@ -4,7 +4,7 @@
 #' This function takes a `detour` object as an input, and generates a
 #' sequence of projection matrices for the tour. The return value is another
 #' `detour` object with the tour path and other metadata attached. This can
-#' then be passed to a `display_*`#' function to generate the detour
+#' then be passed to a `show_*`#' function to generate the detour
 #' visualisation.
 #'
 #' @inheritParams tourr::animate

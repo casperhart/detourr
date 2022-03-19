@@ -25,7 +25,7 @@ a <- d3scatter(shared_flea,
 b <- detour(
   shared_flea, tour_aes(projection = tars1:aede3, colour = species)
 ) |>
-  display_scatter(width = "100%")
+  show_scatter(width = "100%")
 
 c <- datatable(shared_flea, width = "100%")
 

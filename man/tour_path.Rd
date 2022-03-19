@@ -31,6 +31,6 @@ associated with tour path}
 This function takes a \code{detour} object as an input, and generates a
 sequence of projection matrices for the tour. The return value is another
 \code{detour} object with the tour path and other metadata attached. This can
-then be passed to a \verb{display_*}#' function to generate the detour
+then be passed to a \verb{show_*}#' function to generate the detour
 visualisation.
 }

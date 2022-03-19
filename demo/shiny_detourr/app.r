@@ -16,7 +16,7 @@ ui <- fluidPage(
   fluidRow(
     column(4, d3scatterOutput("d3scatter", height = "400px")),
 
-    # output function used matches display method (display_scatter) and tour
+    # output function used matches display method (show_scatter) and tour
     # dimension (3d)
     column(8, displayScatter3dOutput("detour", height = "800px"))
   )
@@ -44,7 +44,7 @@ server <- function(input, output, session) {
 
     detour(shared_iris, tour_aes(projection = -Species, colour = Species)) |>
       tour_path(grand_tour(3), max_bases = input$max_bases) |>
-      display_scatter()
+      show_scatter()
   })
 }
 
