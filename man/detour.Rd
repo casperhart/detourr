@@ -15,10 +15,10 @@ determines which columns are used to generate the tour path and supports tidy se
 }
 \description{
 This function initialises a \code{detour} object which, along with the
-\code{tour_path} and \code{display_functions} is used to build a detour visualisation.
+\code{tour_path} and \code{show_functions} is used to build a detour visualisation.
 }
 \examples{
 detour(tourr::flea, tour_aes(projection = -species, colour = species)) |>
   tour_path(grand_tour(3), fps = 60) |>
-  display_scatter(alpha = 0.7, axes = FALSE)
+  show_scatter(alpha = 0.7, axes = FALSE)
 }

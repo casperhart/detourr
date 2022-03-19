@@ -94,8 +94,8 @@ const webpack = require("webpack");
 module.exports = {
   mode: "production",
   entry: {
-    "display_scatter_2d": "./srcts/display_scatter_2d/index.ts",
-    "display_scatter_3d": "./srcts/display_scatter_3d/index.ts",
+    "show_scatter_2d": "./srcts/show_scatter_2d/index.ts",
+    "show_scatter_3d": "./srcts/show_scatter_3d/index.ts",
 +   "hello_world": "./srcts/hello_world/index.ts",
   },
   ...
@@ -153,9 +153,9 @@ HTMLWidgets.widget({
 
 ## Adding the display method in R
 
-Here we create the R binding for the `display_hello_world` function. This is simply a function that takes a `detour` object and returns an HTML Widget. In this example, we've also included a `...` argument so that we can pass parameters through to `htmlwidgets::createWidget`, and included some sensible defaults for the widget `sizingPolicy`. 
+Here we create the R binding for the `show_hello_world` function. This is simply a function that takes a `detour` object and returns an HTML Widget. In this example, we've also included a `...` argument so that we can pass parameters through to `htmlwidgets::createWidget`, and included some sensible defaults for the widget `sizingPolicy`. 
 
-`R/display_hello_world.R`:
+`R/show_hello_world.R`:
 ```{r, eval=FALSE}
 #' Display Hello World Example
 #'
@@ -166,7 +166,7 @@ Here we create the R binding for the `display_hello_world` function. This is sim
 #' @param d a `detour` object
 #' @param ... additional arguments to pass to `htmlwidgets::createWidget`
 #' @export
-display_hello_world <- function(x, ...) {
+show_hello_world <- function(x, ...) {
   dots <- list(...)
   htmlwidgets::createWidget(
     name = "hello_world",
@@ -200,7 +200,7 @@ And then test out the widget in R:
 ```{r, eval=FALSE}
 library(detourr)
 detour(tourr::flea, tour_aes(projection = where(is.numeric))) |>
-  display_hello_world()
+  show_hello_world()
 ```
 
 ```{r, echo=FALSE}
@@ -209,7 +209,7 @@ knitr::include_graphics("images/package_hello_world.png")
 
 Success!
 
-If we open up the browser console, we can see the full structure of the data set which is passed in to our widget. We can add additional configuation and aesthetic mappings as we need them by modifying the `display_hello_world` function:
+If we open up the browser console, we can see the full structure of the data set which is passed in to our widget. We can add additional configuation and aesthetic mappings as we need them by modifying the `show_hello_world` function:
 
 ```{r, echo = FALSE}
 knitr::include_graphics("images/browser_console.png")

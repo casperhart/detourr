@@ -27,7 +27,7 @@ merge_defaults_list <- function(l, default_l) {
 #' @examples
 #' detour(tourr::flea, tour_aes(projection = -species, colour = species)) |>
 #'   tour_path(grand_tour(3), fps = 60) |>
-#'   display_scatter(alpha = 0.7, axes = FALSE)
+#'   show_scatter(alpha = 0.7, axes = FALSE)
 #' @export
 tour_aes <- function(...) {
   rlang::enquos(...)

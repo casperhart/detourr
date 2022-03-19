@@ -4,12 +4,12 @@ const webpack = require("webpack");
 module.exports = {
   mode: "production",
   entry: {
-    display_scatter_2d: "./srcts/display_scatter_2d/index.ts",
-    display_scatter_3d: "./srcts/display_scatter_3d/index.ts",
-    display_sage_2d: "./srcts/display_sage_2d/index.ts",
-    display_sage_3d: "./srcts/display_sage_3d/index.ts",
-    display_slice_2d: "./srcts/display_slice_2d/index.ts",
-    display_slice_3d: "./srcts/display_slice_3d/index.ts",
+    show_scatter_2d: "./srcts/show_scatter_2d/index.ts",
+    show_scatter_3d: "./srcts/show_scatter_3d/index.ts",
+    show_sage_2d: "./srcts/show_sage_2d/index.ts",
+    show_sage_3d: "./srcts/show_sage_3d/index.ts",
+    show_slice_2d: "./srcts/show_slice_2d/index.ts",
+    show_slice_3d: "./srcts/show_slice_3d/index.ts",
   },
   module: {
     rules: [

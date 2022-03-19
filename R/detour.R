@@ -1,7 +1,7 @@
 #' Initiate a detour visualisation
 #'
 #' This function initialises a `detour` object which, along with the
-#' `tour_path` and `display_functions` is used to build a detour visualisation.
+#' `tour_path` and `show_functions` is used to build a detour visualisation.
 #'
 #' @param .data a data frame, tibble, or crosstalk::SharedData object
 #' @param mapping a mapping of data columns to aesthetic values using the
@@ -13,7 +13,7 @@
 #' @examples
 #' detour(tourr::flea, tour_aes(projection = -species, colour = species)) |>
 #'   tour_path(grand_tour(3), fps = 60) |>
-#'   display_scatter(alpha = 0.7, axes = FALSE)
+#'   show_scatter(alpha = 0.7, axes = FALSE)
 #' @export
 detour <- function(.data, mapping) {
   names(mapping) <- sub("color", "colour", names(mapping))

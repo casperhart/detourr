@@ -34,11 +34,11 @@ This starts a Webpack development server on `localhost:9000`, and opens a UI in 
 knitr::include_graphics("images/dev_server_menu.png")
 ```
 
-Clicking on any of these links will show the development widget in action, for example, clicking on  `display_scatter_3d` gives the below:
+Clicking on any of these links will show the development widget in action, for example, clicking on  `show_scatter_3d` gives the below:
 
 
 ```{r, echo=FALSE, out.width="100%"}
-knitr::include_graphics("images/dev_server_display_scatter_3d.png")
+knitr::include_graphics("images/dev_server_show_scatter_3d.png")
 ```
 
 In this section, we'll create our own basic widget, and make it accessible via `yarn run start-dev`.
@@ -52,7 +52,7 @@ In this section, we'll create our own basic widget, and make it accessible via `
 #' user
 #'
 #' @export
-display_hello_world <- function() {
+show_hello_world <- function() {
   init <- function(data, col_spec, tour_dim) {
     data_cols <- tidyselect::eval_select(col_spec, data)
     labels <- names(data_cols)
@@ -137,10 +137,10 @@ With the above files in place, the next thing we need to do is tell Webpack that
 
 ```diff
   entry: {
-    "display_scatter_2d/display_scatter_2d":
-      "./srcts/display_scatter_2d/index.ts",
-    "display_scatter_3d/display_scatter_3d":
-      "./srcts/display_scatter_3d/index.ts",
+    "show_scatter_2d/show_scatter_2d":
+      "./srcts/show_scatter_2d/index.ts",
+    "show_scatter_3d/show_scatter_3d":
+      "./srcts/show_scatter_3d/index.ts",
 +   "hello_world/hello_world": "./srcts/hello_world/index.ts",
   },
 ``` 
@@ -173,8 +173,8 @@ Lastly, we need to add a menu item so that we can navigate to our widget when th
 </head>
 <body>
   <h1>Development Widgets</h1><p>
-  <a href="./display_scatter_2d/">display_scatter_2d</a><br>
-  <a href="./display_scatter_3d/">display_scatter_3d</a><br>
+  <a href="./show_scatter_2d/">show_scatter_2d</a><br>
+  <a href="./show_scatter_3d/">show_scatter_3d</a><br>
 + <a href="./hello_world/">hello_world</a><br>
   <br><br>
 </body>
@@ -203,8 +203,8 @@ Once we've got a widget up and running using the dev server, we will need to int
 
 ```
 ❯ ls -l inst/htmlwidgets/lib
-.rw-r--r--  41k chart 30 Jan 13:44 display_scatter_2d.bundle.js
-.rw-r--r--  40k chart 30 Jan 13:44 display_scatter_3d.bundle.js
+.rw-r--r--  41k chart 30 Jan 13:44 show_scatter_2d.bundle.js
+.rw-r--r--  40k chart 30 Jan 13:44 show_scatter_3d.bundle.js
 .rw-r--r--  789 chart 30 Jan 13:44 hello_world.bundle.js
 .rw-r--r-- 1.2k chart 12 Dec  2021 runtime.bundle.js
 .rw-r--r-- 622k chart  7 Jan 14:05 three.bundle.js
@@ -222,10 +222,10 @@ More information on this file can be found in [the htmlwidgets documentation](ht
 
 ### R binding and display method
 
-When make a call to `animate_tour`, we specify the `data`, `tour_path`, and `display_method` arguments. Technically speaking, the R binding we need (as detailed in [the htmlwidgets documentation](https://www.htmlwidgets.org/develop_intro.html)) is already implemented in the in the `animate_tour` function. To get our widget to show, however, we will need to implement a new display method which provides the necessary context to `animate_tour` for our widget to be called.
+When make a call to `animate_tour`, we specify the `data`, `tour_path`, and `show_method` arguments. Technically speaking, the R binding we need (as detailed in [the htmlwidgets documentation](https://www.htmlwidgets.org/develop_intro.html)) is already implemented in the in the `animate_tour` function. To get our widget to show, however, we will need to implement a new display method which provides the necessary context to `animate_tour` for our widget to be called.
 
 
-<p class="codeblock-label">R/display_hello_world.R</p>
+<p class="codeblock-label">R/show_hello_world.R</p>
 
 
 
@@ -252,7 +252,7 @@ set.seed(1)
 
 p <- animate_tour(
   tourr::flea,
-  display = display_hello_world(),
+  display = show_hello_world(),
   tour_path = grand_tour(3)
 )
 

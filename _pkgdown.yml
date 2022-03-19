@@ -7,15 +7,14 @@ template:
 navbar:
   bg: dark
   left:
-  - text: Reference
-    href: reference/index.html
-  - text: Vignettes
-    menu:
-    - text: Adding a new display method to detourr
-      href: articles/adding_a_new_widget/adding_a_new_widget.html
-    - text: Interacting with display_scatter
-      href: articles/display_scatter_interactivity/display_scatter_interactivity.html
+    - text: Reference
+      href: reference/index.html
+    - text: Vignettes
+      menu:
+        - text: Adding a new display method to detourr
+          href: articles/adding_a_new_widget/adding_a_new_widget.html
+        - text: Interacting with show_scatter
+          href: articles/show_scatter_interactivity/show_scatter_interactivity.html
   right:
-  - icon: fa-github fa-lg
-    href: https://github.com/casperhart/detourr
-
+    - icon: fa-github fa-lg
+      href: https://github.com/casperhart/detourr
