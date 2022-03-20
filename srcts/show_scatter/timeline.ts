@@ -197,21 +197,21 @@ export class Timeline {
   }
 
   private addEventListerners() {
-    this.parentDiv.onmousemove = (e) => {
+    this.parentDiv.addEventListener("mousemove", (e) => {
       if (this.mouseDown) {
         this.setTimeFromMousePosition(e);
       }
-    };
+    });
 
     // document element so mouseup can be from anywhere
-    document.documentElement.onmouseup = () => {
+    document.body.addEventListener("mouseup", () => {
       this.mouseDown = false;
-    };
+    });
 
     // prevent scrubber 'sticking' to mouse if the mouse leaves the page
-    document.documentElement.onmouseleave = () => {
+    document.body.addEventListener("mouseleave", () => {
       this.mouseDown = false;
-    };
+    });
   }
 
   private addPlayPauseButton() {
