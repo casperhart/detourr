@@ -14,13 +14,13 @@
 #'   show_scatter(alpha = 0.7, axes = FALSE)
 #' @export
 show_scatter <- function(x,
-                            ...,
-                            palette = viridisLite::viridis,
-                            center = TRUE,
-                            axes = TRUE,
-                            edges = NULL,
-                            paused = TRUE,
-                            scale_factor = NULL) {
+                         ...,
+                         palette = viridisLite::viridis,
+                         center = TRUE,
+                         axes = TRUE,
+                         edges = NULL,
+                         paused = TRUE,
+                         scale_factor = NULL) {
   dots <- list(...)
 
   x <- show_scatter_internal(x,
@@ -85,13 +85,13 @@ show_scatter <- function(x,
 #' from a point to the origin.
 #' @importFrom rlang `%||%`
 show_scatter_internal <- function(x,
-                                     ...,
-                                     palette = viridisLite::viridis,
-                                     center = TRUE,
-                                     axes = TRUE,
-                                     edges = NULL,
-                                     paused = TRUE,
-                                     scale_factor = NULL) {
+                                  ...,
+                                  palette = viridisLite::viridis,
+                                  center = TRUE,
+                                  axes = TRUE,
+                                  edges = NULL,
+                                  paused = TRUE,
+                                  scale_factor = NULL) {
   if (!is_detour(x)) {
     rlang::abort(c("x must be a `detour` object", x = paste("got:", class(x)[1])))
   }
@@ -104,7 +104,7 @@ show_scatter_internal <- function(x,
 
   dots <- list(...)
   names(dots) <- sub("color", "colour", names(dots))
-  check_dots(dots, c("size", "alpha", "background_colour"))
+  check_dots(dots, c("size", "alpha", "background_colour", "width", "height"))
   size <- dots[["size"]] %||% 1
   alpha <- dots[["alpha"]] %||% 1
   background_colour <- dots[["background_colour"]] %||% "white"
