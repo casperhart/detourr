@@ -16,10 +16,10 @@
     <loc>https://casperhart.github.io/detourr/articles/development_setup/detourr_development_setup.html</loc>
   </url>
   <url>
-    <loc>https://casperhart.github.io/detourr/articles/display_scatter_interactivity/display_scatter_interactivity.html</loc>
+    <loc>https://casperhart.github.io/detourr/articles/index.html</loc>
   </url>
   <url>
-    <loc>https://casperhart.github.io/detourr/articles/index.html</loc>
+    <loc>https://casperhart.github.io/detourr/articles/show_scatter_interactivity/show_scatter_interactivity.html</loc>
   </url>
   <url>
     <loc>https://casperhart.github.io/detourr/authors.html</loc>
@@ -34,15 +34,6 @@
     <loc>https://casperhart.github.io/detourr/reference/detourr-shiny.html</loc>
   </url>
   <url>
-    <loc>https://casperhart.github.io/detourr/reference/display_sage.html</loc>
-  </url>
-  <url>
-    <loc>https://casperhart.github.io/detourr/reference/display_scatter.html</loc>
-  </url>
-  <url>
-    <loc>https://casperhart.github.io/detourr/reference/display_slice.html</loc>
-  </url>
-  <url>
     <loc>https://casperhart.github.io/detourr/reference/index.html</loc>
   </url>
   <url>
@@ -50,6 +41,15 @@
   </url>
   <url>
     <loc>https://casperhart.github.io/detourr/reference/reexports.html</loc>
+  </url>
+  <url>
+    <loc>https://casperhart.github.io/detourr/reference/show_sage.html</loc>
+  </url>
+  <url>
+    <loc>https://casperhart.github.io/detourr/reference/show_scatter.html</loc>
+  </url>
+  <url>
+    <loc>https://casperhart.github.io/detourr/reference/show_slice.html</loc>
   </url>
   <url>
     <loc>https://casperhart.github.io/detourr/reference/tour_aes.html</loc>

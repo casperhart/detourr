@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../../index.html">detourr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,7 +49,7 @@
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-vignettes">Vignettes</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-vignettes">
     <a class="dropdown-item" href="../../articles/adding_a_new_widget/adding_a_new_widget.html">Adding a new display method to detourr</a>
-    <a class="dropdown-item" href="../../articles/display_scatter_interactivity/display_scatter_interactivity.html">Interacting with display_scatter</a>
+    <a class="dropdown-item" href="../../articles/show_scatter_interactivity/show_scatter_interactivity.html">Interacting with show_scatter</a>
   </div>
 </li>
       </ul>
@@ -92,8 +92,8 @@
 <div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1"></a><span class="ex">yarn</span> run start-dev</span></code></pre></div>
 <p>This starts a Webpack development server on <code>localhost:9000</code>, and opens a UI in the browser with links to each of the widgets in the <code>detourr</code> package, shown below:</p>
 <p><img src="images/dev_server_menu.png" width="100%"></p>
-<p>Clicking on any of these links will show the development widget in action, for example, clicking on <code>display_scatter_3d</code> gives the below:</p>
-<p><img src="images/dev_server_display_scatter_3d.png" width="100%"></p>
+<p>Clicking on any of these links will show the development widget in action, for example, clicking on <code>show_scatter_3d</code> gives the below:</p>
+<p><img src="images/dev_server_show_scatter_3d.png" width="100%"></p>
 <p>In this section, we’ll create our own basic widget, and make it accessible via <code>yarn run start-dev</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#' Display Hello World Example</span>
@@ -104,7 +104,7 @@
 <span class="co">#' user</span>
 <span class="co">#'</span>
 <span class="co">#' @export</span>
-<span class="va">display_hello_world</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span>
+<span class="va">show_hello_world</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span>
   <span class="va">init</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">col_spec</span>, <span class="va">tour_dim</span><span class="op">)</span> <span class="op">{</span>
     <span class="va">data_cols</span> <span class="op">&lt;-</span> <span class="fu">tidyselect</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/eval_select.html" class="external-link">eval_select</a></span><span class="op">(</span><span class="va">col_spec</span>, <span class="va">data</span><span class="op">)</span>
     <span class="va">labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">data_cols</span><span class="op">)</span>
@@ -169,10 +169,10 @@ dev/hello_world/static/index.html
 webpack/dev.config.ts
 </p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb5-1"><a href="#cb5-1"></a>  entry: {</span>
-<span id="cb5-2"><a href="#cb5-2"></a>    "display_scatter_2d/display_scatter_2d":</span>
-<span id="cb5-3"><a href="#cb5-3"></a>      "./srcts/display_scatter_2d/index.ts",</span>
-<span id="cb5-4"><a href="#cb5-4"></a>    "display_scatter_3d/display_scatter_3d":</span>
-<span id="cb5-5"><a href="#cb5-5"></a>      "./srcts/display_scatter_3d/index.ts",</span>
+<span id="cb5-2"><a href="#cb5-2"></a>    "show_scatter_2d/show_scatter_2d":</span>
+<span id="cb5-3"><a href="#cb5-3"></a>      "./srcts/show_scatter_2d/index.ts",</span>
+<span id="cb5-4"><a href="#cb5-4"></a>    "show_scatter_3d/show_scatter_3d":</span>
+<span id="cb5-5"><a href="#cb5-5"></a>      "./srcts/show_scatter_3d/index.ts",</span>
 <span id="cb5-6"><a href="#cb5-6"></a><span class="va">+   "hello_world/hello_world": "./srcts/hello_world/index.ts",</span></span>
 <span id="cb5-7"><a href="#cb5-7"></a>  },</span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
@@ -201,8 +201,8 @@ dev/index.html
 <span id="cb7-6"><a href="#cb7-6"></a><span class="st">&lt;/head&gt;</span></span>
 <span id="cb7-7"><a href="#cb7-7"></a><span class="st">&lt;body&gt;</span></span>
 <span id="cb7-8"><a href="#cb7-8"></a>  &lt;h1&gt;Development Widgets&lt;/h1&gt;&lt;p&gt;</span>
-<span id="cb7-9"><a href="#cb7-9"></a>  &lt;a href="./display_scatter_2d/"&gt;display_scatter_2d&lt;/a&gt;&lt;br&gt;</span>
-<span id="cb7-10"><a href="#cb7-10"></a>  &lt;a href="./display_scatter_3d/"&gt;display_scatter_3d&lt;/a&gt;&lt;br&gt;</span>
+<span id="cb7-9"><a href="#cb7-9"></a>  &lt;a href="./show_scatter_2d/"&gt;show_scatter_2d&lt;/a&gt;&lt;br&gt;</span>
+<span id="cb7-10"><a href="#cb7-10"></a>  &lt;a href="./show_scatter_3d/"&gt;show_scatter_3d&lt;/a&gt;&lt;br&gt;</span>
 <span id="cb7-11"><a href="#cb7-11"></a><span class="va">+ &lt;a href="./hello_world/"&gt;hello_world&lt;/a&gt;&lt;br&gt;</span></span>
 <span id="cb7-12"><a href="#cb7-12"></a>  &lt;br&gt;&lt;br&gt;</span>
 <span id="cb7-13"><a href="#cb7-13"></a><span class="st">&lt;/body&gt;</span></span>
@@ -218,8 +218,8 @@ dev/index.html
 </h2>
 <p>Once we’ve got a widget up and running using the dev server, we will need to integrate it in to the R package with {HTMLWidgets}. The steps in this section are very similar to , but there are some additional steps required for us to bundle our widget dependencies.</p>
 <pre><code>❯ ls -l inst/htmlwidgets/lib
-.rw-r--r--  41k chart 30 Jan 13:44 display_scatter_2d.bundle.js
-.rw-r--r--  40k chart 30 Jan 13:44 display_scatter_3d.bundle.js
+.rw-r--r--  41k chart 30 Jan 13:44 show_scatter_2d.bundle.js
+.rw-r--r--  40k chart 30 Jan 13:44 show_scatter_3d.bundle.js
 .rw-r--r--  789 chart 30 Jan 13:44 hello_world.bundle.js
 .rw-r--r-- 1.2k chart 12 Dec  2021 runtime.bundle.js
 .rw-r--r-- 622k chart  7 Jan 14:05 three.bundle.js
@@ -233,9 +233,9 @@ dev/index.html
 <div class="section level3">
 <h3 id="r-binding-and-display-method">R binding and display method<a class="anchor" aria-label="anchor" href="#r-binding-and-display-method"></a>
 </h3>
-<p>When make a call to <code>animate_tour</code>, we specify the <code>data</code>, <code>tour_path</code>, and <code>display_method</code> arguments. Technically speaking, the R binding we need (as detailed in <a href="https://www.htmlwidgets.org/develop_intro.html" class="external-link">the htmlwidgets documentation</a>) is already implemented in the in the <code>animate_tour</code> function. To get our widget to show, however, we will need to implement a new display method which provides the necessary context to <code>animate_tour</code> for our widget to be called.</p>
+<p>When make a call to <code>animate_tour</code>, we specify the <code>data</code>, <code>tour_path</code>, and <code>show_method</code> arguments. Technically speaking, the R binding we need (as detailed in <a href="https://www.htmlwidgets.org/develop_intro.html" class="external-link">the htmlwidgets documentation</a>) is already implemented in the in the <code>animate_tour</code> function. To get our widget to show, however, we will need to implement a new display method which provides the necessary context to <code>animate_tour</code> for our widget to be called.</p>
 <p class="codeblock-label">
-R/display_hello_world.R
+R/show_hello_world.R
 </p>
 </div>
 <div class="section level3">
@@ -259,7 +259,7 @@ scripts/generate_sample_data.R
 
 <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu">animate_tour</span><span class="op">(</span>
   <span class="fu">tourr</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/tourr/man/Flea-measurements.html" class="external-link">flea</a></span>,
-  display <span class="op">=</span> <span class="fu">display_hello_world</span><span class="op">(</span><span class="op">)</span>,
+  display <span class="op">=</span> <span class="fu">show_hello_world</span><span class="op">(</span><span class="op">)</span>,
   tour_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/tourr/man/grand_tour.html" class="external-link">grand_tour</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span>
 <span class="op">)</span>
 
