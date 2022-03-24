@@ -84,6 +84,12 @@ div.axisLabel {
 }
 
 div.detourrTooltip {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  pointer-events: none;
   position: absolute;
   top: 0px;
   left: 0px;
@@ -93,6 +99,7 @@ div.detourrTooltip {
   border-radius: 5px;
   color: white;
   font-family: sans-serif;
+  user-select: none;
 }
 
 div.detourrTooltip.visible {

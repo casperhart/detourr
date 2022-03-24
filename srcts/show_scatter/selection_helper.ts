@@ -61,6 +61,20 @@ export class SelectionHelper {
     this.enabled = true;
   }
 
+  private scaleX() {
+    return (
+      this.widget.canvas.clientWidth /
+      this.widget.canvas.getBoundingClientRect().width
+    );
+  }
+
+  private scaleY() {
+    return (
+      this.widget.canvas.clientHeight /
+      this.widget.canvas.getBoundingClientRect().height
+    );
+  }
+
   private onSelectStart(event: MouseEvent) {
     // prevent selection from firing if we click a button, timeline, etc.
     if (this.enabled && event.target === this.widget.canvas) {
@@ -68,13 +82,14 @@ export class SelectionHelper {
       this.widget.container.appendChild(this.element);
       const pos = this.widget.canvas.getBoundingClientRect();
 
-      this.element.style.left = event.clientX - pos.left + "px";
-      this.element.style.top = event.clientY - pos.top + "px";
+      this.element.style.left =
+        (event.clientX - pos.left) * this.scaleX() + "px";
+      this.element.style.top = (event.clientY - pos.top) * this.scaleY() + "px";
       this.element.style.width = "0px";
       this.element.style.height = "0px";
 
-      this.startPoint.x = event.clientX - pos.left;
-      this.startPoint.y = event.clientY - pos.top;
+      this.startPoint.x = (event.clientX - pos.left) * this.scaleX();
+      this.startPoint.y = (event.clientY - pos.top) * this.scaleY();
     }
   }
 
@@ -84,19 +99,19 @@ export class SelectionHelper {
 
       this.pointBottomRight.x = Math.max(
         this.startPoint.x,
-        event.clientX - pos.left
+        (event.clientX - pos.left) * this.scaleX()
       );
       this.pointBottomRight.y = Math.max(
         this.startPoint.y,
-        event.clientY - pos.top
+        (event.clientY - pos.top) * this.scaleY()
       );
       this.pointTopLeft.x = Math.min(
         this.startPoint.x,
-        event.clientX - pos.left
+        (event.clientX - pos.left) * this.scaleX()
       );
       this.pointTopLeft.y = Math.min(
         this.startPoint.y,
-        event.clientY - pos.top
+        (event.clientY - pos.top) * this.scaleY()
       );
 
       this.element.style.left = this.pointTopLeft.x + "px";

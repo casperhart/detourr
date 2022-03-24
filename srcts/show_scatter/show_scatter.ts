@@ -607,13 +607,23 @@ export abstract class DisplayScatter {
     }
   }
 
+  private scaleX() {
+    return this.canvas.clientWidth / this.canvas.getBoundingClientRect().width;
+  }
+
+  private scaleY() {
+    return (
+      this.canvas.clientHeight / this.canvas.getBoundingClientRect().height
+    );
+  }
+
   private setTooltipFromHover(event: MouseEvent) {
     const { pickingTexture, renderer, canvas } = this;
     const dpr = renderer.getPixelRatio();
 
     const canvas_coords = canvas.getBoundingClientRect();
-    const x = (event.x - canvas_coords.left) * dpr;
-    const y = (event.y - canvas_coords.top) * dpr;
+    const x = (event.x - canvas_coords.left) * dpr * this.scaleX();
+    const y = (event.y - canvas_coords.top) * dpr * this.scaleY();
     const width = 1;
     const height = 1;
 

@@ -41,7 +41,7 @@ export class Timeline {
     this.addScrubber();
     this.addPlayPauseButton();
     this.addBasisIndicators();
-    this.addEventListerners();
+    this.addEventListeners();
     this.addTooltip();
   }
 
@@ -155,11 +155,11 @@ export class Timeline {
     const tooltipCoords = this.tooltip.getBoundingClientRect();
 
     const x = event.clientX - canvasCoords.left;
-    const y = event.clientY - canvasCoords.top;
     this.tooltip.className = "detourrTooltip visible";
     this.tooltip.style.left = `${Math.floor(x) - tooltipCoords.width}px`;
     setTimeout(() => (this.tooltip.className = "detourrTooltip"), 3000);
   }
+
   private basisIndicatorClickCallback(event: MouseEvent, ind: number) {
     this.widget.setTime(this.basisIndices[ind] / this.numAnimationFrames);
   }
@@ -196,7 +196,7 @@ export class Timeline {
     this.lastMousePosition = e.clientX;
   }
 
-  private addEventListerners() {
+  private addEventListeners() {
     this.parentDiv.addEventListener("mousemove", (e) => {
       if (this.mouseDown) {
         this.setTimeFromMousePosition(e);
