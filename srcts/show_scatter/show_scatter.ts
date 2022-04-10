@@ -572,9 +572,9 @@ export abstract class DisplayScatter {
       return;
     }
 
-    let newSelection = e.value.map((v: string) =>
-      this.crosstalkIndex.indexOf(v)
-    );
+    let newSelection = e.value
+      ? e.value.map((v: string) => this.crosstalkIndex.indexOf(v))
+      : [];
 
     // persistent selection with plotly
     const ctOpts = crosstalk.var("plotlyCrosstalkOpts").get() || {};
