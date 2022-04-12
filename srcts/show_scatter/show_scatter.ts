@@ -204,6 +204,9 @@ export abstract class DisplayScatter {
     if (this.hasAxisLabels) {
       this.axisLabels.map((x) => x.setDpr(dpr));
     }
+    if (this.isSleeping) {
+      this.animate();
+    }
   }
 
   private renderValue(inputData: DisplayScatterInputData) {
