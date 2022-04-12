@@ -13,6 +13,7 @@ interface TimelineableWidget {
 export class Timeline {
   private parentDiv: HTMLDivElement;
   private container: HTMLDivElement;
+  private canvas: HTMLCanvasElement;
   private widget: TimelineableWidget;
   private timeline: HTMLElement;
   private scrubber: HTMLElement;
@@ -35,6 +36,7 @@ export class Timeline {
   constructor(widget: TimelineableWidget) {
     this.widget = widget;
     this.parentDiv = widget.container;
+    this.canvas = widget.canvas;
 
     this.addContainer();
     this.addTimeline();
@@ -63,7 +65,7 @@ export class Timeline {
     name: string,
     hoverText: string,
     icon: string,
-    buttonCallback: Function
+    buttonCallback: () => void
   ) {
     const button = document.createElement("button");
     button.innerHTML = icon;
@@ -148,13 +150,17 @@ export class Timeline {
     this.tooltip = tooltip;
   }
 
+  private scaleX() {
+    return this.canvas.clientWidth / this.canvas.getBoundingClientRect().width;
+  }
+
   private basisIndicatorHoverCallback(event: MouseEvent, ind: number) {
     const span = this.tooltip.querySelector("span");
     span.innerHTML = `Basis ${ind + 1}`;
     const canvasCoords = this.container.getBoundingClientRect();
     const tooltipCoords = this.tooltip.getBoundingClientRect();
 
-    const x = event.clientX - canvasCoords.left;
+    const x = (event.clientX - canvasCoords.left) * this.scaleX();
     this.tooltip.className = "detourrTooltip visible";
     this.tooltip.style.left = `${Math.floor(x) - tooltipCoords.width}px`;
     setTimeout(() => (this.tooltip.className = "detourrTooltip"), 3000);
