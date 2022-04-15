@@ -4,7 +4,7 @@ import { Matrix } from "../show_scatter/types";
 import { VERTEX_SHADER_3D } from "./shaders";
 import { FRAGMENT_SHADER } from "../show_scatter/shaders";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { tensor, matMul, Tensor2D } from "@tensorflow/tfjs-core";
+import * as tf from "@tensorflow/tfjs-core";
 
 export class DisplayScatter3d extends DisplayScatter {
   public camera: THREE.PerspectiveCamera;
@@ -32,12 +32,12 @@ export class DisplayScatter3d extends DisplayScatter {
     this.camera.aspect = aspect;
   }
 
-  protected project(X: Tensor2D, A: Tensor2D): Float32Array {
-    return matMul(X, A).dataSync() as Float32Array;
+  protected project(X: tf.Tensor2D, A: tf.Tensor2D): tf.Tensor2D {
+    return tf.matMul(X, A);
   }
 
-  protected projectionMatrixToTensor(mat: Matrix): Tensor2D {
-    return tensor(mat);
+  protected projectionMatrixToTensor(mat: Matrix): tf.Tensor2D {
+    return tf.tensor(mat);
   }
 
   protected getShaderOpts(pointSize: number): THREE.ShaderMaterialParameters {
