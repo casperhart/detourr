@@ -1,14 +1,6 @@
 import { DisplayScatter2d } from "../show_scatter_2d";
 import { DisplayScatterConfig } from "../show_scatter/show_scatter";
-import {
-  matMul,
-  transpose,
-  Tensor2D,
-  square,
-  sub,
-  sqrt,
-  sum,
-} from "@tensorflow/tfjs-core";
+import * as tf from "@tensorflow/tfjs-core";
 
 interface DisplaySlice2dConfig extends DisplayScatterConfig {
   epsilon: number;
@@ -25,13 +17,15 @@ export class DisplaySlice2d extends DisplayScatter2d {
     this.brushButtonAction = null;
   }
 
-  protected project(X: Tensor2D, A: Tensor2D): Float32Array {
-    const projected = matMul(X, A);
+  protected project(X: tf.Tensor2D, A: tf.Tensor2D): tf.Tensor2D {
+    const projected = tf.matMul(X, A);
 
     // update point alphas for slice tour
-    const dists = sqrt(
-      sum(square(sub(X, matMul(projected, transpose(A)))), 1)
-    ).dataSync();
+    const dists = tf
+      .sqrt(
+        tf.sum(tf.square(tf.sub(X, tf.matMul(projected, tf.transpose(A)))), 1)
+      )
+      .dataSync();
 
     this.pointAlphas.set(
       dists.map((x) => {
@@ -44,6 +38,6 @@ export class DisplaySlice2d extends DisplayScatter2d {
     );
     this.pointAlphas.needsUpdate = true;
 
-    return projected.dataSync() as Float32Array;
+    return projected as tf.Tensor2D;
   }
 }

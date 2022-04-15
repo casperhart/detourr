@@ -1,11 +1,10 @@
 import * as THREE from "three";
 import { DisplayScatter } from "../show_scatter";
-import { Matrix, ProjectionMatrix } from "../show_scatter/types";
+import { Matrix } from "../show_scatter/types";
 import { VERTEX_SHADER_2D } from "./shaders";
 import { FRAGMENT_SHADER } from "../show_scatter/shaders";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { Tensor2D, tensor, matMul, zeros, concat } from "@tensorflow/tfjs-core";
-import { TextureFilter } from "three";
+import * as tf from "@tensorflow/tfjs-core";
 
 export class DisplayScatter2d extends DisplayScatter {
   public camera: THREE.OrthographicCamera;
@@ -50,20 +49,22 @@ export class DisplayScatter2d extends DisplayScatter {
     (this.camera as THREE.OrthographicCamera).bottom = -1;
   }
 
-  protected project(X: Tensor2D, A: Tensor2D): Float32Array {
-    return matMul(X, A).dataSync() as Float32Array;
+  protected project(X: tf.Tensor2D, A: tf.Tensor2D): tf.Tensor2D {
+    return tf.matMul(X, A);
   }
 
-  protected projectionMatrixToTensor(mat: Matrix): Tensor2D {
+  protected projectionMatrixToTensor(mat: Matrix): tf.Tensor2D {
     // convert 2 projection matrix in to 3D by adding a column
     // of zeros in the middle
-    return matMul(
-      tensor(mat),
-      tensor([
-        [1, 0, 0],
-        [0, 0, 1],
-      ])
-    );
+    const matTensor = tf.tensor(mat);
+    const zeros = tf.tensor([
+      [1, 0, 0],
+      [0, 0, 1],
+    ]);
+    const result = tf.matMul(matTensor, zeros);
+    matTensor.dispose();
+    zeros.dispose();
+    return result as tf.Tensor2D;
   }
 
   protected getShaderOpts(pointSize: number) {

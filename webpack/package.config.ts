@@ -24,10 +24,12 @@ module.exports = {
       },
       {
         test: /\.wasm$/i,
-        type: "javascript/auto",
         use: [
           {
-            loader: "file-loader",
+            loader: "url-loader",
+            options: {
+              mimetype: "application/wasm",
+            },
           },
         ],
       },

@@ -1,11 +1,5 @@
 import * as THREE from "three";
-import {
-  tensor,
-  Tensor2D,
-  setBackend,
-  concat,
-  zeros,
-} from "@tensorflow/tfjs-core";
+import * as tf from "@tensorflow/tfjs-core";
 import { setWasmPaths } from "@tensorflow/tfjs-backend-wasm";
 import { Camera, Dim, Mapping, Matrix, ProjectionMatrix } from "./types";
 import { Timeline } from "./timeline";
@@ -53,12 +47,12 @@ export abstract class DisplayScatter {
   protected abstract camera: Camera;
   protected abstract addCamera(): void;
   protected abstract resizeCamera(aspect: number): void;
-  protected abstract project(X: Tensor2D, A: Tensor2D): Float32Array;
+  protected abstract project(X: tf.Tensor2D, A: tf.Tensor2D): tf.Tensor2D;
   protected abstract getShaderOpts(
     pointSize: number
   ): THREE.ShaderMaterialParameters;
   protected abstract addOrbitControls(): void;
-  protected abstract projectionMatrixToTensor(mat: Matrix): Tensor2D;
+  protected abstract projectionMatrixToTensor(mat: Matrix): tf.Tensor2D;
 
   protected config: DisplayScatterConfig;
   protected width: number;
@@ -76,8 +70,8 @@ export abstract class DisplayScatter {
   private n: number;
   private backgroundColour: number;
   private scene: THREE.Scene;
-  private dataset: Tensor2D;
-  private projectionMatrices: Tensor2D[];
+  private dataset: tf.Tensor2D;
+  private projectionMatrices: tf.Tensor2D[];
   private clock = new THREE.Clock();
   private time: number;
   private currentFrame: number;
@@ -220,12 +214,12 @@ export abstract class DisplayScatter {
   }
 
   private renderValue(inputData: DisplayScatterInputData) {
-    setBackend("wasm").then(() => {
+    tf.setBackend("wasm").then(() => {
       if (this.config !== undefined) {
         this.clearPlot();
       }
       this.config = inputData.config;
-      this.dataset = tensor(inputData.dataset);
+      this.dataset = tf.tensor(inputData.dataset);
 
       this.crosstalkIndex = inputData.crosstalk.crosstalkIndex;
       this.crosstalkGroup = inputData.crosstalk.crosstalkGroup;
@@ -402,16 +396,22 @@ export abstract class DisplayScatter {
 
   private getPointsBuffer(i: number): THREE.BufferAttribute {
     // flattened projection matrix
-    const positionArray: Float32Array = this.project(
-      this.dataset,
-      this.projectionMatrices[i]
-    );
+    const position = tf.tidy(() => {
+      return this.project(this.dataset, this.projectionMatrices[i]);
+    });
+    const positionArray = position.dataSync();
+    position.dispose();
 
     return new THREE.BufferAttribute(positionArray, 3);
   }
 
-  private projectionMatrixToAxisLines(m: Tensor2D): Float32Array {
-    return concat([zeros(m.shape), m], 1).dataSync() as Float32Array;
+  private projectionMatrixToAxisLines(m: tf.Tensor2D): Float32Array {
+    const zeros = tf.zeros(m.shape);
+    const coords = tf.concat([zeros, m], 1);
+    const coordsArray = coords.dataSync();
+    coords.dispose();
+    zeros.dispose();
+    return coordsArray as Float32Array;
   }
 
   private getAxisLinesBuffer(i: number): THREE.BufferAttribute {
