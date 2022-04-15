@@ -1,16 +1,25 @@
 const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 
+const widgets = [
+  "show_scatter_2d",
+  "show_scatter_3d",
+  "show_sage_2d",
+  "show_sage_3d",
+  "show_slice_2d",
+  "show_slice_3d",
+];
+
+let entries = {};
+widgets.map((w) => (entries[`${w}/${w}`] = `./srcts/${w}/index.ts`));
+
+const copyStaticPatterns = widgets.map((w) => {
+  return { from: `dev/${w}/static/`, to: `${w}` };
+});
+
 module.exports = {
   mode: "development",
-  entry: {
-    "show_scatter_2d/show_scatter_2d": "./srcts/show_scatter_2d/index.ts",
-    "show_scatter_3d/show_scatter_3d": "./srcts/show_scatter_3d/index.ts",
-    "show_sage_2d/show_sage_2d": "./srcts/show_sage_2d/index.ts",
-    "show_sage_3d/show_sage_3d": "./srcts/show_sage_3d/index.ts",
-    "show_slice_2d/show_slice_2d": "./srcts/show_slice_2d/index.ts",
-    "show_slice_3d/show_slice_3d": "./srcts/show_slice_3d/index.ts",
-  },
+  entry: entries,
   module: {
     rules: [
       {
@@ -21,6 +30,15 @@ module.exports = {
       {
         test: /\.css$/i,
         use: ["style-loader", "css-loader"],
+      },
+      {
+        test: /\.wasm$/i,
+        type: "javascript/auto",
+        use: [
+          {
+            loader: "file-loader",
+          },
+        ],
       },
     ],
   },
@@ -39,34 +57,7 @@ module.exports = {
   plugins: [
     new CopyPlugin({
       patterns: [
-        {
-          from: "dev/show_scatter_2d/static/",
-          to: "show_scatter_2d",
-        },
-        {
-          from: "dev/show_scatter_2d/static/",
-          to: "show_scatter_2d",
-        },
-        {
-          from: "dev/show_scatter_3d/static/",
-          to: "show_scatter_3d",
-        },
-        {
-          from: "dev/show_sage_2d/static/",
-          to: "show_sage_2d",
-        },
-        {
-          from: "dev/show_sage_3d/static/",
-          to: "show_sage_3d",
-        },
-        {
-          from: "dev/show_slice_2d/static/",
-          to: "show_slice_2d",
-        },
-        {
-          from: "dev/show_slice_3d/static/",
-          to: "show_slice_3d",
-        },
+        ...copyStaticPatterns,
         {
           from: "dev/index.html",
           to: "",

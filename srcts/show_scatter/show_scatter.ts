@@ -6,7 +6,7 @@ import {
   concat,
   zeros,
 } from "@tensorflow/tfjs-core";
-import "@tensorflow/tfjs-backend-cpu";
+import { setWasmPaths } from "@tensorflow/tfjs-backend-wasm";
 import { Camera, Dim, Mapping, Matrix, ProjectionMatrix } from "./types";
 import { Timeline } from "./timeline";
 import { SelectionHelper } from "./selection_helper";
@@ -15,9 +15,19 @@ import { ScatterControls } from "./controls";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import "./style.css";
 
+import wasmSimdPath from "../../node_modules/@tensorflow/tfjs-backend-wasm/dist/tfjs-backend-wasm-simd.wasm";
+import wasmSimdThreadedPath from "../../node_modules/@tensorflow/tfjs-backend-wasm/dist/tfjs-backend-wasm-threaded-simd.wasm";
+import wasmPath from "../../node_modules/@tensorflow/tfjs-backend-wasm/dist/tfjs-backend-wasm.wasm";
+
 declare global {
   const crosstalk: any;
 }
+
+setWasmPaths({
+  "tfjs-backend-wasm.wasm": wasmPath,
+  "tfjs-backend-wasm-simd.wasm": wasmSimdPath,
+  "tfjs-backend-wasm-threaded-simd.wasm": wasmSimdThreadedPath,
+});
 
 export interface DisplayScatterConfig {
   fps: number;
@@ -210,7 +220,7 @@ export abstract class DisplayScatter {
   }
 
   private renderValue(inputData: DisplayScatterInputData) {
-    setBackend("cpu").then(() => {
+    setBackend("wasm").then(() => {
       if (this.config !== undefined) {
         this.clearPlot();
       }

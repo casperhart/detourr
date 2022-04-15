@@ -2307,21 +2307,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tensorflow/tfjs-backend-cpu@npm:^3.14.0":
-  version: 3.14.0
-  resolution: "@tensorflow/tfjs-backend-cpu@npm:3.14.0"
+"@tensorflow/tfjs-backend-cpu@npm:3.15.0":
+  version: 3.15.0
+  resolution: "@tensorflow/tfjs-backend-cpu@npm:3.15.0"
   dependencies:
     "@types/seedrandom": 2.4.27
     seedrandom: 2.4.3
   peerDependencies:
-    "@tensorflow/tfjs-core": 3.14.0
-  checksum: 8b21c17cd151d8bab0f6de7ecfa76b7241fa24a0fb0c2a0ea9156c76cf4db9bb5fb0f752bfbe7f3d2919b69649afdc5cefa899058a890c0e06c27108afa85ea4
+    "@tensorflow/tfjs-core": 3.15.0
+  checksum: e413982c96ef5f013cf39b5d96ed14f2865d74f5fa00a3bea4e1a5daffdfdf8d9dd5562adf7c001bb42ae4ffe0cc418e4339e77bb85173c533dec9b2e1997333
   languageName: node
   linkType: hard
 
-"@tensorflow/tfjs-core@npm:^3.14.0":
-  version: 3.14.0
-  resolution: "@tensorflow/tfjs-core@npm:3.14.0"
+"@tensorflow/tfjs-backend-wasm@npm:^3.15.0":
+  version: 3.15.0
+  resolution: "@tensorflow/tfjs-backend-wasm@npm:3.15.0"
+  dependencies:
+    "@tensorflow/tfjs-backend-cpu": 3.15.0
+    "@types/emscripten": ~0.0.34
+  peerDependencies:
+    "@tensorflow/tfjs-core": 3.15.0
+  checksum: 056cc555bfb9174bc25c2714815ce42ad1e582dad6752c78a0b78797a1e7be870f91ca3336153c30a6c990326f2ad7caf9fcd08ddc6fd27c7b199eaa0b903af2
+  languageName: node
+  linkType: hard
+
+"@tensorflow/tfjs-core@npm:^3.15.0":
+  version: 3.15.0
+  resolution: "@tensorflow/tfjs-core@npm:3.15.0"
   dependencies:
     "@types/long": ^4.0.1
     "@types/offscreencanvas": ~2019.3.0
@@ -2330,7 +2342,7 @@ __metadata:
     long: 4.0.0
     node-fetch: ~2.6.1
     seedrandom: 2.4.3
-  checksum: 13e8926581728a594bc11ed316d606e6162a2bc604cb034c924ca864e6c0dba5bca97d21d81e13a9c89e5108c9b2ac41efd77e42482f105341df7094edd922ab
+  checksum: 3649fd4056f74db3cd72bb79907452b79cc1b7befcb762bf688ea2d44abe29fae9c7e640db746382c42259f5d8f7df537582f27fcf2ecdd16dbfdf1f216eaaa8
   languageName: node
   linkType: hard
 
@@ -2376,6 +2388,13 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: fe81351470f2d3165e8b12ce33542eef89ea893e36dd62e8f7d72566dfb7e448376ae962f9f3ea888547ce8b55a40020ca0e01d637fab5d99567673084542641
+  languageName: node
+  linkType: hard
+
+"@types/emscripten@npm:~0.0.34":
+  version: 0.0.34
+  resolution: "@types/emscripten@npm:0.0.34"
+  checksum: 4a4b726d47f5dd8a5191a81a7b9da5af70531caab6c934038c6d089d3670ec3f29776de7ab8469ec0e6499c9e024fd6b356cd363de9a7062ba30515921bcb145
   languageName: node
   linkType: hard
 
@@ -3118,6 +3137,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"big.js@npm:^5.2.2":
+  version: 5.2.2
+  resolution: "big.js@npm:5.2.2"
+  checksum: b89b6e8419b097a8fb4ed2399a1931a68c612bce3cfd5ca8c214b2d017531191070f990598de2fc6f3f993d91c0f08aa82697717f6b3b8732c9731866d233c9e
+  languageName: node
+  linkType: hard
+
 "binary-extensions@npm:^2.0.0":
   version: 2.2.0
   resolution: "binary-extensions@npm:2.2.0"
@@ -3682,8 +3708,8 @@ __metadata:
     "@babel/core": ^7.14.3
     "@babel/register": ^7.13.16
     "@stdlib/math-base-special-betainc": ^0.0.6
-    "@tensorflow/tfjs-backend-cpu": ^3.14.0
-    "@tensorflow/tfjs-core": ^3.14.0
+    "@tensorflow/tfjs-backend-wasm": ^3.15.0
+    "@tensorflow/tfjs-core": ^3.15.0
     "@types/three": ^0.129.1
     "@typescript-eslint/eslint-plugin": latest
     "@typescript-eslint/parser": ^5.10.1
@@ -3691,6 +3717,7 @@ __metadata:
     css-loader: ^6.0.0
     eslint: ^8.8.0
     eslint-config-prettier: ^8.3.0
+    file-loader: ^6.2.0
     prettier: ^2.5.1
     style-loader: ^3.1.0
     three: ^0.128.0
@@ -3764,6 +3791,13 @@ __metadata:
   version: 8.0.0
   resolution: "emoji-regex@npm:8.0.0"
   checksum: d4c5c39d5a9868b5fa152f00cada8a936868fd3367f33f71be515ecee4c803132d11b31a6222b2571b1e5f7e13890156a94880345594d0ce7e3c9895f560f192
+  languageName: node
+  linkType: hard
+
+"emojis-list@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "emojis-list@npm:3.0.0"
+  checksum: ddaaa02542e1e9436c03970eeed445f4ed29a5337dfba0fe0c38dfdd2af5da2429c2a0821304e8a8d1cadf27fdd5b22ff793571fa803ae16852a6975c65e8e70
   languageName: node
   linkType: hard
 
@@ -4143,6 +4177,18 @@ __metadata:
   dependencies:
     flat-cache: ^3.0.4
   checksum: f49701feaa6314c8127c3c2f6173cfefff17612f5ed2daaafc6da13b5c91fd43e3b2a58fd0d63f9f94478a501b167615931e7200e31485e320f74a33885a9c74
+  languageName: node
+  linkType: hard
+
+"file-loader@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "file-loader@npm:6.2.0"
+  dependencies:
+    loader-utils: ^2.0.0
+    schema-utils: ^3.0.0
+  peerDependencies:
+    webpack: ^4.0.0 || ^5.0.0
+  checksum: faf43eecf233f4897b0150aaa874eeeac214e4f9de49738a9e0ef734a30b5260059e85b7edadf852b98e415f875bd5f12587768a93fd52aaf2e479ecf95fab20
   languageName: node
   linkType: hard
 
@@ -4990,6 +5036,17 @@ __metadata:
   version: 4.2.0
   resolution: "loader-runner@npm:4.2.0"
   checksum: e61aea8b6904b8af53d9de6f0484da86c462c0001f4511bedc837cec63deb9475cea813db62f702cd7930420ccb0e75c78112270ca5c8b61b374294f53c0cb3a
+  languageName: node
+  linkType: hard
+
+"loader-utils@npm:^2.0.0":
+  version: 2.0.2
+  resolution: "loader-utils@npm:2.0.2"
+  dependencies:
+    big.js: ^5.2.2
+    emojis-list: ^3.0.0
+    json5: ^2.1.2
+  checksum: 9078d1ed47cadc57f4c6ddbdb2add324ee7da544cea41de3b7f1128e8108fcd41cd3443a85b7ee8d7d8ac439148aa221922774efe4cf87506d4fb054d5889303
   languageName: node
   linkType: hard
 
@@ -6054,7 +6111,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"schema-utils@npm:^3.1.0, schema-utils@npm:^3.1.1":
+"schema-utils@npm:^3.0.0, schema-utils@npm:^3.1.0, schema-utils@npm:^3.1.1":
   version: 3.1.1
   resolution: "schema-utils@npm:3.1.1"
   dependencies:
