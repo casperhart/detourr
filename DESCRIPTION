@@ -1,7 +1,7 @@
 Package: detourr
 Type: Package
 Title: Animations for {tourr} using htmlwidgets
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: c(
     person("Casper", "Hart", email = "casperhart93@gmail.com", role = c("aut", "cre")),
     person("Earo", "Wang", email = "earo.wang@gmail.com", role = c("aut", "ths"), comment = c(ORCID = "0000-0001-6448-5260"))

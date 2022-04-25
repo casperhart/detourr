@@ -1,7 +1,7 @@
 dependencies:
   - name: show_slice_2d
     src: htmlwidgets/lib/
-    version: 0.0.2
+    version: 0.0.3
     script:
       # these have to be in order of loading
       - runtime.bundle.js # webpack runtime
