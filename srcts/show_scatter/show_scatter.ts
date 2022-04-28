@@ -213,6 +213,10 @@ export abstract class DisplayScatter {
     }
   }
 
+  protected preConstructPlotCallback(): void {
+    return;
+  }
+
   private renderValue(inputData: DisplayScatterInputData) {
     tf.setBackend("wasm").then(() => {
       if (this.config !== undefined) {
@@ -263,6 +267,7 @@ export abstract class DisplayScatter {
         16
       );
 
+      this.preConstructPlotCallback();
       this.constructPlot();
       this.animate();
 

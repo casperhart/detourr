@@ -10,6 +10,8 @@
 #' @param slice_relative_volume number default 0.1. Controls the relative
 #' volume of the slice and thus the number of points which are highlighted.
 #' This is an approximate value and is only accurate for values << 1
+#' @param anchor anchor vector of length p to offset the projection plane
+#' when calculating the distance from each point to the projection plane.
 #' @references
 #' Laa, U., Cook, D., & Valencia, G. (2020). A slice tour for finding
 #' hollowness in high-dimensional data. Journal of Computational and
@@ -31,7 +33,8 @@ show_slice <- function(x,
                        edges = NULL,
                        paused = TRUE,
                        scale_factor = NULL,
-                       slice_relative_volume = 0.1) {
+                       slice_relative_volume = 0.1,
+                       anchor = NULL) {
   dots <- list(...)
 
   x <- show_scatter_internal(x,
@@ -48,6 +51,16 @@ show_slice <- function(x,
   d <- attributes(x)
 
   d$config$epsilon <- slice_relative_volume^(1 / (p - tour_output_dim(x)))
+
+  if (is.null(anchor)) {
+    anchor <- rep(0, ncol(d$data))
+  } else if (!is.numeric(anchor) || length(anchor) != ncol(d$data)) {
+    rlang::abort(c("Invalid `anchor` argument.",
+      i = "`anchor` must be a numeric vector of length equal to the number of columns in the data to be projected"
+    ))
+  }
+
+  d$config$anchor <- anchor
 
   x <- make_detour(x, d)
 

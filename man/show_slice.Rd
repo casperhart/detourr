@@ -13,7 +13,8 @@ show_slice(
   edges = NULL,
   paused = TRUE,
   scale_factor = NULL,
-  slice_relative_volume = 0.1
+  slice_relative_volume = 0.1,
+  anchor = NULL
 )
 }
 \arguments{
@@ -57,6 +58,9 @@ from a point to the origin.}
 \item{slice_relative_volume}{number default 0.1. Controls the relative
 volume of the slice and thus the number of points which are highlighted.
 This is an approximate value and is only accurate for values << 1}
+
+\item{anchor}{anchor vector of length p to offset the projection plane
+when calculating the distance from each point to the projection plane.}
 }
 \description{
 An implementation of the Slice Tour described in Laa et al., 2020. Points
