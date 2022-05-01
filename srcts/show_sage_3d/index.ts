@@ -22,26 +22,26 @@ export class DisplaySage3d extends DisplayScatter3d {
 
   private scaleRadii(projected: tf.Tensor2D): tf.Tensor2D {
     const projectedArray = projected.dataSync();
+    let r_trim: number;
+    let r_prime: number;
     let r: number;
-    let rad: number;
 
     for (let i = 0; i < projectedArray.length / 3; i++) {
-      r = Math.min(
-        this.config.R,
-        Math.sqrt(
-          projectedArray[i * 3] ** 2 +
-            projectedArray[i * 3 + 1] ** 2 +
-            projectedArray[i * 3 + 2] ** 2
-        )
+      r = Math.sqrt(
+        projectedArray[i * 3] ** 2 +
+          projectedArray[i * 3 + 1] ** 2 +
+          projectedArray[i * 3 + 2] ** 2
       );
-      rad = this.cumulative_radial_3d(
-        r,
+      r_trim = Math.min(this.config.R, r);
+
+      r_prime = this.cumulative_radial_3d(
+        r_trim,
         this.config.R,
         this.config.effectiveInputDim
       );
-      projectedArray[i * 3] = (projectedArray[i * 3] * rad) / r;
-      projectedArray[i * 3 + 1] = (projectedArray[i * 3 + 1] * rad) / r;
-      projectedArray[i * 3 + 2] = (projectedArray[i * 3 + 2] * rad) / r;
+      projectedArray[i * 3] = (projectedArray[i * 3] * r_prime) / r;
+      projectedArray[i * 3 + 1] = (projectedArray[i * 3 + 1] * r_prime) / r;
+      projectedArray[i * 3 + 2] = (projectedArray[i * 3 + 2] * r_prime) / r;
     }
     return tf.tensor(projectedArray);
   }
