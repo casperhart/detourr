@@ -114,7 +114,7 @@ First we'll set up the configuration file `inst/htmlwidgets/hello_world.yaml`:
 dependencies:
   - name: hello_world 
     src: htmlwidgets/lib/
-    version: 0.0.3
+    version: 0.1.0
     script:
       # these are specified in the order they should load
       - runtime.bundle.js
