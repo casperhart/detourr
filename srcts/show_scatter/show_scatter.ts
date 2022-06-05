@@ -822,7 +822,7 @@ export abstract class DisplayScatter {
   private highlightSelectedPoints() {
     for (const i of this.filteredPointIndices) {
       if (!this.selectedPointIndices.includes(i)) {
-        this.pointAlphas.set([this.config.alpha / 4], i);
+        this.pointAlphas.set([this.config.alpha / 8], i);
       } else {
         this.pointAlphas.set([this.config.alpha], i);
       }
