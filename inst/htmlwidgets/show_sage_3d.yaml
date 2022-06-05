@@ -1,7 +1,7 @@
 dependencies:
   - name: show_sage_3d
     src: htmlwidgets/lib/
-    version: 0.0.3
+    version: 0.1.0
     script:
       # these have to be in order of loading
       - runtime.bundle.js # webpack runtime
