@@ -1,7 +1,6 @@
 ---
 title: "Introducing and interacting with `show_scatter()`"
-output: 
-  rmarkdown::html_vignette:
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Introducing and interacting with `show_scatter()`}
   %\VignetteEngine{knitr::rmarkdown}

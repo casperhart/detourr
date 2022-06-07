@@ -7,7 +7,7 @@
 show_sage(
   x,
   ...,
-  palette = viridisLite::viridis,
+  palette = viridis,
   center = TRUE,
   axes = TRUE,
   edges = NULL,
@@ -102,4 +102,7 @@ detour(tourr::flea, tour_aes(projection = -species, colour = species)) |>
 Laa, U., Cook, D., & Lee, S. (2021). Burning sage: Reversing the curse of
 dimensionality in the visualization of high-dimensional data. Journal of
 Computational and Graphical Statistics, 1-10.
+}
+\seealso{
+show_scatter
 }

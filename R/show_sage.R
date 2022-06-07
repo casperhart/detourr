@@ -24,11 +24,12 @@
 #' detour(tourr::flea, tour_aes(projection = -species, colour = species)) |>
 #'   tour_path(grand_tour(3), fps = 60) |>
 #'   show_sage(gamma = 2)
-#' @seeAlso show_scatter
+#' @seealso show_scatter
+#' @importFrom viridisLite viridis
 #' @export
 show_sage <- function(x,
                       ...,
-                      palette = viridisLite::viridis,
+                      palette = viridis,
                       center = TRUE,
                       axes = TRUE,
                       edges = NULL,

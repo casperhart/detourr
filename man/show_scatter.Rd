@@ -7,7 +7,7 @@
 show_scatter(
   x,
   ...,
-  palette = viridisLite::viridis,
+  palette = viridis,
   center = TRUE,
   axes = TRUE,
   edges = NULL,
