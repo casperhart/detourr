@@ -1,7 +1,6 @@
 ---
 title: "Adding a new display method and widget to {detourr}"
-output: 
-  rmarkdown::html_vignette:
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Adding a new display method and widget to {detourr}}
   %\VignetteEngine{knitr::rmarkdown}

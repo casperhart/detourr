@@ -12,10 +12,11 @@
 #' detour(tourr::flea, tour_aes(projection = -species, colour = species)) |>
 #'   tour_path(grand_tour(3), fps = 60) |>
 #'   show_scatter(alpha = 0.7, axes = FALSE)
+#' @importFrom viridisLite viridis
 #' @export
 show_scatter <- function(x,
                          ...,
-                         palette = viridisLite::viridis,
+                         palette = viridis,
                          center = TRUE,
                          axes = TRUE,
                          edges = NULL,
@@ -40,6 +41,8 @@ show_scatter <- function(x,
   make_widget(x, widget, dots$width, dots$height, d$crosstalk$crosstalk_libs)
 }
 
+#' Internal method for 2D and 3D Scatter Plot Display
+#'
 #' @details
 #' This display method produces an interactive scatterplot animation which
 #' supports both 2D and 3D tours. Linked selection and filtering is also

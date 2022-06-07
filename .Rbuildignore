@@ -24,3 +24,4 @@ demo/*
 .yarnrc.yml
 .vscode
 .yarn
+vignettes/

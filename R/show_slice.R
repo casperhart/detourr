@@ -23,11 +23,12 @@
 #' detour(x, tour_aes(projection = everything())) |>
 #'   tour_path(grand_tour(2)) |>
 #'   show_slice(slice_relative_volume = 0.1)
-#' @seeAlso show_scatter
+#' @seealso show_scatter
+#' @importFrom viridisLite viridis
 #' @export
 show_slice <- function(x,
                        ...,
-                       palette = viridisLite::viridis,
+                       palette = viridis,
                        center = TRUE,
                        axes = TRUE,
                        edges = NULL,
