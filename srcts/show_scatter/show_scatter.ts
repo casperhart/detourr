@@ -217,8 +217,12 @@ export abstract class DisplayScatter {
     return;
   }
 
-  private renderValue(inputData: DisplayScatterInputData) {
-    tf.setBackend("wasm").then(() => {
+  private async renderValue(inputData: DisplayScatterInputData) {
+    if (tf.getBackend() == null) {
+      await tf.setBackend("wasm");
+    }
+
+    await tf.ready().then(() => {
       if (this.config !== undefined) {
         this.clearPlot();
       }
