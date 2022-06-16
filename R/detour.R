@@ -10,6 +10,8 @@
 #'
 #' @importFrom utils object.size
 #' @importFrom tibble new_tibble tibble
+#' @return A `detour` object containing information about the tour path and
+#' its parameters
 #' @examples
 #' detour(tourr::flea, tour_aes(projection = -species, colour = species)) |>
 #'   tour_path(grand_tour(3), fps = 60) |>
@@ -102,6 +104,7 @@ as.list.detour <- function(x, ...) {
 
 #' Test for detour-ness
 #' @param x an object
+#' @return TRUE or FALSE
 #' @export
 is_detour <- function(x) {
   inherits(x, "detour")

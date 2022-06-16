@@ -24,6 +24,7 @@ merge_defaults_list <- function(l, default_l) {
 #' mapped to visual properties of the tour animation.
 #' @param ... list of name-value pairs in the form 'aesthetic = variable'.
 #' Variables are evaluated using {tidyselect} syntax.
+#' @return a list of quosures
 #' @examples
 #' detour(tourr::flea, tour_aes(projection = -species, colour = species)) |>
 #'   tour_path(grand_tour(3), fps = 60) |>

@@ -62,6 +62,9 @@ This is an approximate value and is only accurate for values << 1}
 \item{anchor}{anchor vector of length p to offset the projection plane
 when calculating the distance from each point to the projection plane.}
 }
+\value{
+An object of class \code{htmlwidget}
+}
 \description{
 An implementation of the Slice Tour described in Laa et al., 2020. Points
 close to the projection plane are highlighted, and those far away are

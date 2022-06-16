@@ -11,7 +11,10 @@
 #' @param output_id output variable to read from
 #' @param expr an expression that generates a {detourr} widget
 #'
-#' @name detourr-shiny
+#' @return An output or render function that enables the use of the widget
+#' within shiny applications
+#' 
+#' @name detour-shiny
 #' @export
 displayScatter3dOutput <- function(output_id,
                                    width = "100%",
@@ -27,7 +30,7 @@ displayScatter3dOutput <- function(output_id,
   )
 }
 
-#' @rdname detourr-shiny
+#' @rdname detour-shiny
 #' @export
 displayScatter2dOutput <- function(output_id,
                                    width = "100%",
@@ -43,7 +46,7 @@ displayScatter2dOutput <- function(output_id,
   )
 }
 
-#' @rdname detourr-shiny
+#' @rdname detour-shiny
 #' @export
 shinyRenderDisplayScatter2d <- function(expr, env = parent.frame(), quoted = FALSE) {
   if (!quoted) {
@@ -52,7 +55,7 @@ shinyRenderDisplayScatter2d <- function(expr, env = parent.frame(), quoted = FAL
   htmlwidgets::shinyRenderWidget(expr, displayScatter2dOutput, quoted = TRUE, env = env)
 }
 
-#' @rdname detourr-shiny
+#' @rdname detour-shiny
 #' @export
 shinyRenderDisplayScatter3d <- function(expr, env = parent.frame(), quoted = FALSE) {
   if (!quoted) {
