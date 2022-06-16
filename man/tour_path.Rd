@@ -27,6 +27,10 @@ associated with tour path}
 
 \item{max_bases}{the maximum number of bases to generate}
 }
+\value{
+A \code{detour} object containing information about the tour path and
+its parameters
+}
 \description{
 This function takes a \code{detour} object as an input, and generates a
 sequence of projection matrices for the tour. The return value is another

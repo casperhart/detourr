@@ -53,6 +53,9 @@ character vector of colour names and / or hex values as output.
 are displayed on a sensible range. Defaults to the reciprocal of maximum distance
 from a point to the origin.}
 }
+\value{
+An object of class \code{htmlwidget}
+}
 \description{
 Display method for a high performance 2D or 3D scatter plot.
 Performance is achieved through the use of Three.js / WebGL, and the 2D or

@@ -6,7 +6,7 @@
 #' Performance is achieved through the use of Three.js / WebGL, and the 2D or
 #' 3D variant is selected automatically based on the tour generator provided.
 #'
-#' @inherit show_scatter_internal details
+#' @inherit show_scatter_internal details return
 #' @inheritParams show_scatter_internal
 #' @examples
 #' detour(tourr::flea, tour_aes(projection = -species, colour = species)) |>
@@ -86,6 +86,7 @@ show_scatter <- function(x,
 #' @param scale_factor used as a multiplier for the point coordinates so they
 #' are displayed on a sensible range. Defaults to the reciprocal of maximum distance
 #' from a point to the origin.
+#' @return An object of class `htmlwidget`
 #' @importFrom rlang `%||%`
 show_scatter_internal <- function(x,
                                   ...,

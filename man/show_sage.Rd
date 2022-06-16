@@ -64,6 +64,9 @@ the maximum distance from the origin to each row of data. If the default
 \code{scale_factor} parameters interact with one another, it is recommended to
 leave \code{scale_factor} at its default value, and modify \code{R} if needed.}
 }
+\value{
+An object of class \code{htmlwidget}
+}
 \description{
 An implementation of the Sage Tour described in Laa et al., 2021. It uses
 a radial transformation on the projected data so that the relative volume

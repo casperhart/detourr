@@ -13,6 +13,10 @@ detour(.data, mapping)
 \code{tour_aes} function. The only required aesthetic is \code{projection}, which
 determines which columns are used to generate the tour path and supports tidy selection.}
 }
+\value{
+A \code{detour} object containing information about the tour path and
+its parameters
+}
 \description{
 This function initialises a \code{detour} object which, along with the
 \code{tour_path} and \code{show_functions} is used to build a detour visualisation.

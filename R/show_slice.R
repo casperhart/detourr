@@ -5,7 +5,7 @@
 #' close to the projection plane are highlighted, and those far away are
 #' faded out.
 #'
-#' @inherit show_scatter_internal details
+#' @inherit show_scatter_internal details return
 #' @inheritParams show_scatter_internal
 #' @param slice_relative_volume number default 0.1. Controls the relative
 #' volume of the slice and thus the number of points which are highlighted.

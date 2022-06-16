@@ -9,6 +9,9 @@ is_detour(x)
 \arguments{
 \item{x}{an object}
 }
+\value{
+TRUE or FALSE
+}
 \description{
 Test for detour-ness
 }

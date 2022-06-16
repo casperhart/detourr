@@ -11,6 +11,10 @@
 #' @param x a `detour` object
 #' @param fps target frames per second
 #' @param max_bases the maximum number of bases to generate
+#'
+#' @return A `detour` object containing information about the tour path and
+#' its parameters
+#'
 #' @export
 tour_path <- function(x, tour_path = grand_tour(2),
                       start = NULL, aps = 1, fps = 30,

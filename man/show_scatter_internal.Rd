@@ -53,6 +53,9 @@ character vector of colour names and / or hex values as output.
 are displayed on a sensible range. Defaults to the reciprocal of maximum distance
 from a point to the origin.}
 }
+\value{
+An object of class \code{htmlwidget}
+}
 \description{
 Internal method for 2D and 3D Scatter Plot Display
 }

@@ -7,7 +7,7 @@
 #' the original space will remain uniformly distributed in the projected space.
 #' Includes both 2D and 3D variations.
 #'
-#' @inherit show_scatter_internal details
+#' @inherit show_scatter_internal details return
 #' @inheritParams show_scatter_internal
 #' @param gamma the gamma parameter for scaling the effective dimensionality
 #' for the sage tour radial transformation. defaults to 1

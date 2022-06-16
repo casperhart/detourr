@@ -10,6 +10,9 @@ tour_aes(...)
 \item{...}{list of name-value pairs in the form 'aesthetic = variable'.
 Variables are evaluated using {tidyselect} syntax.}
 }
+\value{
+a list of quosures
+}
 \description{
 Aesthetic mapping for tours describing how variables in the data are
 mapped to visual properties of the tour animation.
