@@ -28,10 +28,10 @@
     <loc>https://casperhart.github.io/detourr/index.html</loc>
   </url>
   <url>
-    <loc>https://casperhart.github.io/detourr/reference/detour.html</loc>
+    <loc>https://casperhart.github.io/detourr/reference/detour-shiny.html</loc>
   </url>
   <url>
-    <loc>https://casperhart.github.io/detourr/reference/detourr-shiny.html</loc>
+    <loc>https://casperhart.github.io/detourr/reference/detour.html</loc>
   </url>
   <url>
     <loc>https://casperhart.github.io/detourr/reference/index.html</loc>
@@ -50,6 +50,9 @@
   </url>
   <url>
     <loc>https://casperhart.github.io/detourr/reference/show_scatter.html</loc>
+  </url>
+  <url>
+    <loc>https://casperhart.github.io/detourr/reference/show_scatter_internal.html</loc>
   </url>
   <url>
     <loc>https://casperhart.github.io/detourr/reference/show_slice.html</loc>
