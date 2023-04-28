@@ -40,6 +40,12 @@ button.detourrButton.brushButton {
   border: 5px;
 }
 
+button.detourrButton.exportButton {
+  top: 225px;
+  border: 5px;
+}
+
+
 button.detourrButton.unselected {
   color: rgb(75, 75, 75);
 }
