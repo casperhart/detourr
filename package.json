@@ -24,7 +24,7 @@
     "typescript": "^4.2.4",
     "webpack": "^5.35.1",
     "webpack-cli": "^4.6.0",
-    "webpack-dev-server": "^4.8.1"
+    "webpack-dev-server": "^4.13.3"
   },
   "scripts": {
     "build": "rm -rf inst/htmlwidgets/lib/scatter_widget && webpack --config ./webpack/package.config.ts && R -q -e 'devtools::document(); devtools::build_readme()' && R CMD INSTALL $(git rev-parse --show-toplevel)",

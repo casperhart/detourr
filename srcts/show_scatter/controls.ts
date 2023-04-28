@@ -1,4 +1,11 @@
-import { brushIcon, orbitIcon, panIcon, resetIcon, selectIcon } from "./icons";
+import {
+  brushIcon,
+  downloadIcon,
+  orbitIcon,
+  panIcon,
+  resetIcon,
+  selectIcon,
+} from "./icons";
 import { Color } from "three";
 
 interface ScatterControlableWidget {
@@ -8,6 +15,7 @@ interface ScatterControlableWidget {
   orbitButtonAction?(): void;
   selectButtonAction?(): void;
   brushButtonAction?(): void;
+  exportButtonAction?(): void;
 }
 
 export class ScatterControls {
@@ -20,6 +28,7 @@ export class ScatterControls {
   private brushButton?: HTMLButtonElement;
   private colourSelector?: HTMLInputElement;
   private selectedButton: HTMLButtonElement;
+  private exportButton: HTMLButtonElement;
 
   constructor(widget: ScatterControlableWidget) {
     this.widget = widget;
@@ -85,6 +94,17 @@ export class ScatterControls {
       this.addColourSelector();
     }
 
+    this.exportButton = this.widget.exportButtonAction
+      ? this.createButton(
+          "exportButton",
+          "Export data as csv with current brushed colours",
+          downloadIcon,
+          () => {
+            this.widget.exportButtonAction();
+          }
+        )
+      : null;
+
     this.setSelectedButton(this.orbitButton);
     this.widget.orbitButtonAction();
   }
@@ -115,6 +135,7 @@ export class ScatterControls {
   private setSelectedButton(button: HTMLButtonElement) {
     button.className = button.className + " selected";
     if (this.selectedButton) {
+      // remove " selected" from the class name
       this.selectedButton.className = this.selectedButton.className.slice(
         0,
         -9

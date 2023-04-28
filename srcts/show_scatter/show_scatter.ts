@@ -320,6 +320,45 @@ export abstract class DisplayScatter {
     this.setSelectedPointColour();
   }
 
+  public exportButtonAction() {
+    const data = this.dataset.arraySync();
+    let csv_content = "data:text/csv;charset=utf-8,";
+    let pointColours = this.pointColours.array;
+    let row;
+
+    if (this.hasAxisLabels) {
+      csv_content += this.config.axisLabels.join(",") + ",colour\n";
+    } else {
+      csv_content +=
+        data[0].map((x: number, i: number) => `col_${i}`).join(",") +
+        ",colour\n";
+    }
+
+    data.forEach(function (row_array, i) {
+      row =
+        row_array.join(",") +
+        "," +
+        new THREE.Color(
+          pointColours[i * 3],
+          pointColours[i * 3 + 1],
+          pointColours[i * 3 + 2]
+        )
+          .getHex()
+          .toString(16)
+          .padStart(6, "0");
+      //console.log(pointColours[i].getHex());
+      csv_content += row + "\n";
+    });
+
+    const encoded_uri = encodeURI(csv_content);
+    const link = document.createElement("a");
+    link.setAttribute("href", encoded_uri);
+    link.setAttribute("download", "detourr_export.csv");
+    document.body.appendChild(link); // Required for FF
+
+    link.click();
+  }
+
   private addAxisSegments() {
     const axisLinesGeometry = new THREE.BufferGeometry();
     const axisLinesMaterial = new THREE.LineBasicMaterial({
