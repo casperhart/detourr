@@ -3,7 +3,8 @@ library(detourr)
 
 ui <- function() {
   fluidPage(
-    displayScatter3dOutput("detourr_out", width = "100%", height = "400px")
+    displayScatter3dOutput("detourr_out", width = "100%", height = "400px"),
+    textOutput("detour_click_output")
   )
 }
 
@@ -16,7 +17,7 @@ server <- function(input, output, session) {
       show_scatter(alpha = 0.7, axes = TRUE)
   })
 
-  observeEvent(input$detour_click, {
+  output$detour_click_output <- renderText({
     print(input$detour_click)
   })
 }
