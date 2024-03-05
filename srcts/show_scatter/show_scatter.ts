@@ -764,7 +764,16 @@ export abstract class DisplayScatter {
     );
 
     const id = (pixelBuffer[0] << 16) | (pixelBuffer[1] << 8) | pixelBuffer[2];
-    return(id);
+    if (
+      id != 0 &&
+      id != this.backgroundColour &&
+      this.filteredPointIndices.includes(id - 1)
+    ) {
+      return(id);
+    } else {
+      return(null);
+    }
+    
   }
 
   // TODO: break away chunks in to separate functions
