@@ -140,19 +140,15 @@ export abstract class DisplayScatter {
       })
     }
 
-    const pointsGeometry = new THREE.BufferGeometry();
-    const pointSize = this.config.size / 10;
-
-    const shaderOpts = this.getShaderOpts(pointSize);
-    const pointsMaterial = new THREE.ShaderMaterial(shaderOpts);
     this.pointAlphas = this.getPointAlphas();
-
     this.currentFrameBuffer = this.getPointsBuffer(0, this.dataset);
-    pointsGeometry.setAttribute("position", this.currentFrameBuffer);
+    this.points = this.createPoints(
+      this.config.size,
+      this.currentFrameBuffer,
+      this.pointColours,
+      this.pointAlphas
+    );
 
-    this.points = new THREE.Points(pointsGeometry, pointsMaterial);
-    this.points.geometry.setAttribute("color", this.pointColours);
-    this.points.geometry.setAttribute("alpha", this.pointAlphas);
     this.scene.add(this.points);
 
     if (this.hasAxes) {
@@ -182,6 +178,28 @@ export abstract class DisplayScatter {
     this.oldFrame = -1;
 
     this.isPaused = false;
+  }
+
+  // Create points to be added to the scene
+  public createPoints(
+      size: number,
+      currentFrameBuffer: THREE.BufferAttribute,
+      pointColours: THREE.BufferAttribute,
+      pointAlphas: THREE.BufferAttribute,
+    ): THREE.Points<THREE.BufferGeometry, THREE.Material | THREE.Material[]> {
+    
+    const pointsGeometry = new THREE.BufferGeometry();
+    const pointSize = size / 10;
+
+    const shaderOpts = this.getShaderOpts(pointSize);
+    const pointsMaterial = new THREE.ShaderMaterial(shaderOpts);
+
+    pointsGeometry.setAttribute("position", currentFrameBuffer);
+
+    var points = new THREE.Points(pointsGeometry, pointsMaterial);
+    points.geometry.setAttribute("color", pointColours);
+    points.geometry.setAttribute("alpha", pointAlphas);
+    return points;
   }
 
   public clearPlot() {
