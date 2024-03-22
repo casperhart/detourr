@@ -147,7 +147,7 @@ export abstract class DisplayScatter {
     const pointsMaterial = new THREE.ShaderMaterial(shaderOpts);
     this.pointAlphas = this.getPointAlphas();
 
-    this.currentFrameBuffer = this.getPointsBuffer(0);
+    this.currentFrameBuffer = this.getPointsBuffer(0, this.dataset);
     pointsGeometry.setAttribute("position", this.currentFrameBuffer);
 
     this.points = new THREE.Points(pointsGeometry, pointsMaterial);
@@ -452,10 +452,10 @@ export abstract class DisplayScatter {
     );
   }
 
-  private getPointsBuffer(i: number): THREE.BufferAttribute {
+  private getPointsBuffer(i: number, dataset: tf.Tensor2D): THREE.BufferAttribute {
     // flattened projection matrix
     const position = tf.tidy(() => {
-      return this.project(this.dataset, this.projectionMatrices[i]);
+      return this.project(dataset, this.projectionMatrices[i]);
     });
     const positionArray = position.dataSync();
     position.dispose();
@@ -793,7 +793,8 @@ export abstract class DisplayScatter {
 
     if (currentFrame != this.oldFrame) {
       this.currentFrameBuffer = this.getPointsBuffer(
-        currentFrame % this.projectionMatrices.length
+        currentFrame % this.projectionMatrices.length,
+        this.dataset
       );
 
       this.points.geometry.setAttribute("position", this.currentFrameBuffer);
