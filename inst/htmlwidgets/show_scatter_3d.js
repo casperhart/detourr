@@ -15,3 +15,12 @@ HTMLWidgets.widget({
     };
   },
 });
+
+if(HTMLWidgets.shinyMode) {
+  // register shiny callbacks
+  Shiny.addCustomMessageHandler("add-points", function(x) {
+    var widget = HTMLWidgets.find(`#${x.id}`);
+    var scatter = widget.s;
+    scatter.addPoints(x.data)
+  })
+}
