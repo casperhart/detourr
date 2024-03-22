@@ -63,3 +63,28 @@ shinyRenderDisplayScatter3d <- function(expr, env = parent.frame(), quoted = FAL
   }
   htmlwidgets::shinyRenderWidget(expr, displayScatter3dOutput, quoted = TRUE, env = env)
 }
+
+#' Send commands to a detourr instance in a Shiny app
+#'
+#' Creates a proxy object that can be used to add
+#' or remove points to a detour instance that has
+#' already being rendered using \code{\link{shinyRenderDisplayScatter3d}}.
+#' To be used in Shiny apps only.
+#' #TODO: Check if namespaced modules can work as well
+#' @param id output id of the detourr instance
+#' @param session the Shiny session object used in the app.
+#' Default should work for most cases
+#'
+#' @rdname detour-shiny
+#' @export
+display_scatter_proxy <- function(id, session = shiny::getDefaultReactiveDomain()) { #nolint
+  structure(list(id = id, session = session), class = "detourr_proxy")
+}
+
+#' @rdname detour-shiny
+#' @export
+add_points <- function(proxy, data) {
+  # need to project it to 3 dimensions?
+  message <- list(id = proxy$id, data = apply(data, 1, as.list))
+  proxy$session$sendCustomMessage("add-points", message)
+}

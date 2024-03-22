@@ -6,6 +6,8 @@
 \alias{displayScatter2dOutput}
 \alias{shinyRenderDisplayScatter2d}
 \alias{shinyRenderDisplayScatter3d}
+\alias{display_scatter_proxy}
+\alias{add_points}
 \title{Shiny bindings for detourr}
 \usage{
 displayScatter3dOutput(output_id, width = "100\%", height = "400px")
@@ -15,6 +17,10 @@ displayScatter2dOutput(output_id, width = "100\%", height = "400px")
 shinyRenderDisplayScatter2d(expr, env = parent.frame(), quoted = FALSE)
 
 shinyRenderDisplayScatter3d(expr, env = parent.frame(), quoted = FALSE)
+
+display_scatter_proxy(id, session = shiny::getDefaultReactiveDomain())
+
+add_points(proxy, data)
 }
 \arguments{
 \item{output_id}{output variable to read from}
@@ -29,6 +35,11 @@ string and have \code{"px"} appended.}
 
 \item{quoted}{Is \code{expr} a quoted expression (with \code{quote()})? This
 is useful if you want to save an expression in a variable.}
+
+\item{id}{output id of the detourr instance}
+
+\item{session}{the Shiny session object used in the app.
+Default should work for most cases}
 }
 \value{
 An output or render function that enables the use of the widget
@@ -38,4 +49,10 @@ within shiny applications
 Output and render functions for using detourr with shiny. The output
 function used must match both the display method and tour dim used,
 or it will lead to strange behavour.
+
+Creates a proxy object that can be used to add
+or remove points to a detour instance that has
+already being rendered using \code{\link{shinyRenderDisplayScatter3d}}.
+To be used in Shiny apps only.
+#TODO: Check if namespaced modules can work as well
 }
