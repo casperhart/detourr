@@ -63,6 +63,9 @@ export abstract class DisplayScatter {
   protected orbitControls: OrbitControls;
   protected adjustPointSizeFromZoom?(): void;
   protected points: THREE.Points;
+  protected auxPoint: THREE.Points;
+  protected auxBuffer: THREE.BufferGeometry;
+  protected auxData: tf.Tensor2D;
   protected pointAlphas: THREE.BufferAttribute;
 
   public container: HTMLDivElement;
@@ -200,6 +203,39 @@ export abstract class DisplayScatter {
     points.geometry.setAttribute("color", pointColours);
     points.geometry.setAttribute("alpha", pointAlphas);
     return points;
+  }
+
+  public addPoints(data: Array<Array<number>>) {
+    // assume tf is ready
+    const data_tensor = tf.tensor2d(data);
+    this.auxData = data_tensor;
+    const currentFrame = Math.floor(this.time * this.config.fps);
+    // set color
+    const color = new THREE.Color();
+    const bufferArray = new Float32Array(3); // just one point hence just rgb
+    for(var i = 0;i < 3; i += 3) {
+      color.set("black");
+      bufferArray[i] = color.r;
+      bufferArray[i + 1] = color.g;
+      bufferArray[i + 2] = color.b;
+    }
+
+    const bufferGeomForCurrentFrame =  this.getPointsBuffer(
+      currentFrame % this.projectionMatrices.length, 
+      data_tensor
+    )
+
+    const point = this.createPoints(
+      this.config.size, 
+      bufferGeomForCurrentFrame,
+      new THREE.BufferAttribute(bufferArray, 3),
+      this.pointAlphas
+    )
+    
+    this.scene.add(point);
+    this.renderer.render(this.scene, this.camera);
+    this.auxPoint = point;
+    this.animate();
   }
 
   public clearPlot() {
@@ -817,6 +853,16 @@ export abstract class DisplayScatter {
 
       this.points.geometry.setAttribute("position", this.currentFrameBuffer);
 
+      if(this.auxData) {
+        const currentAuxFrameBuffer = this.getPointsBuffer(
+          currentFrame % this.projectionMatrices.length,
+          this.auxData
+        )
+        this.auxPoint.geometry.setAttribute("position", currentAuxFrameBuffer);
+        this.auxPoint.geometry.attributes.position.needsUpdate = true; 
+        this.renderer.render(this.scene, this.camera);
+      }
+      
       if (this.hasAxes) {
         this.axisSegments.geometry.setAttribute(
           "position",

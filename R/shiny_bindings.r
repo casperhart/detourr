@@ -84,7 +84,12 @@ display_scatter_proxy <- function(id, session = shiny::getDefaultReactiveDomain(
 #' @rdname detour-shiny
 #' @export
 add_points <- function(proxy, data) {
-  # need to project it to 3 dimensions?
-  message <- list(id = proxy$id, data = apply(data, 1, as.list))
+  data <- unname(as.matrix(data))
+  scale_factor <- 1 / max(sqrt(rowSums(data^2)))
+  data <- data * scale_factor
+  message <- list(
+    id = proxy$id,
+    data = apply(data, 1, as.list)
+  )
   proxy$session$sendCustomMessage("add-points", message)
 }
