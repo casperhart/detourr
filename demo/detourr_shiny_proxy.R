@@ -2,12 +2,22 @@ library(shiny)
 library(detourr)
 
 dataset <- tourr::flea |> dplyr::mutate(id = dplyr::row_number())
+dataset_scaled <- dataset |> dplyr::select(-c(id, species)) |> scale(scale = FALSE)
+dataset_scale_factor <- 1 / max(sqrt(rowSums(dataset_scaled^2)))
 
 ui <- function() {
   fluidPage(
     displayScatter3dOutput("detourr_out", width = "100%", height = "400px"),
     textOutput("detour_click_output")
   )
+}
+
+create_fake_box <- function(datum) {
+  # expected tibble needs to have two rows with ncols(datum) + 1 columns
+  box_dist <- rnorm(1, mean = 3)
+  bounds_list <- rbind(datum + box_dist, datum - box_dist) |>
+    as.list()
+  do.call(tidyr::expand_grid, bounds_list)
 }
 
 server <- function(input, output, session) {
@@ -20,21 +30,31 @@ server <- function(input, output, session) {
   })
 
   output$detour_click_output <- renderText({
-    print(input$detour_click)
+    input$detour_click
   })
 
   observeEvent(input$detour_click, {
     req(!is.null(input$detour_click))
-    print("observeEvent fired")
-    print(input$detour_click)
     data_to_send <- dataset |>
       dplyr::select(-species) |>
       dplyr::filter(id == input$detour_click) |>
-      dplyr::mutate(dplyr::across(-id, \(x) x + rnorm(1))) |>
       dplyr::select(-id)
 
+    box_to_send <- data_to_send |> create_fake_box()
+    darg <- data_to_send |>
+      as.matrix() |>
+      unname() |>
+      scale(
+        center = attributes(dataset_scaled)[["scaled:center"]],
+        scale = FALSE
+      )
+
     display_scatter_proxy("detourr_out") |>
-      add_points(data_to_send)
+      add_points(
+        box_to_send,
+        scale_attr = attributes(dataset_scaled),
+        scale_factor =  dataset_scale_factor
+      )
   })
 }
 

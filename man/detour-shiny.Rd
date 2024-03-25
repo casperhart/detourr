@@ -20,7 +20,7 @@ shinyRenderDisplayScatter3d(expr, env = parent.frame(), quoted = FALSE)
 
 display_scatter_proxy(id, session = shiny::getDefaultReactiveDomain())
 
-add_points(proxy, data)
+add_points(proxy, data, scale_attr = NULL, scale_factor = NULL)
 }
 \arguments{
 \item{output_id}{output variable to read from}
@@ -40,6 +40,13 @@ is useful if you want to save an expression in a variable.}
 
 \item{session}{the Shiny session object used in the app.
 Default should work for most cases}
+
+\item{proxy}{proxy object created by \code{\link{display_scatter_proxy}}}
+
+\item{data}{dataframe of points}
+
+\item{scale_attr}{result of \verb{attributes(scale(<original_dataset>))}
+\verb{1 / max(sqrt(rowSums(scale(<original_dataset>)^2)))}}
 }
 \value{
 An output or render function that enables the use of the widget

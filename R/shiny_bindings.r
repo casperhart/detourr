@@ -81,11 +81,19 @@ display_scatter_proxy <- function(id, session = shiny::getDefaultReactiveDomain(
   structure(list(id = id, session = session), class = "detourr_proxy")
 }
 
+#' Function to add a bunch of points to existing shiny instance
+#' @param proxy proxy object created by \code{\link{display_scatter_proxy}}
+#' @param data dataframe of points
+#' @param scale_attr result of `attributes(scale(<original_dataset>))`
+#'  `1 / max(sqrt(rowSums(scale(<original_dataset>)^2)))`
 #' @rdname detour-shiny
 #' @export
-add_points <- function(proxy, data) {
-  data <- unname(as.matrix(data))
-  scale_factor <- 1 / max(sqrt(rowSums(data^2)))
+add_points <- function(proxy, data, scale_attr = NULL, scale_factor = NULL) {
+  data <- unname(as.matrix(data)) |> 
+    scale(
+      center = scale_attr[["scaled:center"]],
+      scale = FALSE
+    )
   data <- data * scale_factor
   message <- list(
     id = proxy$id,

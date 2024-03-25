@@ -206,28 +206,35 @@ export abstract class DisplayScatter {
   }
 
   public addPoints(data: Array<Array<number>>) {
+    if (this.auxData) {
+      // remove the existing points and clear up things
+      this.auxData = undefined;
+      this.scene.remove(this.auxPoint);
+      this.auxPoint.geometry.dispose();
+      this.auxPoint = undefined;
+    }
     // assume tf is ready
     const data_tensor = tf.tensor2d(data);
     this.auxData = data_tensor;
     const currentFrame = Math.floor(this.time * this.config.fps);
     // set color
     const color = new THREE.Color();
-    const bufferArray = new Float32Array(3); // just one point hence just rgb
-    for(var i = 0;i < 3; i += 3) {
+    const bufferArray = new Float32Array(data_tensor.shape[0] * 3); // just one point hence just rgb
+    for(var i = 0;i < data_tensor.shape[0] * 3; i += 3) {
       color.set("black");
       bufferArray[i] = color.r;
       bufferArray[i + 1] = color.g;
       bufferArray[i + 2] = color.b;
     }
 
-    const bufferGeomForCurrentFrame =  this.getPointsBuffer(
+    const bufferPosAttrForCurrentFrame =  this.getPointsBuffer(
       currentFrame % this.projectionMatrices.length, 
       data_tensor
     )
 
     const point = this.createPoints(
       this.config.size, 
-      bufferGeomForCurrentFrame,
+      bufferPosAttrForCurrentFrame,
       new THREE.BufferAttribute(bufferArray, 3),
       this.pointAlphas
     )
