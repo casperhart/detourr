@@ -8,6 +8,7 @@
 \alias{shinyRenderDisplayScatter3d}
 \alias{display_scatter_proxy}
 \alias{add_points}
+\alias{add_edges}
 \title{Shiny bindings for detourr}
 \usage{
 displayScatter3dOutput(output_id, width = "100\%", height = "400px")
@@ -21,6 +22,8 @@ shinyRenderDisplayScatter3d(expr, env = parent.frame(), quoted = FALSE)
 display_scatter_proxy(id, session = shiny::getDefaultReactiveDomain())
 
 add_points(proxy, data, scale_attr = NULL, scale_factor = NULL)
+
+add_edges(proxy, edge_list)
 }
 \arguments{
 \item{output_id}{output variable to read from}
@@ -47,6 +50,11 @@ Default should work for most cases}
 
 \item{scale_attr}{result of \verb{attributes(scale(<original_dataset>))}
 \verb{1 / max(sqrt(rowSums(scale(<original_dataset>)^2)))}}
+
+\item{edge_list}{data.frame with columns \code{from} and \code{to}.
+The indexing of points starts with the original dataset.
+If \code{\link{add_points}} has been called before hand,
+the indexing of these points starts from the end of the original dataset.}
 }
 \value{
 An output or render function that enables the use of the widget

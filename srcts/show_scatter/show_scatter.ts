@@ -63,10 +63,13 @@ export abstract class DisplayScatter {
   protected orbitControls: OrbitControls;
   protected adjustPointSizeFromZoom?(): void;
   protected points: THREE.Points;
-  protected auxPoint: THREE.Points;
-  protected auxBuffer: THREE.BufferGeometry;
-  protected auxData: tf.Tensor2D;
   protected pointAlphas: THREE.BufferAttribute;
+
+  protected auxPoint: THREE.Points;
+  protected auxData: tf.Tensor2D;
+  protected auxEdgeData: number[];
+  protected auxEdge: THREE.LineSegments;
+  protected auxEdgeBuffer: THREE.BufferGeometry;
 
   public container: HTMLDivElement;
   public canvas: HTMLCanvasElement = document.createElement("canvas");
@@ -160,7 +163,7 @@ export abstract class DisplayScatter {
     }
 
     if (this.hasEdges) {
-      this.addEdgeSegments(this.currentFrameBuffer);
+      this.addEdgeSegments(this.currentFrameBuffer, this.edges);
     }
 
     this.addOrbitControls();
@@ -242,6 +245,22 @@ export abstract class DisplayScatter {
     this.scene.add(point);
     this.renderer.render(this.scene, this.camera);
     this.auxPoint = point;
+    this.animate();
+  }
+
+  public addEdges(data: Array<Array<number>>) {
+    this.auxEdgeData = data.flat();
+    // get position attribute
+    const edgesBuffer = this.getEdgesBuffer(
+      this.auxPoint.geometry.getAttribute("position") as THREE.BufferAttribute,
+      this.auxEdgeData
+    );
+    // create edge segment
+    this.auxEdge = this.addEdgeSegments(edgesBuffer, this.auxEdgeData);
+    // render
+    (window as any).renderer = this.renderer;
+    (window as any).scene = this.scene;
+    this.renderer.render(this.scene, this.camera);
     this.animate();
   }
 
@@ -447,18 +466,19 @@ export abstract class DisplayScatter {
     this.scene.add(this.axisSegments);
   }
 
-  private addEdgeSegments(pointsBuffer: THREE.BufferAttribute) {
+  private addEdgeSegments(pointsBuffer: THREE.BufferAttribute, edges: number[]): THREE.LineSegments {
     const edgesGeometry = new THREE.BufferGeometry();
     const edgesMaterial = new THREE.LineBasicMaterial({
       color: 0x000000,
       linewidth: 1,
     });
 
-    const edgesBuffer = this.getEdgesBuffer(pointsBuffer);
+    const edgesBuffer = this.getEdgesBuffer(pointsBuffer, edges);
     edgesGeometry.setAttribute("position", edgesBuffer);
 
     this.edgeSegments = new THREE.LineSegments(edgesGeometry, edgesMaterial);
     this.scene.add(this.edgeSegments);
+    return(this.edgeSegments);
   }
 
   private addContainerElement(containerElement: HTMLDivElement) {
@@ -540,19 +560,19 @@ export abstract class DisplayScatter {
     return new THREE.BufferAttribute(linesBufferArray, 3);
   }
 
-  private getEdgesBuffer(frameBuffer: THREE.BufferAttribute) {
-    const bufferArray = new Float32Array(this.edges.length * 3);
+  private getEdgesBuffer(frameBuffer: THREE.BufferAttribute, edges: number[]) {
+    const bufferArray = new Float32Array(edges.length * 3);
     const edgesBuffer = new THREE.BufferAttribute(bufferArray, 3);
 
     // `edges` contains indices with format [from, to, from, to, ...]
     // `edgesBuffer` has format [fromX, fromY, fromZ, toX, toY, toZ, ...]
 
-    for (let i = 0; i < this.edges.length; i++) {
+    for (let i = 0; i < edges.length; i++) {
       edgesBuffer.set(
         [
-          frameBuffer.getX(this.edges[i] - 1),
-          frameBuffer.getY(this.edges[i] - 1),
-          frameBuffer.getZ(this.edges[i] - 1),
+          frameBuffer.getX(edges[i] - 1),
+          frameBuffer.getY(edges[i] - 1),
+          frameBuffer.getZ(edges[i] - 1),
         ],
         i * 3
       );
@@ -866,7 +886,17 @@ export abstract class DisplayScatter {
           this.auxData
         )
         this.auxPoint.geometry.setAttribute("position", currentAuxFrameBuffer);
-        this.auxPoint.geometry.attributes.position.needsUpdate = true; 
+        this.auxPoint.geometry.getAttribute("position").needsUpdate = true; 
+        this.renderer.render(this.scene, this.camera);
+      }
+
+      if(this.auxEdgeData) {
+        const edgesBuffer = this.getEdgesBuffer(
+          this.auxPoint.geometry.getAttribute("position") as THREE.BufferAttribute,
+          this.auxEdgeData
+        )
+        this.auxEdge.geometry.setAttribute("position", edgesBuffer);
+        this.auxEdge.geometry.getAttribute("position").needsUpdate = true;
         this.renderer.render(this.scene, this.camera);
       }
       
@@ -877,7 +907,7 @@ export abstract class DisplayScatter {
         );
       }
       if (this.hasEdges) {
-        const edgesBuffer = this.getEdgesBuffer(this.currentFrameBuffer);
+        const edgesBuffer = this.getEdgesBuffer(this.currentFrameBuffer, this.edges);
         this.edgeSegments.geometry.setAttribute("position", edgesBuffer);
       }
 

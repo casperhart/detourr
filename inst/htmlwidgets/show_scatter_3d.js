@@ -23,4 +23,10 @@ if(HTMLWidgets.shinyMode) {
     var scatter = widget.s;
     scatter.addPoints(x.data)
   })
+
+  Shiny.addCustomMessageHandler("add-edges", function(x) {
+    var widget = HTMLWidgets.find(`#${x.id}`);
+    var scatter = widget.s;
+    scatter.addEdges(x.edges);
+  })
 }

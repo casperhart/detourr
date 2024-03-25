@@ -100,4 +100,23 @@ add_points <- function(proxy, data, scale_attr = NULL, scale_factor = NULL) {
     data = apply(data, 1, as.list)
   )
   proxy$session$sendCustomMessage("add-points", message)
+  return(proxy)
+}
+
+#' Function to add a bunch of lines to existing shiny instance
+#'
+#' @param proxy proxy object created by \code{\link{display_scatter_proxy}}
+#' @param edge_list data.frame with columns `from` and `to`.
+#' The indexing of points starts with the original dataset.
+#' If \code{\link{add_points}} has been called before hand,
+#' the indexing of these points starts from the end of the original dataset.
+#' @rdname detour-shiny
+#' @export
+add_edges <- function(proxy, edge_list) {
+  edge_list <- edge_list |> as.matrix() |> unname()
+  message <- list(
+    id = proxy$id,
+    edges = apply(edge_list, 1, as.list)
+  )
+  proxy$session$sendCustomMessage("add-edges", message)
 }

@@ -26,7 +26,10 @@ server <- function(input, output, session) {
       tour_aes(projection = -c(id, species), colour = species, label = id)
     ) |>
       tour_path(grand_tour(3), fps = 60) |>
-      show_scatter(alpha = 0.7, axes = TRUE)
+      show_scatter(
+        alpha = 0.7,
+        axes = TRUE
+      )
   })
 
   output$detour_click_output <- renderText({
@@ -49,11 +52,16 @@ server <- function(input, output, session) {
         scale = FALSE
       )
 
+    cube_box <- geozoo::cube.iterate(p = ncol(data_to_send))
+
     display_scatter_proxy("detourr_out") |>
       add_points(
         box_to_send,
         scale_attr = attributes(dataset_scaled),
         scale_factor =  dataset_scale_factor
+      ) |>
+      add_edges(
+        edge_list = cube_box$edges
       )
   })
 }
