@@ -249,6 +249,12 @@ export abstract class DisplayScatter {
   }
 
   public addEdges(data: Array<Array<number>>) {
+    if(this.auxEdgeData) {
+      this.auxEdgeData = undefined;
+      this.scene.remove(this.auxEdge)
+      this.auxEdge.geometry.dispose()
+      this.auxEdge = undefined;
+    }
     this.auxEdgeData = data.flat();
     // get position attribute
     const edgesBuffer = this.getEdgesBuffer(
@@ -258,8 +264,6 @@ export abstract class DisplayScatter {
     // create edge segment
     this.auxEdge = this.addEdgeSegments(edgesBuffer, this.auxEdgeData);
     // render
-    (window as any).renderer = this.renderer;
-    (window as any).scene = this.scene;
     this.renderer.render(this.scene, this.camera);
     this.animate();
   }
@@ -316,6 +320,7 @@ export abstract class DisplayScatter {
       if (this.config !== undefined) {
         this.clearPlot();
       }
+      (window as any).inputData = inputData;
       this.config = inputData.config;
       this.dataset = tf.tensor(inputData.dataset);
 
