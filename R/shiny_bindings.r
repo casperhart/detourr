@@ -164,7 +164,7 @@ add_edges <- function(proxy, edge_list) {
 #' @param proxy proxy object created by \code{\link{display_scatter_proxy}}
 #' @param point_list Numeric vector. indexes to highlight in the prinary dataset
 #' @param alpha The transparency value of the points outside of the point_list
-#'
+#' @rdname detour-shiny
 #' @export
 highlight_points <- function(proxy, point_list, alpha = 0.3) {
   if (length(point_list) == 1) {
@@ -183,7 +183,7 @@ highlight_points <- function(proxy, point_list, alpha = 0.3) {
 #' @param proxy proxy object created by \code{\link{display_scatter_proxy}}
 #' @param point_list Numeric vector. indexes to enlarge in the prinary dataset
 #' @param shape the size of the points to be enlarged
-#'
+#' @rdname detour-shiny
 #' @export
 enlarge_points <- function(proxy, point_list, size = 2) {
   if (length(point_list) == 1) {
@@ -192,4 +192,37 @@ enlarge_points <- function(proxy, point_list, size = 2) {
   proxy$message$enlarge_point_list <- point_list
   proxy$message$size <- size
   proxy$session$sendCustomMessage("enlarge-points", proxy$message)
+}
+
+
+#' Function to clear added points
+#' @param proxy proxy object created by \code{\link{display_scatter_proxy}}
+#' @rdname detour-shiny
+#' @export
+clear_points <- function(proxy) {
+  proxy$session$sendCustomMessage("clear_points")
+}
+
+#' Function to clear added points
+#' @param proxy proxy object created by \code{\link{display_scatter_proxy}}
+#' @rdname detour-shiny
+#' @export
+clear_edges <- function(proxy) {
+  proxy$session$sendCustomMessage("clear_edges")
+}
+
+#' Function to clear added points
+#' @param proxy proxy object created by \code{\link{display_scatter_proxy}}
+#' @rdname detour-shiny
+#' @export
+clear_highlight <- function(proxy) {
+  proxy$session$sendCustomMessage("clear_highlight")
+}
+
+#' Function to clear added points
+#' @param proxy proxy object created by \code{\link{display_scatter_proxy}}
+#' @rdname detour-shiny
+#' @export
+clear_enlarge <- function(proxy) {
+  proxy$session$sendCustomMessage("clear_enlarge")
 }

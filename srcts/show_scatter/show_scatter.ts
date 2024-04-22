@@ -333,6 +333,41 @@ export abstract class DisplayScatter {
     this.animate();
   }
 
+  public clearPoints() {
+    this.auxData = undefined;
+    this.scene.remove(this.auxPoint);
+    this.auxPoint.geometry.dispose();
+    this.auxPoint = undefined;
+  }
+  
+  public clearEdges() {
+    this.auxEdgeData = undefined;
+    this.scene.remove(this.auxEdge)
+    this.auxEdge.geometry.dispose()
+    this.auxEdge = undefined;
+  }
+  
+  public clearHighlight() {
+    for (let i = 0; i < this.n; i++) {
+      this.pointAlphas.set([this.config.alpha], i)
+    }
+    this.pointAlphas.needsUpdate = true; 
+    this.points.geometry.getAttribute("alpha").needsUpdate = true;
+  }
+  
+  public clearEnlarge() {
+    var sizes = new Float32Array(this.n)
+    sizes.fill(this.config.size / 10)  
+    this.points.geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
+    (this.points.material as THREE.ShaderMaterial).needsUpdate = true;
+  }
+
+  public forceRerender() {
+    // only to force rerender from Shiny and on click button action
+    this.renderer.render(this.scene, this.camera);
+    this.animate();
+  }
+
   public clearPlot() {
     if (this.timeline) {
       this.timeline.clear();
@@ -517,6 +552,17 @@ export abstract class DisplayScatter {
     document.body.appendChild(link); // Required for FF
 
     link.click();
+  }
+
+  public clearButtonAction() {
+    // this.orbitControls.enabled = false;
+    // this.selectionHelper.disable();
+    this.clearPoints();
+    this.clearEdges();
+    this.clearHighlight();
+    this.clearEnlarge();
+    this.forceRerender();
+    window.Shiny.setInputValue("detour_click", null);
   }
 
   private addAxisSegments() {
