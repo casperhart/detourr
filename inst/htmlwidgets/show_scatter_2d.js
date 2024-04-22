@@ -41,5 +41,19 @@ if(HTMLWidgets.shinyMode) {
     } catch (error) {
       console.error(`Could not find detour widget ${x.id}`)
     }
+    var scatter = widget.s;
+    scatter.addEdges(x.edges, x.config.color);
+  })
+
+  Shiny.addCustomMessageHandler("highlight-points", function(x) {
+    var widget = HTMLWidgets.find(`#${x.id}`);
+    var scatter = widget.s;
+    scatter.highlightPoints(x.point_list.map(x => x - 1)); // adjusting for 0-indexing
+  })
+
+  Shiny.addCustomMessageHandler("enlarge-points", function(x) {
+    var widget = HTMLWidgets.find(`#${x.id}`);
+    var scatter = widget.s;
+    scatter.enlargePoints(x.enlarge_point_list.map(x => x - 1), x.size); // adjusting for 0-indexing
   })
 }

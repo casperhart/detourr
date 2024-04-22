@@ -1,5 +1,5 @@
 export const VERTEX_SHADER_2D = `
-uniform float size;
+attribute float size;
 uniform float zoom;
 uniform float picking;
 uniform float shrink;

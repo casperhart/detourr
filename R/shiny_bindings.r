@@ -155,3 +155,41 @@ add_edges <- function(proxy, edge_list) {
   proxy$session$sendCustomMessage("add-edges", proxy$message)
   return(proxy)
 }
+
+#' Function to highlight a given set of points
+#'
+#' The given points will have the original opacity while the other points
+#' will have reduced opacity
+#'
+#' @param proxy proxy object created by \code{\link{display_scatter_proxy}}
+#' @param point_list Numeric vector. indexes to highlight in the prinary dataset
+#' @param alpha The transparency value of the points outside of the point_list
+#'
+#' @export
+highlight_points <- function(proxy, point_list, alpha = 0.3) {
+  if (length(point_list) == 1) {
+    point_list <- list(point_list)
+  }
+  proxy$message$point_list <- point_list
+  proxy$session$sendCustomMessage("highlight-points", proxy$message)
+  return(proxy)
+}
+
+#' Function to enlarge a given set of points
+#'
+#' The given points will have a larger size while the rest
+#' remains the same
+#'
+#' @param proxy proxy object created by \code{\link{display_scatter_proxy}}
+#' @param point_list Numeric vector. indexes to enlarge in the prinary dataset
+#' @param shape the size of the points to be enlarged
+#'
+#' @export
+enlarge_points <- function(proxy, point_list, size = 2) {
+  if (length(point_list) == 1) {
+    point_list <- list(point_list)
+  }
+  proxy$message$enlarge_point_list <- point_list
+  proxy$message$size <- size
+  proxy$session$sendCustomMessage("enlarge-points", proxy$message)
+}

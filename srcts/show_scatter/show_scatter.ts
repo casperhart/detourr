@@ -49,9 +49,7 @@ export abstract class DisplayScatter {
   protected abstract addCamera(): void;
   protected abstract resizeCamera(aspect: number): void;
   protected abstract project(X: tf.Tensor2D, A: tf.Tensor2D): tf.Tensor2D;
-  protected abstract getShaderOpts(
-    pointSize: number
-  ): THREE.ShaderMaterialParameters;
+  protected abstract getShaderOpts(): THREE.ShaderMaterialParameters;
   protected abstract addOrbitControls(): void;
   protected abstract projectionMatrixToTensor(mat: Matrix): tf.Tensor2D;
 
@@ -222,11 +220,13 @@ export abstract class DisplayScatter {
     const pointsGeometry = new THREE.BufferGeometry();
     const pointSize = size / 10;
 
-    const shaderOpts = this.getShaderOpts(pointSize);
+    const shaderOpts = this.getShaderOpts();
     const pointsMaterial = new THREE.ShaderMaterial(shaderOpts);
-
+    
     pointsGeometry.setAttribute("position", currentFrameBuffer);
-
+    var sizes = new Float32Array(this.n)
+    sizes.fill(pointSize)
+    pointsGeometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1))
     var points = new THREE.Points(pointsGeometry, pointsMaterial);
     points.geometry.setAttribute("color", pointColours);
     points.geometry.setAttribute("alpha", pointAlphas);
@@ -321,14 +321,14 @@ export abstract class DisplayScatter {
   }
 
   public enlargePoints(point_list: Array<number>, size: number = null) {
-    console.log(this.points.material)
     var sizes = new Float32Array(this.n)
     sizes.fill(this.config.size / 10)
     point_list.forEach(index => {
-      sizes[index] = size;
-    })
-    this.points.material[0].size = new THREE.BufferAttribute(sizes, 1);
-    this.points.material[0].needsUpdate = true;
+      sizes[index] = size/10;
+    });
+    
+    this.points.geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
+    (this.points.material as THREE.ShaderMaterial).needsUpdate = true;
     this.renderer.render(this.scene, this.camera);
     this.animate();
   }
@@ -537,9 +537,6 @@ export abstract class DisplayScatter {
   }
 
   private addEdgeSegments(pointsBuffer: THREE.BufferAttribute, edges: number[]): THREE.LineSegments {
-    console.log("in add edge segments")
-    console.log(pointsBuffer);
-    console.log(edges);
     const edgesGeometry = new THREE.BufferGeometry();
     const edgesMaterial = new THREE.LineBasicMaterial({
       color: 0x000000,
@@ -550,7 +547,6 @@ export abstract class DisplayScatter {
     edgesGeometry.setAttribute("position", edgesBuffer);
 
     this.edgeSegments = new THREE.LineSegments(edgesGeometry, edgesMaterial);
-    console.log(this.edgeSegments);
     this.scene.add(this.edgeSegments);
     return(this.edgeSegments);
   }
