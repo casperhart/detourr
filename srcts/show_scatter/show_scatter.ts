@@ -70,6 +70,7 @@ export abstract class DisplayScatter {
   protected auxEdgeData: number[];
   protected auxEdge: THREE.LineSegments;
   protected auxEdgeBuffer: THREE.BufferGeometry;
+  protected highlightedPoints: Array<number> = null;
 
   public container: HTMLDivElement;
   public canvas: HTMLCanvasElement = document.createElement("canvas");
@@ -142,6 +143,25 @@ export abstract class DisplayScatter {
             `${this.getContainerElement().id}_detour_click`, 
             clickId == null ? -1: clickId
           );
+        }
+        if (clickId == null) {
+          this.auxData = undefined;
+          this.scene.remove(this.auxPoint);
+          this.auxPoint.geometry.dispose();
+          this.auxPoint = undefined;
+
+          this.auxEdgeData = undefined;
+          this.scene.remove(this.auxEdge)
+          this.auxEdge.geometry.dispose()
+          this.auxEdge = undefined;
+
+          for (let i = 0; i < this.n; i++) {
+            this.pointAlphas.set([this.config.alpha], i)
+          }
+          this.pointAlphas.needsUpdate = true; 
+          this.points.geometry.getAttribute("alpha").needsUpdate = true;
+          this.renderer.render(this.scene, this.camera);
+          this.animate();
         }
       })
     }
@@ -279,6 +299,37 @@ export abstract class DisplayScatter {
     this.auxEdge.geometry.getAttribute("position").needsUpdate = true;
 
     // render
+    this.renderer.render(this.scene, this.camera);
+    this.animate();
+  }
+
+  public highlightPoints(point_list: Array<number>, alpha: number = null) {
+    if(this.highlightedPoints != null) {
+      for (let i = 0; i < this.n; i++) {
+        this.pointAlphas.set([this.config.alpha], i)
+      }
+    }
+    for (let i = 0; i < this.n; i++) {
+      if(!point_list.includes(i)) {
+        this.pointAlphas.set([alpha == null ? this.config.alpha / 8 : alpha], i)
+      }
+    }
+    this.highlightedPoints = point_list;
+    this.pointAlphas.needsUpdate = true; 
+    this.points.geometry.getAttribute("alpha").needsUpdate = true;
+    this.renderer.render(this.scene, this.camera);
+    this.animate();
+  }
+
+  public enlargePoints(point_list: Array<number>, size: number = null) {
+    console.log(this.points.material)
+    var sizes = new Float32Array(this.n)
+    sizes.fill(this.config.size / 10)
+    point_list.forEach(index => {
+      sizes[index] = size;
+    })
+    this.points.material[0].size = new THREE.BufferAttribute(sizes, 1);
+    this.points.material[0].needsUpdate = true;
     this.renderer.render(this.scene, this.camera);
     this.animate();
   }
