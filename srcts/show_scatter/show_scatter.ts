@@ -136,7 +136,7 @@ export abstract class DisplayScatter {
         });
       this.canvas.addEventListener("click", (event: PointerEvent) => {
         const clickId = this.getIdfromClick(event);
-        if(window.Shiny != null) {
+        if (window.Shiny != null) {
           window.Shiny.setInputValue(
             `${this.getContainerElement().id}_detour_click`, 
             clickId == null ? -1: clickId
@@ -254,7 +254,7 @@ export abstract class DisplayScatter {
     const point_color = new THREE.Color();
     const bufferArray = new Float32Array(data_tensor.shape[0] * 3); // just one point hence just rgb
     for(var i = 0;i < data_tensor.shape[0] * 3; i += 3) {
-      point_color.set(typeof colour === "string" ? colour : colour[i]);
+      point_color.set(typeof colour === "string" ? colour : colour[Math.floor(i/3)]);
       bufferArray[i] = point_color.r;
       bufferArray[i + 1] = point_color.g;
       bufferArray[i + 2] = point_color.b;
@@ -334,17 +334,21 @@ export abstract class DisplayScatter {
   }
 
   public clearPoints() {
-    this.auxData = undefined;
-    this.scene.remove(this.auxPoint);
-    this.auxPoint.geometry.dispose();
-    this.auxPoint = undefined;
+    if(this.auxData != undefined) {
+      this.auxData = undefined;
+      this.scene.remove(this.auxPoint);
+      this.auxPoint.geometry.dispose();
+      this.auxPoint = undefined;
+    }
   }
   
   public clearEdges() {
-    this.auxEdgeData = undefined;
-    this.scene.remove(this.auxEdge)
-    this.auxEdge.geometry.dispose()
-    this.auxEdge = undefined;
+    if(this.auxEdge != undefined) {
+      this.auxEdgeData = undefined;
+      this.scene.remove(this.auxEdge)
+      this.auxEdge.geometry.dispose()
+      this.auxEdge = undefined;
+    }
   }
   
   public clearHighlight() {

@@ -192,6 +192,7 @@ enlarge_points <- function(proxy, point_list, size = 2) {
   proxy$message$enlarge_point_list <- point_list
   proxy$message$size <- size
   proxy$session$sendCustomMessage("enlarge-points", proxy$message)
+  return(proxy)
 }
 
 
@@ -200,29 +201,44 @@ enlarge_points <- function(proxy, point_list, size = 2) {
 #' @rdname detour-shiny
 #' @export
 clear_points <- function(proxy) {
-  proxy$session$sendCustomMessage("clear_points")
+  proxy$session$sendCustomMessage("clear-points", list(id = proxy$id))
+  return(proxy)
 }
 
-#' Function to clear added points
+#' Function to clear added edges
 #' @param proxy proxy object created by \code{\link{display_scatter_proxy}}
 #' @rdname detour-shiny
 #' @export
 clear_edges <- function(proxy) {
-  proxy$session$sendCustomMessage("clear_edges")
+  proxy$session$sendCustomMessage("clear-edges", list(id = proxy$id))
+  return(proxy)
 }
 
-#' Function to clear added points
+#' Function to clear highlighted points
 #' @param proxy proxy object created by \code{\link{display_scatter_proxy}}
 #' @rdname detour-shiny
 #' @export
 clear_highlight <- function(proxy) {
-  proxy$session$sendCustomMessage("clear_highlight")
+  proxy$session$sendCustomMessage("clear-highlight", list(id = proxy$id))
+  return(proxy)
 }
 
-#' Function to clear added points
+#' Function to clear enlarged points
 #' @param proxy proxy object created by \code{\link{display_scatter_proxy}}
 #' @rdname detour-shiny
 #' @export
 clear_enlarge <- function(proxy) {
-  proxy$session$sendCustomMessage("clear_enlarge")
+  proxy$session$sendCustomMessage("clear-enlarge", list(id = proxy$id))
+  return(proxy)
+}
+
+#' Function to force rerender of detourr
+#'
+#' Useful when detourr will not update unless put on focus
+#' @param proxy proxy object created by \code{\link{display_scatter_proxy}}
+#' @rdname detour-shiny
+#' @export
+force_rerender <- function(proxy) {
+  proxy$session$sendCustomMessage("clear-enlarge", list(id = proxy$id))
+  return(proxy)
 }
