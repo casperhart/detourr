@@ -9,6 +9,13 @@
 \alias{display_scatter_proxy}
 \alias{add_points}
 \alias{add_edges}
+\alias{highlight_points}
+\alias{enlarge_points}
+\alias{clear_points}
+\alias{clear_edges}
+\alias{clear_highlight}
+\alias{clear_enlarge}
+\alias{force_rerender}
 \title{Shiny bindings for detourr}
 \usage{
 displayScatter3dOutput(output_id, width = "100\%", height = "400px")
@@ -33,6 +40,20 @@ add_points(
 )
 
 add_edges(proxy, edge_list)
+
+highlight_points(proxy, point_list, alpha = 0.3)
+
+enlarge_points(proxy, point_list, size = 2)
+
+clear_points(proxy)
+
+clear_edges(proxy)
+
+clear_highlight(proxy)
+
+clear_enlarge(proxy)
+
+force_rerender(proxy)
 }
 \arguments{
 \item{output_id}{output variable to read from}
@@ -66,9 +87,16 @@ Defaults to the result of \code{attributes(scale(.data))[["scaled:center"]]}}
 Defaults to \code{1 / max(sqrt(rowSums(scale(.data)^2)))}}
 
 \item{edge_list}{Data.frame with two columns with the \code{from} node at first.
+\item{alpha}{The transparency value of the points outside of the point_list}
+
+\item{edge_list}{data.frame with columns \code{from} and \code{to}.
 The indexing of points starts with the original dataset.
 If \code{\link{add_points}} has been called before hand,
 the indexing of these points starts from the end of the original dataset.}
+
+\item{point_list}{Numeric vector. indexes to enlarge in the prinary dataset}
+
+\item{shape}{the size of the points to be enlarged}
 }
 \value{
 An output or render function that enables the use of the widget
@@ -87,4 +115,13 @@ Creates a proxy object that can be used to add
 or remove points to a detour instance that has
 already being rendered using \code{\link{shinyRenderDisplayScatter3d}}.
 To be used in Shiny apps only.
+#TODO: Check if namespaced modules can work as well
+
+The given points will have the original opacity while the other points
+will have reduced opacity
+
+The given points will have a larger size while the rest
+remains the same
+
+Useful when detourr will not update unless put on focus
 }
