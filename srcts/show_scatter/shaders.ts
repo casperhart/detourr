@@ -3,6 +3,7 @@ varying float vSize;
 varying vec3 vColor;
 varying float vAlpha;
 varying float vPicking;
+varying float vShrink; // shrink points when picking
 
 void main(){
     // 1.0 if picking else vAlpha
