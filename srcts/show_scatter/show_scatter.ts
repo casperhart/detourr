@@ -575,6 +575,14 @@ export abstract class DisplayScatter {
 
     const pixelBuffer = new Uint8Array(4 * width * height);
 
+    // re-render the picking scene with smaller points to prevent overplotting 
+    // when picking
+    this.points.geometry.setAttribute("color", this.pickingColours);
+    (this.points.material as THREE.ShaderMaterial).uniforms.picking.value = 1;
+    (this.points.material as THREE.ShaderMaterial).uniforms.shrink.value = 1;
+    this.renderer.setRenderTarget(this.pickingTexture);
+    this.renderer.render(this.scene, this.camera);
+
     renderer.readRenderTargetPixels(
       pickingTexture,
       x,
@@ -583,6 +591,12 @@ export abstract class DisplayScatter {
       height,
       pixelBuffer
     );
+
+    // reset from picking scene
+    this.renderer.setRenderTarget(null);
+    this.points.geometry.setAttribute("color", this.pointColours);
+    (this.points.material as THREE.ShaderMaterial).uniforms.picking.value = 0;
+    (this.points.material as THREE.ShaderMaterial).uniforms.shrink.value = 0;
 
     const selectedPointSet = new Set<number>();
     let id;
@@ -706,12 +720,10 @@ export abstract class DisplayScatter {
       this.filteredPointIndices.includes(id - 1)
     ) {
       const toolTipCoords = this.toolTip.getBoundingClientRect();
-      this.toolTip.style.left = `${
-        Math.floor(x / dpr) - toolTipCoords.width
-      }px`;
-      this.toolTip.style.top = `${
-        Math.floor(y / dpr) - toolTipCoords.height
-      }px`;
+      this.toolTip.style.left = `${Math.floor(x / dpr) - toolTipCoords.width
+        }px`;
+      this.toolTip.style.top = `${Math.floor(y / dpr) - toolTipCoords.height
+        }px`;
       this.toolTip.className = "detourrTooltip visible";
       const span = this.toolTip.querySelector("span");
       span.innerHTML = `${this.mapping.label[id - 1]}`;

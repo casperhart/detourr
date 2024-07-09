@@ -45,6 +45,7 @@ export class DisplayScatter3d extends DisplayScatter {
       uniforms: {
         size: { value: Math.max(pointSize, this.minPointSize) },
         picking: { value: 0 },
+        shrink: { value: 0 }
       },
       vertexShader: VERTEX_SHADER_3D,
       fragmentShader: FRAGMENT_SHADER,

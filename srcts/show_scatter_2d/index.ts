@@ -73,6 +73,7 @@ export class DisplayScatter2d extends DisplayScatter {
         size: { value: Math.max(pointSize, this.minPointSize) },
         zoom: { value: this.camera.zoom },
         picking: { value: 0 },
+        shrink: { value: 0 }
       },
       vertexShader: VERTEX_SHADER_2D,
       fragmentShader: FRAGMENT_SHADER,
