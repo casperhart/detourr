@@ -123,10 +123,13 @@ check_dots <- function(dots, supported_arg_names) {
   }
 }
 
-make_widget <- function(x, widget, width, height, dependencies) {
+make_widget <- function(x, widget_type, width, height, dependencies) {
+  x <- as.list(x)
+  x$widgetType <- widget_type
+
   htmlwidgets::createWidget(
-    widget,
-    as.list(x),
+    "detourr_widget",
+    x,
     sizingPolicy = htmlwidgets::sizingPolicy(
       viewer.padding = 0,
       viewer.paneHeight = 500,

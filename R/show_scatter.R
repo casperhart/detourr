@@ -1,4 +1,3 @@
-
 #' 2D and 3D Scatter Plot Display for Tours
 #'
 #' @description
@@ -36,9 +35,9 @@ show_scatter <- function(x,
 
   d <- attributes(x)
 
-  widget <- paste0("show_scatter", "_", tour_output_dim(x), "d")
+  widget_type <- paste0("DisplayScatter", tour_output_dim(x), "d")
 
-  make_widget(x, widget, dots$width, dots$height, d$crosstalk$crosstalk_libs)
+  make_widget(x, widget_type, dots$width, dots$height, d$crosstalk$crosstalk_libs)
 }
 
 #' Internal method for 2D and 3D Scatter Plot Display
