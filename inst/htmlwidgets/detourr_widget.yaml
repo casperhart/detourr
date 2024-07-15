@@ -1,5 +1,5 @@
 dependencies:
-  - name: show_scatter_3d
+  - name: detourr_widget
     src: htmlwidgets/lib/
     version: 0.1.0
     script:
@@ -9,4 +9,4 @@ dependencies:
       - tensorflow.bundle.js
       - seedrandom.bundle.js
       - long.bundle.js
-      - show_scatter_3d.bundle.js
+      - detourr.bundle.js
