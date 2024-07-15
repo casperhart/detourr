@@ -59,7 +59,7 @@ show_sage <- function(x,
 
   x <- make_detour(x, d)
 
-  widget <- paste0("show_sage", "_", tour_output_dim(x), "d")
+  widget_type <- paste0("DisplaySage", tour_output_dim(x), "d")
 
-  make_widget(x, widget, dots$width, dots$height, d$crosstalk$crosstalk_libs)
+  make_widget(x, widget_type, dots$width, dots$height, d$crosstalk$crosstalk_libs)
 }

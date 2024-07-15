@@ -10,8 +10,7 @@ const widgets = [
   "show_slice_3d",
 ];
 
-let entries = {};
-widgets.map((w) => (entries[`${w}/${w}`] = `./srcts/${w}/index.ts`));
+let entries = { detourr: './srcts/index.ts' };
 
 const copyStaticPatterns = widgets.map((w) => {
   return { from: `dev/${w}/static/`, to: `${w}` };

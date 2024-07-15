@@ -1,42 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ScatterWidget Dev</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://combinatronics.com/rstudio/crosstalk/main/inst/www/js/crosstalk.min.js"></script>
-    <script src="show_slice_2d.bundle.js"></script>
-    <link
-      href="https://combinatronics.com/rstudio/crosstalk/main/inst/www/css/crosstalk.min.css"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
-    <div id="plot"></div>
-    <script>
-      fetch("./sample_data.json").then(function (response) {
-        if (response.status !== 200) {
-          console.log(
-            "Looks like there was a problem. Status Code: " + response.status
-          );
-          return;
-        }
-        // run scatterwidget using sample data
-        response.json().then(function (data) {
-          let el = document.getElementById("plot");
-          let width = window.innerWidth - 16;
-          let height = window.innerHeight - 16;
-          let display = new window[
-            "show_slice_2d/show_slice_2d"
-          ].DisplaySlice2d(el, width, height);
-          display.renderValue(data);
-          window.addEventListener("resize", (event) =>
-            display.resize(window.innerWidth - 16, window.innerHeight - 16)
-          );
-        });
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ScatterWidget Dev</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://combinatronics.com/rstudio/crosstalk/main/inst/www/js/crosstalk.min.js"></script>
+  <script src="../detourr.bundle.js"></script>
+  <link href="https://combinatronics.com/rstudio/crosstalk/main/inst/www/css/crosstalk.min.css" rel="stylesheet" />
+</head>
+
+<body>
+  <div id="plot"></div>
+  <script>
+    fetch("./sample_data.json").then(function (response) {
+      if (response.status !== 200) {
+        console.log(
+          "Looks like there was a problem. Status Code: " + response.status
+        );
+        return;
+      }
+      // run scatterwidget using sample data
+      response.json().then(function (data) {
+        let el = document.getElementById("plot");
+        let width = window.innerWidth - 16;
+        let height = window.innerHeight - 16;
+        let display = new window["detourr"].Detourr(
+          el,
+          width,
+          height
+        );
+        display.renderValue(data);
+        window.addEventListener("resize", (event) =>
+          display.resize(window.innerWidth - 16, window.innerHeight - 16)
+        );
       });
-    </script>
-  </body>
+    });
+  </script>
+</body>
+
 </html>
