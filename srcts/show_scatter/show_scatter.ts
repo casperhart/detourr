@@ -132,7 +132,10 @@ export abstract class DisplayScatter {
       this.canvas.addEventListener("click", (event: PointerEvent) => {
         const clickId = this.getIdfromClick(event);
         if(window.Shiny != null) {
-          window.Shiny.setInputValue("detour_click", clickId);
+          window.Shiny.setInputValue(
+            `${this.getContainerElement().id}_detour_click`, 
+            clickId == null ? -1: clickId
+          );
         }
       })
     }
