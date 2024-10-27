@@ -19,14 +19,12 @@ HTMLWidgets.widget({
 if(HTMLWidgets.shinyMode) {
   // register shiny callbacks
   Shiny.addCustomMessageHandler("add-points", function(x) {
-    console.log("received add points in 2d mode");
     var widget = HTMLWidgets.find(`#${x.id}`);
     var scatter = widget.s;
     scatter.addPoints(x.data)
   })
 
   Shiny.addCustomMessageHandler("add-edges", function(x) {
-    console.log("received add edges call in 2d mode");
     var widget = HTMLWidgets.find(`#${x.id}`);
     var scatter = widget.s;
     scatter.addEdges(x.edges);
