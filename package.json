@@ -5,6 +5,7 @@
     "@stdlib/math-base-special-betainc": "^0.0.6",
     "@tensorflow/tfjs-backend-wasm": "^3.15.0",
     "@tensorflow/tfjs-core": "^3.15.0",
+    "shiny": "https://github.com/rstudio/shiny#v1.8.0",
     "three": "^0.128.0",
     "url-loader": "^4.1.1"
   },
