@@ -63,9 +63,9 @@ show_slice <- function(x,
 
   d$config$anchor <- anchor
 
+  widget_type <- paste0("DisplaySlice", tour_output_dim(x), "d")
+
   x <- make_detour(x, d)
 
-  widget <- paste0("show_slice", "_", tour_output_dim(x), "d")
-
-  make_widget(x, widget, dots$width, dots$height, d$crosstalk$crosstalk_libs)
+  make_widget(x, widget_type, dots$width, dots$height, d$crosstalk$crosstalk_libs)
 }
