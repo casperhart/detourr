@@ -186,6 +186,11 @@ export abstract class DisplayScatter {
     this.isPaused = false;
   }
 
+  // Creates a buffer attribute of 1 dimension containing value repeated for times
+  public createFilledAttribute(value: number, times: number) {
+    return new THREE.BufferAttribute(new Float32Array(times).fill(value), 1)
+  }
+
   // Create points to be added to the scene
   public createPoints(
       size: number,
@@ -208,7 +213,12 @@ export abstract class DisplayScatter {
     return points;
   }
 
-  public addPoints(data: Array<Array<number>>) {
+  public addPoints(
+    data: Array<Array<number>>,
+    colour: string | Array<string> = "black",
+    size: number = null,
+    alpha: number
+  ) {
     if (this.auxData) {
       // remove the existing points and clear up things
       this.auxData = undefined;
@@ -221,13 +231,13 @@ export abstract class DisplayScatter {
     this.auxData = data_tensor;
     const currentFrame = Math.floor(this.time * this.config.fps);
     // set color
-    const color = new THREE.Color();
+    const point_color = new THREE.Color();
     const bufferArray = new Float32Array(data_tensor.shape[0] * 3); // just one point hence just rgb
     for(var i = 0;i < data_tensor.shape[0] * 3; i += 3) {
-      color.set("black");
-      bufferArray[i] = color.r;
-      bufferArray[i + 1] = color.g;
-      bufferArray[i + 2] = color.b;
+      point_color.set(typeof colour === "string" ? colour : colour[i]);
+      bufferArray[i] = point_color.r;
+      bufferArray[i + 1] = point_color.g;
+      bufferArray[i + 2] = point_color.b;
     }
 
     const bufferPosAttrForCurrentFrame =  this.getPointsBuffer(
@@ -236,10 +246,10 @@ export abstract class DisplayScatter {
     )
 
     const point = this.createPoints(
-      this.config.size, 
+      size == null ? this.config.size : size, 
       bufferPosAttrForCurrentFrame,
       new THREE.BufferAttribute(bufferArray, 3),
-      this.pointAlphas
+      alpha == null ? this.pointAlphas : this.createFilledAttribute(alpha, data_tensor.shape[0])
     )
     
     this.scene.add(point);
@@ -263,6 +273,11 @@ export abstract class DisplayScatter {
     );
     // create edge segment
     this.auxEdge = this.addEdgeSegments(edgesBuffer, this.auxEdgeData);
+
+    // reset the position attribute to avoid glitch with initialization
+    this.auxEdge.geometry.setAttribute("position", edgesBuffer);
+    this.auxEdge.geometry.getAttribute("position").needsUpdate = true;
+
     // render
     this.renderer.render(this.scene, this.camera);
     this.animate();
@@ -320,7 +335,7 @@ export abstract class DisplayScatter {
       if (this.config !== undefined) {
         this.clearPlot();
       }
-      (window as any).inputData = inputData;
+
       this.config = inputData.config;
       this.dataset = tf.tensor(inputData.dataset);
 

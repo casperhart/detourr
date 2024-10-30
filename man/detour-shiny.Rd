@@ -21,7 +21,16 @@ shinyRenderDisplayScatter3d(expr, env = parent.frame(), quoted = FALSE)
 
 display_scatter_proxy(id, session = shiny::getDefaultReactiveDomain())
 
-add_points(proxy, data, scale_attr = NULL, scale_factor = NULL)
+add_points(
+  proxy,
+  points,
+  .data = NULL,
+  .col_means = NULL,
+  .scale_factor = NULL,
+  colour = "black",
+  size = 1,
+  alpha = 1
+)
 
 add_edges(proxy, edge_list)
 }
@@ -44,14 +53,19 @@ is useful if you want to save an expression in a variable.}
 \item{session}{the Shiny session object used in the app.
 Default should work for most cases}
 
-\item{proxy}{proxy object created by \code{\link{display_scatter_proxy}}}
+\item{proxy}{Proxy object created by \code{\link{display_scatter_proxy}}}
 
-\item{data}{dataframe of points}
+\item{points}{Data.frame of points}
 
-\item{scale_attr}{result of \verb{attributes(scale(<original_dataset>))}
-\verb{1 / max(sqrt(rowSums(scale(<original_dataset>)^2)))}}
+\item{.data}{Original dataset used in creating the detourr instance}
 
-\item{edge_list}{data.frame with columns \code{from} and \code{to}.
+\item{.col_means}{Vector of column means of the original dataset.
+Defaults to the result of \code{attributes(scale(.data))[["scaled:center"]]}}
+
+\item{.scale_factor}{Numeric value to multiply the centered data.
+Defaults to \code{1 / max(sqrt(rowSums(scale(.data)^2)))}}
+
+\item{edge_list}{Data.frame with two columns with the \code{from} node at first.
 The indexing of points starts with the original dataset.
 If \code{\link{add_points}} has been called before hand,
 the indexing of these points starts from the end of the original dataset.}
@@ -59,6 +73,10 @@ the indexing of these points starts from the end of the original dataset.}
 \value{
 An output or render function that enables the use of the widget
 within shiny applications
+
+Proxy object to be used for piping
+
+Proxy object to be used for piping
 }
 \description{
 Output and render functions for using detourr with shiny. The output
@@ -69,5 +87,4 @@ Creates a proxy object that can be used to add
 or remove points to a detour instance that has
 already being rendered using \code{\link{shinyRenderDisplayScatter3d}}.
 To be used in Shiny apps only.
-#TODO: Check if namespaced modules can work as well
 }
