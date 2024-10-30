@@ -15,3 +15,33 @@ HTMLWidgets.widget({
     };
   },
 });
+
+if(HTMLWidgets.shinyMode) {
+  // register shiny callbacks
+  Shiny.addCustomMessageHandler("add-points", function(x) {
+    console.log("in add points message handler", x);
+    var widget = HTMLWidgets.find(`#${x.id}`);
+    try{
+      var scatter = widget.s;
+      scatter.addPoints(
+        x.data,
+        x.config.colour,
+        x.config.size,
+        x.config.alpha
+      );
+    } catch (error) {
+      console.error(`Could not find detour widget ${x.id}`)
+    }
+  })
+
+  Shiny.addCustomMessageHandler("add-edges", function(x) {
+    console.log("in add edges message handler", x);
+    var widget = HTMLWidgets.find(`#${x.id}`);
+    try{
+      var scatter = widget.s;
+      scatter.addEdges(x.edges, x.config.color);
+    } catch (error) {
+      console.error(`Could not find detour widget ${x.id}`)
+    }
+  })
+}

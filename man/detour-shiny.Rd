@@ -6,6 +6,9 @@
 \alias{displayScatter2dOutput}
 \alias{shinyRenderDisplayScatter2d}
 \alias{shinyRenderDisplayScatter3d}
+\alias{display_scatter_proxy}
+\alias{add_points}
+\alias{add_edges}
 \title{Shiny bindings for detourr}
 \usage{
 displayScatter3dOutput(output_id, width = "100\%", height = "400px")
@@ -15,6 +18,21 @@ displayScatter2dOutput(output_id, width = "100\%", height = "400px")
 shinyRenderDisplayScatter2d(expr, env = parent.frame(), quoted = FALSE)
 
 shinyRenderDisplayScatter3d(expr, env = parent.frame(), quoted = FALSE)
+
+display_scatter_proxy(id, session = shiny::getDefaultReactiveDomain())
+
+add_points(
+  proxy,
+  points,
+  .data = NULL,
+  .col_means = NULL,
+  .scale_factor = NULL,
+  colour = "black",
+  size = 1,
+  alpha = 1
+)
+
+add_edges(proxy, edge_list)
 }
 \arguments{
 \item{output_id}{output variable to read from}
@@ -29,13 +47,44 @@ string and have \code{"px"} appended.}
 
 \item{quoted}{Is \code{expr} a quoted expression (with \code{quote()})? This
 is useful if you want to save an expression in a variable.}
+
+\item{id}{output id of the detourr instance}
+
+\item{session}{the Shiny session object used in the app.
+Default should work for most cases}
+
+\item{proxy}{Proxy object created by \code{\link{display_scatter_proxy}}}
+
+\item{points}{Data.frame of points}
+
+\item{.data}{Original dataset used in creating the detourr instance}
+
+\item{.col_means}{Vector of column means of the original dataset.
+Defaults to the result of \code{attributes(scale(.data))[["scaled:center"]]}}
+
+\item{.scale_factor}{Numeric value to multiply the centered data.
+Defaults to \code{1 / max(sqrt(rowSums(scale(.data)^2)))}}
+
+\item{edge_list}{Data.frame with two columns with the \code{from} node at first.
+The indexing of points starts with the original dataset.
+If \code{\link{add_points}} has been called before hand,
+the indexing of these points starts from the end of the original dataset.}
 }
 \value{
 An output or render function that enables the use of the widget
 within shiny applications
+
+Proxy object to be used for piping
+
+Proxy object to be used for piping
 }
 \description{
 Output and render functions for using detourr with shiny. The output
 function used must match both the display method and tour dim used,
 or it will lead to strange behavour.
+
+Creates a proxy object that can be used to add
+or remove points to a detour instance that has
+already being rendered using \code{\link{shinyRenderDisplayScatter3d}}.
+To be used in Shiny apps only.
 }
