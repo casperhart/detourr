@@ -20,13 +20,26 @@ if(HTMLWidgets.shinyMode) {
   // register shiny callbacks
   Shiny.addCustomMessageHandler("add-points", function(x) {
     var widget = HTMLWidgets.find(`#${x.id}`);
-    var scatter = widget.s;
-    scatter.addPoints(x.data)
+    try{
+      var scatter = widget.s;
+      scatter.addPoints(
+        x.data,
+        x.config.colour,
+        x.config.size,
+        x.config.alpha
+      );
+    } catch (error) {
+      console.error(`Could not find detour widget ${x.id}`)
+    }
   })
 
   Shiny.addCustomMessageHandler("add-edges", function(x) {
     var widget = HTMLWidgets.find(`#${x.id}`);
-    var scatter = widget.s;
-    scatter.addEdges(x.edges);
+    try{
+      var scatter = widget.s;
+      scatter.addEdges(x.edges, x.config.color);
+    } catch (error) {
+      console.error(`Could not find detour widget ${x.id}`)
+    }
   })
 }
