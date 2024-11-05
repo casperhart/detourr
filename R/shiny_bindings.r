@@ -88,6 +88,9 @@ display_scatter_proxy <- function(id, session = shiny::getDefaultReactiveDomain(
 #'  Defaults to the result of `attributes(scale(.data))[["scaled:center"]]`
 #' @param .scale_factor Numeric value to multiply the centered data.
 #' Defaults to `1 / max(sqrt(rowSums(scale(.data)^2)))`
+#' @param colour Vector or single value containing hex values of colors (or web colors)
+#' @param size Numeric value for the size of the added points
+#' @param alpha Transparency of the added points
 #' @return Proxy object to be used for piping
 #' @rdname detour-shiny
 #' @export
@@ -182,7 +185,7 @@ highlight_points <- function(proxy, point_list, alpha = 0.3) {
 #'
 #' @param proxy proxy object created by \code{\link{display_scatter_proxy}}
 #' @param point_list Numeric vector. indexes to enlarge in the prinary dataset
-#' @param shape the size of the points to be enlarged
+#' @param size the size of the points to be enlarged
 #' @rdname detour-shiny
 #' @export
 enlarge_points <- function(proxy, point_list, size = 2) {

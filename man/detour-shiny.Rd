@@ -74,7 +74,7 @@ is useful if you want to save an expression in a variable.}
 \item{session}{the Shiny session object used in the app.
 Default should work for most cases}
 
-\item{proxy}{Proxy object created by \code{\link{display_scatter_proxy}}}
+\item{proxy}{proxy object created by \code{\link{display_scatter_proxy}}}
 
 \item{points}{Data.frame of points}
 
@@ -86,17 +86,18 @@ Defaults to the result of \code{attributes(scale(.data))[["scaled:center"]]}}
 \item{.scale_factor}{Numeric value to multiply the centered data.
 Defaults to \code{1 / max(sqrt(rowSums(scale(.data)^2)))}}
 
-\item{edge_list}{Data.frame with two columns with the \code{from} node at first.
+\item{colour}{Vector or single value containing hex values of colors (or web colors)}
+
+\item{size}{the size of the points to be enlarged}
+
 \item{alpha}{The transparency value of the points outside of the point_list}
 
-\item{edge_list}{data.frame with columns \code{from} and \code{to}.
+\item{edge_list}{Data.frame with two columns with the \code{from} node at first.
 The indexing of points starts with the original dataset.
 If \code{\link{add_points}} has been called before hand,
 the indexing of these points starts from the end of the original dataset.}
 
 \item{point_list}{Numeric vector. indexes to enlarge in the prinary dataset}
-
-\item{shape}{the size of the points to be enlarged}
 }
 \value{
 An output or render function that enables the use of the widget
@@ -115,7 +116,6 @@ Creates a proxy object that can be used to add
 or remove points to a detour instance that has
 already being rendered using \code{\link{shinyRenderDisplayScatter3d}}.
 To be used in Shiny apps only.
-#TODO: Check if namespaced modules can work as well
 
 The given points will have the original opacity while the other points
 will have reduced opacity
