@@ -90,7 +90,7 @@ export class ScatterControls {
     this.clearButton = this.widget.clearButtonAction
       ? this.createButton(
           "clearButton",
-          "Switch to point selection mode",
+          "Clear additional points and edges",
           clearIcon,
           () => {
             this.setSelectedButton(this.clearButton);
