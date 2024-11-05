@@ -40,10 +40,9 @@ export class DisplayScatter3d extends DisplayScatter {
     return tf.tensor(mat);
   }
 
-  protected getShaderOpts(pointSize: number): THREE.ShaderMaterialParameters {
+  protected getShaderOpts(): THREE.ShaderMaterialParameters {
     const shaderOpts: THREE.ShaderMaterialParameters = {
       uniforms: {
-        size: { value: Math.max(pointSize, this.minPointSize) },
         picking: { value: 0 },
         shrink: { value: 0 }
       },

@@ -40,6 +40,11 @@ button.detourrButton.brushButton {
   border: 5px;
 }
 
+button.detourrButton.clearButton {
+  top: 255px;
+  border: 5px;
+}
+
 button.detourrButton.exportButton {
   top: 225px;
   border: 5px;

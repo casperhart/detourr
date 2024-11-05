@@ -49,9 +49,7 @@ export abstract class DisplayScatter {
   protected abstract addCamera(): void;
   protected abstract resizeCamera(aspect: number): void;
   protected abstract project(X: tf.Tensor2D, A: tf.Tensor2D): tf.Tensor2D;
-  protected abstract getShaderOpts(
-    pointSize: number
-  ): THREE.ShaderMaterialParameters;
+  protected abstract getShaderOpts(): THREE.ShaderMaterialParameters;
   protected abstract addOrbitControls(): void;
   protected abstract projectionMatrixToTensor(mat: Matrix): tf.Tensor2D;
 
@@ -64,6 +62,13 @@ export abstract class DisplayScatter {
   protected adjustPointSizeFromZoom?(): void;
   protected points: THREE.Points;
   protected pointAlphas: THREE.BufferAttribute;
+
+  protected auxPoint: THREE.Points;
+  protected auxData: tf.Tensor2D;
+  protected auxEdgeData: number[];
+  protected auxEdge: THREE.LineSegments;
+  protected auxEdgeBuffer: THREE.BufferGeometry;
+  protected highlightedPoints: Array<number> = null;
 
   public container: HTMLDivElement;
   public canvas: HTMLCanvasElement = document.createElement("canvas");
@@ -131,28 +136,43 @@ export abstract class DisplayScatter {
         });
       this.canvas.addEventListener("click", (event: PointerEvent) => {
         const clickId = this.getIdfromClick(event);
-        if(window.Shiny != null) {
+        if (window.Shiny != null) {
           window.Shiny.setInputValue(
             `${this.getContainerElement().id}_detour_click`, 
             clickId == null ? -1: clickId
           );
         }
+        if (clickId == null) {
+          this.auxData = undefined;
+          this.scene.remove(this.auxPoint);
+          this.auxPoint.geometry.dispose();
+          this.auxPoint = undefined;
+
+          this.auxEdgeData = undefined;
+          this.scene.remove(this.auxEdge)
+          this.auxEdge.geometry.dispose()
+          this.auxEdge = undefined;
+
+          for (let i = 0; i < this.n; i++) {
+            this.pointAlphas.set([this.config.alpha], i)
+          }
+          this.pointAlphas.needsUpdate = true; 
+          this.points.geometry.getAttribute("alpha").needsUpdate = true;
+          this.renderer.render(this.scene, this.camera);
+          this.animate();
+        }
       })
     }
 
-    const pointsGeometry = new THREE.BufferGeometry();
-    const pointSize = this.config.size / 10;
-
-    const shaderOpts = this.getShaderOpts(pointSize);
-    const pointsMaterial = new THREE.ShaderMaterial(shaderOpts);
     this.pointAlphas = this.getPointAlphas();
+    this.currentFrameBuffer = this.getPointsBuffer(0, this.dataset);
+    this.points = this.createPoints(
+      this.config.size,
+      this.currentFrameBuffer,
+      this.pointColours,
+      this.pointAlphas
+    );
 
-    this.currentFrameBuffer = this.getPointsBuffer(0);
-    pointsGeometry.setAttribute("position", this.currentFrameBuffer);
-
-    this.points = new THREE.Points(pointsGeometry, pointsMaterial);
-    this.points.geometry.setAttribute("color", this.pointColours);
-    this.points.geometry.setAttribute("alpha", this.pointAlphas);
     this.scene.add(this.points);
 
     if (this.hasAxes) {
@@ -161,7 +181,7 @@ export abstract class DisplayScatter {
     }
 
     if (this.hasEdges) {
-      this.addEdgeSegments(this.currentFrameBuffer);
+      this.addEdgeSegments(this.currentFrameBuffer, this.edges);
     }
 
     this.addOrbitControls();
@@ -182,6 +202,174 @@ export abstract class DisplayScatter {
     this.oldFrame = -1;
 
     this.isPaused = false;
+  }
+
+  // Creates a buffer attribute of 1 dimension containing value repeated for times
+  public createFilledAttribute(value: number, times: number) {
+    return new THREE.BufferAttribute(new Float32Array(times).fill(value), 1)
+  }
+
+  // Create points to be added to the scene
+  public createPoints(
+      size: number,
+      currentFrameBuffer: THREE.BufferAttribute,
+      pointColours: THREE.BufferAttribute,
+      pointAlphas: THREE.BufferAttribute,
+    ): THREE.Points<THREE.BufferGeometry, THREE.Material | THREE.Material[]> {
+    
+    const pointsGeometry = new THREE.BufferGeometry();
+    const pointSize = size / 10;
+
+    const shaderOpts = this.getShaderOpts();
+    const pointsMaterial = new THREE.ShaderMaterial(shaderOpts);
+    
+    pointsGeometry.setAttribute("position", currentFrameBuffer);
+    var sizes = new Float32Array(this.n)
+    sizes.fill(pointSize)
+    pointsGeometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1))
+    var points = new THREE.Points(pointsGeometry, pointsMaterial);
+    points.geometry.setAttribute("color", pointColours);
+    points.geometry.setAttribute("alpha", pointAlphas);
+    return points;
+  }
+
+  public addPoints(
+    data: Array<Array<number>>,
+    colour: string | Array<string> = "black",
+    size: number = null,
+    alpha: number
+  ) {
+    if (this.auxData) {
+      // remove the existing points and clear up things
+      this.auxData = undefined;
+      this.scene.remove(this.auxPoint);
+      this.auxPoint.geometry.dispose();
+      this.auxPoint = undefined;
+    }
+    // assume tf is ready
+    const data_tensor = tf.tensor2d(data);
+    this.auxData = data_tensor;
+    const currentFrame = Math.floor(this.time * this.config.fps);
+    // set color
+    const point_color = new THREE.Color();
+    const bufferArray = new Float32Array(data_tensor.shape[0] * 3); // just one point hence just rgb
+    for(var i = 0;i < data_tensor.shape[0] * 3; i += 3) {
+      point_color.set(typeof colour === "string" ? colour : colour[Math.floor(i/3)]);
+      bufferArray[i] = point_color.r;
+      bufferArray[i + 1] = point_color.g;
+      bufferArray[i + 2] = point_color.b;
+    }
+
+    const bufferPosAttrForCurrentFrame =  this.getPointsBuffer(
+      currentFrame % this.projectionMatrices.length, 
+      data_tensor
+    )
+
+    const point = this.createPoints(
+      size == null ? this.config.size : size, 
+      bufferPosAttrForCurrentFrame,
+      new THREE.BufferAttribute(bufferArray, 3),
+      alpha == null ? this.pointAlphas : this.createFilledAttribute(alpha, data_tensor.shape[0])
+    )
+    
+    this.scene.add(point);
+    this.renderer.render(this.scene, this.camera);
+    this.auxPoint = point;
+    this.animate();
+  }
+
+  public addEdges(data: Array<Array<number>>) {
+    if(this.auxEdgeData) {
+      this.auxEdgeData = undefined;
+      this.scene.remove(this.auxEdge)
+      this.auxEdge.geometry.dispose()
+      this.auxEdge = undefined;
+    }
+    this.auxEdgeData = data.flat();
+    // get position attribute
+    const edgesBuffer = this.getEdgesBuffer(
+      this.auxPoint.geometry.getAttribute("position") as THREE.BufferAttribute,
+      this.auxEdgeData
+    );
+    // create edge segment
+    this.auxEdge = this.addEdgeSegments(edgesBuffer, this.auxEdgeData);
+
+    // reset the position attribute to avoid glitch with initialization
+    this.auxEdge.geometry.setAttribute("position", edgesBuffer);
+    this.auxEdge.geometry.getAttribute("position").needsUpdate = true;
+
+    // render
+    this.renderer.render(this.scene, this.camera);
+  }
+
+  public highlightPoints(point_list: Array<number>, alpha: number = null) {
+    if(this.highlightedPoints != null) {
+      for (let i = 0; i < this.n; i++) {
+        this.pointAlphas.set([this.config.alpha], i)
+      }
+    }
+    for (let i = 0; i < this.n; i++) {
+      if(!point_list.includes(i)) {
+        this.pointAlphas.set([alpha == null ? this.config.alpha / 8 : alpha], i)
+      }
+    }
+    this.highlightedPoints = point_list;
+    this.pointAlphas.needsUpdate = true; 
+    this.points.geometry.getAttribute("alpha").needsUpdate = true;
+    this.renderer.render(this.scene, this.camera);
+    this.animate();
+  }
+
+  public enlargePoints(point_list: Array<number>, size: number = null) {
+    var sizes = new Float32Array(this.n)
+    sizes.fill(this.config.size / 10)
+    point_list.forEach(index => {
+      sizes[index] = size/10;
+    });
+    
+    this.points.geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
+    (this.points.material as THREE.ShaderMaterial).needsUpdate = true;
+    this.renderer.render(this.scene, this.camera);
+    this.animate();
+  }
+
+  public clearPoints() {
+    if(this.auxData != undefined) {
+      this.auxData = undefined;
+      this.scene.remove(this.auxPoint);
+      this.auxPoint.geometry.dispose();
+      this.auxPoint = undefined;
+    }
+  }
+  
+  public clearEdges() {
+    if(this.auxEdge != undefined) {
+      this.auxEdgeData = undefined;
+      this.scene.remove(this.auxEdge)
+      this.auxEdge.geometry.dispose()
+      this.auxEdge = undefined;
+    }
+  }
+  
+  public clearHighlight() {
+    for (let i = 0; i < this.n; i++) {
+      this.pointAlphas.set([this.config.alpha], i)
+    }
+    this.pointAlphas.needsUpdate = true; 
+    this.points.geometry.getAttribute("alpha").needsUpdate = true;
+  }
+  
+  public clearEnlarge() {
+    var sizes = new Float32Array(this.n)
+    sizes.fill(this.config.size / 10)  
+    this.points.geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
+    (this.points.material as THREE.ShaderMaterial).needsUpdate = true;
+  }
+
+  public forceRerender() {
+    // only to force rerender from Shiny and on click button action
+    this.renderer.render(this.scene, this.camera);
+    this.animate();
   }
 
   public clearPlot() {
@@ -236,6 +424,7 @@ export abstract class DisplayScatter {
       if (this.config !== undefined) {
         this.clearPlot();
       }
+
       this.config = inputData.config;
       this.dataset = tf.tensor(inputData.dataset);
 
@@ -369,6 +558,17 @@ export abstract class DisplayScatter {
     link.click();
   }
 
+  public clearButtonAction() {
+    // this.orbitControls.enabled = false;
+    // this.selectionHelper.disable();
+    this.clearPoints();
+    this.clearEdges();
+    this.clearHighlight();
+    this.clearEnlarge();
+    this.forceRerender();
+    window.Shiny.setInputValue("detour_click", null);
+  }
+
   private addAxisSegments() {
     const axisLinesGeometry = new THREE.BufferGeometry();
     const axisLinesMaterial = new THREE.LineBasicMaterial({
@@ -386,18 +586,19 @@ export abstract class DisplayScatter {
     this.scene.add(this.axisSegments);
   }
 
-  private addEdgeSegments(pointsBuffer: THREE.BufferAttribute) {
+  private addEdgeSegments(pointsBuffer: THREE.BufferAttribute, edges: number[]): THREE.LineSegments {
     const edgesGeometry = new THREE.BufferGeometry();
     const edgesMaterial = new THREE.LineBasicMaterial({
       color: 0x000000,
       linewidth: 1,
     });
 
-    const edgesBuffer = this.getEdgesBuffer(pointsBuffer);
+    const edgesBuffer = this.getEdgesBuffer(pointsBuffer, edges);
     edgesGeometry.setAttribute("position", edgesBuffer);
 
     this.edgeSegments = new THREE.LineSegments(edgesGeometry, edgesMaterial);
     this.scene.add(this.edgeSegments);
+    return(this.edgeSegments);
   }
 
   private addContainerElement(containerElement: HTMLDivElement) {
@@ -452,10 +653,10 @@ export abstract class DisplayScatter {
     );
   }
 
-  private getPointsBuffer(i: number): THREE.BufferAttribute {
+  private getPointsBuffer(i: number, dataset: tf.Tensor2D): THREE.BufferAttribute {
     // flattened projection matrix
     const position = tf.tidy(() => {
-      return this.project(this.dataset, this.projectionMatrices[i]);
+      return this.project(dataset, this.projectionMatrices[i]);
     });
     const positionArray = position.dataSync();
     position.dispose();
@@ -479,19 +680,19 @@ export abstract class DisplayScatter {
     return new THREE.BufferAttribute(linesBufferArray, 3);
   }
 
-  private getEdgesBuffer(frameBuffer: THREE.BufferAttribute) {
-    const bufferArray = new Float32Array(this.edges.length * 3);
+  private getEdgesBuffer(frameBuffer: THREE.BufferAttribute, edges: number[]) {
+    const bufferArray = new Float32Array(edges.length * 3);
     const edgesBuffer = new THREE.BufferAttribute(bufferArray, 3);
 
     // `edges` contains indices with format [from, to, from, to, ...]
     // `edgesBuffer` has format [fromX, fromY, fromZ, toX, toY, toZ, ...]
 
-    for (let i = 0; i < this.edges.length; i++) {
+    for (let i = 0; i < edges.length; i++) {
       edgesBuffer.set(
         [
-          frameBuffer.getX(this.edges[i] - 1),
-          frameBuffer.getY(this.edges[i] - 1),
-          frameBuffer.getZ(this.edges[i] - 1),
+          frameBuffer.getX(edges[i] - 1),
+          frameBuffer.getY(edges[i] - 1),
+          frameBuffer.getZ(edges[i] - 1),
         ],
         i * 3
       );
@@ -793,11 +994,32 @@ export abstract class DisplayScatter {
 
     if (currentFrame != this.oldFrame) {
       this.currentFrameBuffer = this.getPointsBuffer(
-        currentFrame % this.projectionMatrices.length
+        currentFrame % this.projectionMatrices.length,
+        this.dataset
       );
 
       this.points.geometry.setAttribute("position", this.currentFrameBuffer);
 
+      if(this.auxData) {
+        const currentAuxFrameBuffer = this.getPointsBuffer(
+          currentFrame % this.projectionMatrices.length,
+          this.auxData
+        )
+        this.auxPoint.geometry.setAttribute("position", currentAuxFrameBuffer);
+        this.auxPoint.geometry.getAttribute("position").needsUpdate = true; 
+        this.renderer.render(this.scene, this.camera);
+      }
+
+      if(this.auxEdgeData) {
+        const edgesBuffer = this.getEdgesBuffer(
+          this.auxPoint.geometry.getAttribute("position") as THREE.BufferAttribute,
+          this.auxEdgeData
+        )
+        this.auxEdge.geometry.setAttribute("position", edgesBuffer);
+        this.auxEdge.geometry.getAttribute("position").needsUpdate = true;
+        this.renderer.render(this.scene, this.camera);
+      }
+      
       if (this.hasAxes) {
         this.axisSegments.geometry.setAttribute(
           "position",
@@ -805,7 +1027,7 @@ export abstract class DisplayScatter {
         );
       }
       if (this.hasEdges) {
-        const edgesBuffer = this.getEdgesBuffer(this.currentFrameBuffer);
+        const edgesBuffer = this.getEdgesBuffer(this.currentFrameBuffer, this.edges);
         this.edgeSegments.geometry.setAttribute("position", edgesBuffer);
       }
 

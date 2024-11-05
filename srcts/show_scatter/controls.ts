@@ -5,6 +5,7 @@ import {
   panIcon,
   resetIcon,
   selectIcon,
+  clearIcon,
 } from "./icons";
 import { Color } from "three";
 
@@ -16,6 +17,7 @@ interface ScatterControlableWidget {
   selectButtonAction?(): void;
   brushButtonAction?(): void;
   exportButtonAction?(): void;
+  clearButtonAction?(): void;
 }
 
 export class ScatterControls {
@@ -29,6 +31,7 @@ export class ScatterControls {
   private colourSelector?: HTMLInputElement;
   private selectedButton: HTMLButtonElement;
   private exportButton: HTMLButtonElement;
+  private clearButton?: HTMLButtonElement;
 
   constructor(widget: ScatterControlableWidget) {
     this.widget = widget;
@@ -80,6 +83,18 @@ export class ScatterControls {
           () => {
             this.setSelectedButton(this.selectButton);
             this.widget.selectButtonAction();
+          }
+        )
+      : null;
+
+    this.clearButton = this.widget.clearButtonAction
+      ? this.createButton(
+          "clearButton",
+          "Clear additional points and edges",
+          clearIcon,
+          () => {
+            this.setSelectedButton(this.clearButton);
+            this.widget.clearButtonAction();
           }
         )
       : null;

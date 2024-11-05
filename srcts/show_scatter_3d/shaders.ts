@@ -1,5 +1,5 @@
 export const VERTEX_SHADER_3D = `
-uniform float size;
+attribute float size;
 uniform float picking;
 // shrink when picking with box, but not on hover
 uniform float shrink; 

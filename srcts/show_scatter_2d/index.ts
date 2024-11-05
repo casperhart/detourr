@@ -67,10 +67,9 @@ export class DisplayScatter2d extends DisplayScatter {
     return result as tf.Tensor2D;
   }
 
-  protected getShaderOpts(pointSize: number) {
+  protected getShaderOpts() {
     const shaderOpts: THREE.ShaderMaterialParameters = {
       uniforms: {
-        size: { value: Math.max(pointSize, this.minPointSize) },
         zoom: { value: this.camera.zoom },
         picking: { value: 0 },
         shrink: { value: 0 }
