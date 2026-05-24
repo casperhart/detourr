@@ -29,7 +29,6 @@ Suggests:
     htmltools,
     knitr,
     dplyr,
-    liminal,
     rmarkdown,
     geozoo
 Config/testthat/edition: 3

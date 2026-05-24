@@ -8,7 +8,7 @@
 #' @inheritParams htmlwidgets::shinyWidgetOutput
 #'
 #' @param output_id output variable to read from
-#' @param expr an expression that generates a {detourr} widget
+#' @param expr an expression that generates a detourr widget
 #'
 #' @return An output or render function that enables the use of the widget
 #' within shiny applications

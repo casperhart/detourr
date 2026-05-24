@@ -8,7 +8,7 @@ tour_aes(...)
 }
 \arguments{
 \item{...}{list of name-value pairs in the form 'aesthetic = variable'.
-Variables are evaluated using {tidyselect} syntax.}
+Variables are evaluated using tidyselect syntax.}
 }
 \value{
 a list of quosures

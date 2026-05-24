@@ -45,7 +45,7 @@ show_scatter <- function(x,
 #' @details
 #' This display method produces an interactive scatterplot animation which
 #' supports both 2D and 3D tours. Linked selection and filtering is also
-#' supported using {crosstalk}. The set of interactive controls available are:
+#' supported using crosstalk. The set of interactive controls available are:
 #' - A timeline with a play / pause button and indicators at the position of
 #' each basis used. The basis indicators can be hovered with the mouse to show
 #' the index of the basis, or clicked to jump to that basis. The timeline
