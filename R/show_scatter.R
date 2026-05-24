@@ -20,7 +20,8 @@ show_scatter <- function(x,
                          axes = TRUE,
                          edges = NULL,
                          paused = TRUE,
-                         scale_factor = NULL) {
+                         scale_factor = NULL,
+                         loop = TRUE) {
   dots <- list(...)
 
   x <- show_scatter_internal(x,
@@ -30,7 +31,8 @@ show_scatter <- function(x,
     axes = axes,
     edges = edges,
     paused = paused,
-    scale_factor = scale_factor
+    scale_factor = scale_factor,
+    loop = loop
   )
 
   d <- attributes(x)
@@ -87,6 +89,8 @@ show_scatter <- function(x,
 #' @param scale_factor used as a multiplier for the point coordinates so they
 #' are displayed on a sensible range. Defaults to the reciprocal of maximum distance
 #' from a point to the origin.
+#' @param loop whether to loop back to the beginning automatically when the animation
+#' reaches the end
 #' @return An object of class `htmlwidget`
 #' @importFrom rlang `%||%`
 show_scatter_internal <- function(x,
@@ -96,7 +100,8 @@ show_scatter_internal <- function(x,
                                   axes = TRUE,
                                   edges = NULL,
                                   paused = TRUE,
-                                  scale_factor = NULL) {
+                                  scale_factor = NULL,
+                                  loop = TRUE) {
   if (!is_detour(x)) {
     rlang::abort(c("x must be a `detour` object", x = paste("got:", class(x)[1])))
   }
@@ -152,7 +157,8 @@ show_scatter_internal <- function(x,
     backgroundColour = col2hex(background_colour),
     paused = paused,
     edgeColour = col2hex(edge_colour),
-    edgeWidth = edge_width
+    edgeWidth = edge_width,
+    loop = loop
   ))
 
   make_detour(x, d)

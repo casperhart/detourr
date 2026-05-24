@@ -14,7 +14,8 @@ show_sage(
   paused = TRUE,
   scale_factor = NULL,
   gamma = 1,
-  R = NULL
+  R = NULL,
+  loop = TRUE
 )
 }
 \arguments{
@@ -65,6 +66,9 @@ the maximum distance from the origin to each row of data. If the default
 \code{scale_factor} is used this will result in \code{R=1}. Because the \code{R} and
 \code{scale_factor} parameters interact with one another, it is recommended to
 leave \code{scale_factor} at its default value, and modify \code{R} if needed.}
+
+\item{loop}{whether to loop back to the beginning automatically when the animation
+reaches the end}
 }
 \value{
 An object of class \code{htmlwidget}

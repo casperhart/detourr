@@ -40,6 +40,7 @@ export interface DisplayScatterConfig {
   backgroundColour: string;
   paused: boolean;
   basisIndices: number[];
+  loop: boolean;
 }
 export interface DisplayScatterInputData {
   config: DisplayScatterConfig;
@@ -111,6 +112,7 @@ export abstract class DisplayScatter {
   private toolTip: HTMLDivElement;
   private timeline: Timeline;
   private controls: ScatterControls;
+  private end: boolean;
   private crosstalkIndex?: string[];
   private crosstalkGroup?: string;
   private crosstalkSelectionHandle?: any;
@@ -1034,7 +1036,15 @@ export abstract class DisplayScatter {
       this.time += delta;
     }
 
-    if (this.time >= this.config.duration) this.time = 0;
+    if (this.time >= this.config.duration) {
+      // end of animation. loop or pause
+      if (this.config.loop) {
+        this.time = 0;
+      } else {
+        this.setIsPaused(true);
+        this.end = true;
+      }
+    }
 
     const currentFrame = Math.floor(this.time * this.config.fps);
     this.currentFrame = currentFrame;
@@ -1133,6 +1143,12 @@ export abstract class DisplayScatter {
     this.isPaused = isPaused;
 
     if (!isPaused) {
+      // if the animation had ended (not looped), then restart
+      if (this.end) {
+        this.clock.getDelta();
+        this.time = 0;
+        this.end = false;
+      }
       this.animate();
     }
 

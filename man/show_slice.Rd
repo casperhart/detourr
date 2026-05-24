@@ -14,7 +14,8 @@ show_slice(
   paused = TRUE,
   scale_factor = NULL,
   slice_relative_volume = 0.1,
-  anchor = NULL
+  anchor = NULL,
+  loop = TRUE
 )
 }
 \arguments{
@@ -63,6 +64,9 @@ This is an approximate value and is only accurate for values << 1}
 
 \item{anchor}{anchor vector of length p to offset the projection plane
 when calculating the distance from each point to the projection plane.}
+
+\item{loop}{whether to loop back to the beginning automatically when the animation
+reaches the end}
 }
 \value{
 An object of class \code{htmlwidget}
