@@ -12,7 +12,8 @@ show_scatter_internal(
   axes = TRUE,
   edges = NULL,
   paused = TRUE,
-  scale_factor = NULL
+  scale_factor = NULL,
+  loop = TRUE
 )
 }
 \arguments{
@@ -54,6 +55,9 @@ character vector of colour names and / or hex values as output.
 \item{scale_factor}{used as a multiplier for the point coordinates so they
 are displayed on a sensible range. Defaults to the reciprocal of maximum distance
 from a point to the origin.}
+
+\item{loop}{whether to loop back to the beginning automatically when the animation
+reaches the end}
 }
 \value{
 An object of class \code{htmlwidget}

@@ -35,7 +35,7 @@ server <- function(input, output, session) {
       tour_aes(projection = -species, colour = species, label = id)
     ) |>
       tour_path(grand_tour(3), fps = 60) |>
-      show_scatter(alpha = 0.7, axes = TRUE)
+      show_scatter(alpha = 0.7, axes = TRUE, loop=FALSE)
   })
 
   output$detourr_id <- renderText({

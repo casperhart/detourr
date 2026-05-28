@@ -35,7 +35,8 @@ show_slice <- function(x,
                        paused = TRUE,
                        scale_factor = NULL,
                        slice_relative_volume = 0.1,
-                       anchor = NULL) {
+                       anchor = NULL,
+                       loop = TRUE) {
   dots <- list(...)
 
   x <- show_scatter_internal(x,
@@ -44,7 +45,8 @@ show_slice <- function(x,
     axes = axes,
     edges = edges,
     paused = paused,
-    scale_factor = scale_factor
+    scale_factor = scale_factor,
+    loop = loop
   )
 
   p <- tour_input_dim(x)

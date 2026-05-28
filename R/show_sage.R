@@ -36,7 +36,8 @@ show_sage <- function(x,
                       paused = TRUE,
                       scale_factor = NULL,
                       gamma = 1,
-                      R = NULL) {
+                      R = NULL,
+                      loop = TRUE) {
   dots <- list(...)
 
   x <- show_scatter_internal(x,
@@ -45,7 +46,8 @@ show_sage <- function(x,
     axes = axes,
     edges = edges,
     paused = paused,
-    scale_factor = scale_factor
+    scale_factor = scale_factor,
+    loop = loop
   )
 
   d <- attributes(x)
