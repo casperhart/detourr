@@ -3,7 +3,7 @@ import { DisplayScatter } from "../show_scatter";
 import { Matrix } from "../show_scatter/types";
 import { VERTEX_SHADER_2D } from "./shaders";
 import { FRAGMENT_SHADER } from "../show_scatter/shaders";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as tf from "@tensorflow/tfjs-core";
 
 export class DisplayScatter2d extends DisplayScatter {

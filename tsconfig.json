@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "noImplicitAny": true,
+    "strict": false,
     "module": "commonjs",
     "sourceMap": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "target": "es5",
+    "target": "es2019",
     "allowJs": false,
     "lib": [
       "dom",
