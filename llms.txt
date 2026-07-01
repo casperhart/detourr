@@ -1,0 +1,116 @@
+# detourr
+
+Animations for {tourr} using htmlwidgets for performance and
+portability.
+
+# Installation
+
+Install this package by running the following in R:
+
+``` r
+
+remotes::install_github("casperhart/detourr")
+```
+
+# Examples
+
+``` r
+
+# 2D scatter
+library(tourr)
+library(detourr)
+detour(olive, tour_aes(projection = palmitic:eicosenoic, colour = region)) |>
+  show_scatter()
+```
+
+``` r
+
+# 3D scatter
+detour(olive, tour_aes(projection = palmitic:eicosenoic, colour = region)) |>
+  tour_path(grand_tour(3)) |>
+  show_scatter()
+```
+
+# Development
+
+## Getting Started
+
+This project uses TypeScript code which needs to be compiled and bundled
+for the package to work. To do this, you will need `node.js`, and `yarn`
+installed.
+
+After cloning this repository, you can install the node.js dependencies
+via:
+
+``` bash
+yarn install
+```
+
+Compile and bundle the TypeScript code and install the R package from
+source by running:
+
+``` bash
+yarn run build
+```
+
+The TypeScript code which powers the HTMLWidgets can also be run as a
+standalone app using `webpack-dev-server` as follows:
+
+``` bash
+yarn run start-dev
+```
+
+This will start the webpack dev server, which will automatically
+recompile and reload the TypeScript code as changes are made. The sample
+data and HTML used by the dev server can be found in `./dev`, and are
+loaded in to memory based on the configuration in
+`webpack/dev.config.ts`
+
+If you wish to make changes to the HTML files in `dev/`, or debug the
+`yarn run start-dev` command, you can instead run `yarn run build-dev`.
+This will load the files in `dev/` in to a folder called `dev_build/`
+rather than in to memory, which can make debugging easier.
+
+# Package index
+
+## All functions
+
+- [`detourOutput()`](https://casperhart.github.io/detourr/reference/detour-shiny.md)
+  [`shinyRenderDetour()`](https://casperhart.github.io/detourr/reference/detour-shiny.md)
+  [`detour_proxy()`](https://casperhart.github.io/detourr/reference/detour-shiny.md)
+  [`add_points()`](https://casperhart.github.io/detourr/reference/detour-shiny.md)
+  [`add_edges()`](https://casperhart.github.io/detourr/reference/detour-shiny.md)
+  [`highlight_points()`](https://casperhart.github.io/detourr/reference/detour-shiny.md)
+  [`enlarge_points()`](https://casperhart.github.io/detourr/reference/detour-shiny.md)
+  [`clear_points()`](https://casperhart.github.io/detourr/reference/detour-shiny.md)
+  [`clear_edges()`](https://casperhart.github.io/detourr/reference/detour-shiny.md)
+  [`clear_highlight()`](https://casperhart.github.io/detourr/reference/detour-shiny.md)
+  [`clear_enlarge()`](https://casperhart.github.io/detourr/reference/detour-shiny.md)
+  [`force_rerender()`](https://casperhart.github.io/detourr/reference/detour-shiny.md)
+  : Shiny bindings for detourr
+- [`detour()`](https://casperhart.github.io/detourr/reference/detour.md)
+  : Initiate a detour visualisation
+- [`is_detour()`](https://casperhart.github.io/detourr/reference/is_detour.md)
+  : Test for detour-ness
+- [`mnist_embeddings_32d`](https://casperhart.github.io/detourr/reference/mnist_embeddings.md)
+  [`mnist_embeddings_8d`](https://casperhart.github.io/detourr/reference/mnist_embeddings.md)
+  : Embeddings of images in the MNIST test set
+- [`show_sage()`](https://casperhart.github.io/detourr/reference/show_sage.md)
+  : 2D and 3D Sage Tour Display
+- [`show_scatter()`](https://casperhart.github.io/detourr/reference/show_scatter.md)
+  : 2D and 3D Scatter Plot Display for Tours
+- [`show_scatter_internal()`](https://casperhart.github.io/detourr/reference/show_scatter_internal.md)
+  : Internal method for 2D and 3D Scatter Plot Display
+- [`show_slice()`](https://casperhart.github.io/detourr/reference/show_slice.md)
+  : 2D and 3D Slice Display for Tours
+- [`tour_aes()`](https://casperhart.github.io/detourr/reference/tour_aes.md)
+  : Aesthetic mapping for tours
+- [`tour_path()`](https://casperhart.github.io/detourr/reference/tour_path.md)
+  : Generate a tour path for a detour object
+
+# Articles
+
+### All vignettes
+
+- [Introducing and interacting with
+  \`show_scatter()\`](https://casperhart.github.io/detourr/articles/show_scatter_interactivity/show_scatter_interactivity.md):
