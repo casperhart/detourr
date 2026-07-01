@@ -94,7 +94,7 @@ as.list.detour <- function(x, ...) {
 
   tour_attrs <- tour_attrs[c("mapping", "config", "crosstalk", "dataset")]
 
-  tour_attrs$crosstalk$crosstalk_dependencies <- NULL
+  tour_attrs$crosstalk$dependencies <- NULL
 
   append(
     list(projectionMatrices = x$projection_matrix),

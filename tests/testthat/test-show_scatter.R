@@ -133,3 +133,36 @@ test_that("labels work", {
     show_scatter(background_colour = "lightgray")
   expect_equal(t$x$mapping$label, rep("I am a label", n))
 })
+
+
+test_that("crosstalk SharedData attaches dependencies (#137)", {
+  skip_if_not_installed("crosstalk")
+
+  flea_shared <- crosstalk::SharedData$new(tourr::flea)
+  t <- detour(flea_shared, mapping = tour_aes(projection = where(is.numeric), colour = species)) |>
+    tour_path(max_bases = 2) |>
+    show_scatter()
+
+  # crosstalk metadata is passed through to the widget
+  expect_equal(t$x$crosstalk$crosstalkIndex, flea_shared$key())
+  expect_equal(t$x$crosstalk$crosstalkGroup, flea_shared$groupName())
+
+  # crosstalk JS/CSS dependencies must be attached, otherwise the widget
+  # renders blank with "crosstalk is not defined" in the browser console
+  dep_names <- vapply(t$dependencies, function(d) d$name, character(1))
+  expect_true("crosstalk" %in% dep_names)
+
+  # non-serialisable dependency objects must not leak into the JSON payload
+  expect_null(t$x$crosstalk$dependencies)
+})
+
+
+test_that("plain data frame attaches no crosstalk dependencies", {
+  t <- detour(tourr::flea, mapping = tour_aes(projection = where(is.numeric))) |>
+    tour_path(max_bases = 2) |>
+    show_scatter()
+
+  expect_null(t$x$crosstalk$crosstalkIndex)
+  dep_names <- vapply(t$dependencies, function(d) d$name, character(1))
+  expect_false("crosstalk" %in% dep_names)
+})

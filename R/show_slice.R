@@ -69,5 +69,5 @@ show_slice <- function(x,
 
   x <- make_detour(x, d)
 
-  make_widget(x, widget_type, dots$width, dots$height, d$crosstalk$crosstalk_libs)
+  make_widget(x, widget_type, dots$width, dots$height, d$crosstalk$dependencies)
 }
